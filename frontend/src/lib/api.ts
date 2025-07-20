@@ -1,5 +1,5 @@
 // lib/api.ts
-export async function shortenUrl(original: string, customCode: string) {
+export async function shortenUrl(original: string, customCode?: string) {
   const res = await fetch("http://localhost:4000/api/shorten", {
     method: "POST",
     headers: {
@@ -8,10 +8,13 @@ export async function shortenUrl(original: string, customCode: string) {
     body: JSON.stringify({ original, customCode }),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Something went wrong");
+    const error = new Error(data.message || "Failed to shorten URL");
+    (error as any).status = res.status; // tambahkan status ke error
+    throw error;
   }
 
-  return res.json();
+  return data;
 }
