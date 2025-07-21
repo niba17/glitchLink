@@ -1,0 +1,23 @@
+# .gitignore di D:\projects\glitchLink\
+# Global ignores
+.DS_Store
+.env
+.env.local
+
+# Node.js ignores (for both backend and frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Backend specific ignores
+backend/dist/
+backend/src/prisma/generated/
+backend/*.log
+
+# Frontend specific ignores (contoh, sesuaikan dengan framework frontend Anda)
+frontend/build/
+frontend/dist/
+frontend/*.log

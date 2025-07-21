@@ -1,6 +1,13 @@
-// prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
+  // Hapus baris 'output' atau ubah menjadi path default:
+  // output = "../src/prisma/generated" <-- HAPUS BARIS INI ATAU KOMENTARI
 }
 
 datasource db {
@@ -9,30 +16,32 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
-  links     Link[] // one-to-many (User → many Links)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  links Link[]
 }
 
 model Link {
-  id        String    @id @default(uuid()) @db.Uuid
-  original  String
+  id        String    @id @default(cuid())
   shortCode String    @unique
-  userId    String?   @db.Uuid
-  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  clicks    Click[]
+  original  String
   createdAt DateTime  @default(now())
-  updatedAt DateTime?
+  updatedAt DateTime? @updatedAt
+  userId    Int? 
+  user      User?     @relation(fields: [userId], references: [id])
+
+  clicks Click[]
 }
 
 model Click {
-  id        String   @id @default(uuid()) @db.Uuid
-  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  linkId    String   @db.Uuid
-  ip        String?
+  id        String   @id @default(cuid())
+  linkId    String
+  link      Link     @relation(fields: [linkId], references: [id])
+  ip        String
   country   String?
   city      String?
   userAgent String?
@@ -40,3 +49,5 @@ model Click {
   os        String?
   createdAt DateTime @default(now())
 }
+
+
