@@ -115,7 +115,7 @@ export default function LandingPage() {
                 id="originalUrl"
                 value={original}
                 onChange={(e) => setOriginal(e.target.value)}
-                className={`bg-[#222222] rounded-lg w-full p-[0.8vw] border ${
+                className={`bg-zinc-700 rounded-lg w-full p-[0.8vw] border ${
                   originalError ? "border-red-500" : "border-transparent"
                 }`}
                 placeholder="your original link ..."
@@ -140,7 +140,7 @@ export default function LandingPage() {
                 id="alias"
                 value={customCode}
                 onChange={(e) => setCustomCode(e.target.value)}
-                className={`bg-[#222222] rounded-lg w-full p-[0.8vw] border ${
+                className={`bg-zinc-700 rounded-lg w-full p-[0.8vw] border ${
                   aliasError ? "border-red-500" : "border-transparent"
                 }`}
                 placeholder="your alias ..."
