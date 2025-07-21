@@ -2,36 +2,19 @@
 import express from "express";
 import userRoutes from "./routes/userRoutes";
 import dotenv from "dotenv";
-// import { errorMiddleware } from './middleware/errorMiddleware'; // Kita akan buat ini nanti
+import { errorMiddleware } from "./middleware/errorMiddleware"; // Import middleware error
 
-dotenv.config(); // Muat variabel lingkungan dari .env
+dotenv.config();
 
 const app = express();
 
-app.use(express.json()); // Middleware untuk parsing body JSON dari permintaan
+app.use(express.json());
 
 // Rute aplikasi
 app.use("/api/users", userRoutes);
 
-// Middleware penanganan error (sementara, akan dipindahkan ke src/middleware/errorMiddleware.ts)
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err.stack); // Log error stack ke konsol server
-
-    const statusCode = err.status || 500;
-    const message = err.message || "An unexpected error occurred";
-
-    res.status(statusCode).json({
-      message: message,
-      // Di lingkungan produksi, jangan sertakan stack trace untuk keamanan
-      // stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-    });
-  }
-);
+// Middleware penanganan error harus selalu diletakkan PALING AKHIR
+// setelah semua rute dan middleware lainnya
+app.use(errorMiddleware);
 
 export default app;
