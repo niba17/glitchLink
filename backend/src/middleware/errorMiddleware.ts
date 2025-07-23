@@ -1,20 +1,42 @@
 // src/middleware/errorMiddleware.ts
 import { Request, Response, NextFunction } from "express";
+import {
+  CustomError,
+  InternalServerError,
+  ValidationError,
+} from "../utils/errors";
+import { ZodError } from "zod";
 
 export const errorMiddleware = (
-  err: any,
+  err: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.error("Error caught by errorMiddleware:", err);
+  console.error(err);
 
-  const statusCode = err.status || err.statusCode || 500;
+  if (err instanceof ZodError) {
+    const validationError = new ValidationError(
+      undefined,
+      err.issues.map((issue) => ({
+        path: issue.path.join("."),
+        message: issue.message,
+      }))
+    );
+    return res.status(validationError.statusCode).json({
+      message: validationError.message,
+      errors: validationError.issues,
+    });
+  }
 
-  const message = err.message || "An unexpected error occurred";
+  if (err instanceof CustomError) {
+    return res.status(err.statusCode).json({
+      message: err.message,
+    });
+  }
 
-  res.status(statusCode).json({
-    status: "error",
-    message: message,
+  const internalError = new InternalServerError();
+  return res.status(internalError.statusCode).json({
+    message: internalError.message,
   });
 };

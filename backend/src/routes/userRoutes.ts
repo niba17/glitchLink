@@ -9,7 +9,6 @@ const userController = new UserController();
 router.post("/register", userController.register);
 router.post("/login", userController.login);
 
-// AuthMiddleware sudah terpasang
 router.get("/detail", authMiddleware, userController.detail);
 router.delete("/delete", authMiddleware, userController.delete);
 

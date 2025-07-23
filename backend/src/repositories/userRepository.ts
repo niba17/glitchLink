@@ -26,15 +26,8 @@ export class UserRepository {
   }
 
   async delete(id: number): Promise<User> {
-    try {
-      return await prisma.user.delete({
-        where: { id },
-      });
-    } catch (error: any) {
-      if (error.code === "P2025") {
-        throw new Error("User not found");
-      }
-      throw error;
-    }
+    return prisma.user.delete({
+      where: { id },
+    });
   }
 }

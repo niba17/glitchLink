@@ -4,6 +4,12 @@ import jwt from "jsonwebtoken";
 import { UserRepository } from "../repositories/userRepository";
 import { RegisterUserDto, LoginUserDto } from "../dtos/user.dto";
 import type { User } from "@prisma/client";
+import {
+  UserAlreadyExistsError,
+  InvalidCredentialsError,
+  UserNotFoundByIdError,
+  MissingJwtSecretError,
+} from "../utils/errors";
 
 type UserWithoutPassword = Pick<User, "id" | "email">;
 
@@ -14,7 +20,7 @@ export class UserService {
   constructor() {
     this.userRepository = new UserRepository();
     if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is not defined in environment variables");
+      throw new MissingJwtSecretError();
     }
     this.jwtSecret = process.env.JWT_SECRET;
   }
@@ -24,7 +30,7 @@ export class UserService {
 
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new Error("User with this email already exists");
+      throw new UserAlreadyExistsError();
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,16 +51,16 @@ export class UserService {
 
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error("Invalid credentials");
+      throw new InvalidCredentialsError();
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error("Invalid credentials");
+      throw new InvalidCredentialsError();
     }
 
     const tokenPayload = {
-      userId: user.id, // Ini sudah benar
+      userId: user.id,
       email: user.email,
     };
 
@@ -68,7 +74,7 @@ export class UserService {
   async getUserById(id: number): Promise<UserWithoutPassword> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error("User not found");
+      throw new UserNotFoundByIdError();
     }
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -77,7 +83,7 @@ export class UserService {
   async deleteUser(userId: number): Promise<void> {
     const userToDelete = await this.userRepository.findById(userId);
     if (!userToDelete) {
-      throw new Error("User not found");
+      throw new UserNotFoundByIdError();
     }
     await this.userRepository.delete(userId);
   }

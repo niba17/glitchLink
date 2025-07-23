@@ -1,12 +1,21 @@
 // src/dtos/link.dto.ts
 import { z } from "zod";
 
+// Helper function untuk menambahkan protokol jika hilang
+const addHttpIfMissing = (url: string) => {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return `http://${url}`; // Default ke http jika tidak ada
+  }
+  return url;
+};
+
 export const createShortLinkSchema = z.object({
   originalUrl: z
     .string()
     .trim()
     .min(1, { message: "Original URL is required" })
-    .url({ message: "Invalid URL format" }),
+    .url({ message: "Invalid URL format" })
+    .transform(addHttpIfMissing), // Menambahkan protokol jika hilang
 
   customAlias: z
     .string()
@@ -17,13 +26,15 @@ export const createShortLinkSchema = z.object({
       message:
         "Custom alias can only contain lowercase letters, numbers, and hyphens",
     })
-    .optional()
-    .transform((e) => (e === "" ? undefined : e)), // Ubah string kosong menjadi undefined
+    .optional() // Memungkinkan properti tidak ada
+    .or(z.literal(null)) // Memungkinkan nilai null secara eksplisit
+    .transform((e) => (e === "" ? undefined : e === null ? null : e)), // Ubah string kosong menjadi undefined, pertahankan null
 
   expiresAt: z
     .string()
     .datetime({ message: "Invalid datetime format" })
-    .optional(),
+    .optional() // Memungkinkan properti tidak ada
+    .or(z.literal(null)), // Memungkinkan nilai null secara eksplisit
 });
 
 export type CreateLinkDto = z.infer<typeof createShortLinkSchema>;

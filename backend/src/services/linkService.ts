@@ -1,10 +1,22 @@
 // src/services/linkService.ts
 import { LinkRepository } from "../repositories/linkRepository";
-import { CreateLinkDto, UpdateLinkDto } from "../dtos/link.dto"; // Import createShortLinkSchema tidak diperlukan di sini
+import { CreateLinkDto, UpdateLinkDto } from "../dtos/link.dto";
 import { nanoid } from "nanoid";
 import * as UAParser from "ua-parser-js";
 import type { Link, Click } from "@prisma/client";
 import qrcode from "qrcode";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import {
+  MissingJwtSecretError,
+  CustomAliasAlreadyInUseError,
+  LinkNotFoundError,
+  LinkNotOwnedByUserError,
+  CustomAliasTakenByAnotherLinkError,
+  LinkExpiredError,
+  LinkNotFoundOrExpiredError,
+  QRCodeGenerationError,
+  CannotGenerateQRCodeForExpiredLinkError,
+} from "../utils/errors";
 
 export class LinkService {
   private linkRepository: LinkRepository;
@@ -13,7 +25,9 @@ export class LinkService {
   constructor() {
     this.linkRepository = new LinkRepository();
     if (!process.env.BASE_URL) {
-      throw new Error("BASE_URL is not defined in environment variables");
+      throw new MissingJwtSecretError(
+        "Server configuration error: BASE_URL not defined."
+      );
     }
     this.baseUrl = process.env.BASE_URL;
   }
@@ -39,7 +53,7 @@ export class LinkService {
         customAlias
       );
       if (existingLinkWithAlias) {
-        throw new Error("Custom alias is already in use");
+        throw new CustomAliasAlreadyInUseError();
       }
       shortCodeToUse = customAlias;
     } else {
@@ -57,25 +71,36 @@ export class LinkService {
       shortCodeToUse = generatedCode;
     }
 
-    // Mengubah string expiresAt menjadi Date object atau null
     const expiresAtDate = expiresAt ? new Date(expiresAt) : null;
 
-    const newLink = await this.linkRepository.create({
-      original: originalUrl,
-      shortCode: shortCodeToUse,
-      customAlias: customAlias,
-      userId: ownerId,
-      expiresAt: expiresAtDate,
-    });
+    try {
+      const newLink = await this.linkRepository.create({
+        original: originalUrl,
+        shortCode: shortCodeToUse,
+        customAlias: customAlias,
+        userId: ownerId,
+        expiresAt: expiresAtDate,
+      });
 
-    return {
-      id: newLink.id,
-      shortUrl: `${this.baseUrl}/${newLink.shortCode}`,
-      originalUrl: newLink.original,
-      customAlias: newLink.customAlias,
-      expiresAt: newLink.expiresAt,
-      clicksCount: newLink.clicksCount,
-    };
+      return {
+        id: newLink.id,
+        shortUrl: `${this.baseUrl}/${newLink.shortCode}`,
+        originalUrl: newLink.original,
+        customAlias: newLink.customAlias,
+        expiresAt: newLink.expiresAt,
+        clicksCount: newLink.clicksCount,
+      };
+    } catch (error: any) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new CustomAliasAlreadyInUseError(
+          "Generated short code or custom alias is already in use."
+        );
+      }
+      throw error;
+    }
   }
 
   async updateLink(
@@ -98,20 +123,24 @@ export class LinkService {
   > {
     const link = await this.linkRepository.findById(linkId);
 
-    if (!link || link.userId !== userId) {
-      throw new Error("Link not found or not owned by user.");
+    if (!link) {
+      throw new LinkNotFoundError();
+    }
+
+    if (link.userId !== userId) {
+      throw new LinkNotOwnedByUserError();
     }
 
     if (
       updateData.customAlias !== undefined &&
-      updateData.customAlias !== null && // Cek jika bukan null
+      updateData.customAlias !== null &&
       updateData.customAlias !== link.customAlias
     ) {
       const existingLinkWithAlias = await this.linkRepository.findByCustomAlias(
         updateData.customAlias
       );
       if (existingLinkWithAlias && existingLinkWithAlias.id !== linkId) {
-        throw new Error("Custom alias already taken by another link.");
+        throw new CustomAliasTakenByAnotherLinkError();
       }
     }
 
@@ -128,7 +157,6 @@ export class LinkService {
         updateData.expiresAt === null ? null : new Date(updateData.expiresAt);
     }
 
-    // Jika tidak ada data yang akan diupdate, kembalikan link yang sudah ada
     if (Object.keys(dataToUpdate).length === 0) {
       return {
         id: link.id,
@@ -144,41 +172,77 @@ export class LinkService {
       };
     }
 
-    const updatedLink = await this.linkRepository.update(linkId, dataToUpdate);
+    try {
+      const updatedLink = await this.linkRepository.update(
+        linkId,
+        dataToUpdate
+      );
 
-    return {
-      id: updatedLink.id,
-      original: updatedLink.original,
-      shortCode: updatedLink.shortCode,
-      customAlias: updatedLink.customAlias,
-      fullShortUrl: `${this.baseUrl}/${updatedLink.shortCode}`,
-      updatedAt: updatedLink.updatedAt,
-      createdAt: updatedLink.createdAt,
-      clicksCount: updatedLink.clicksCount,
-      expiresAt: updatedLink.expiresAt,
-      userId: updatedLink.userId,
-    };
+      return {
+        id: updatedLink.id,
+        original: updatedLink.original,
+        shortCode: updatedLink.shortCode,
+        customAlias: updatedLink.customAlias,
+        fullShortUrl: `${this.baseUrl}/${updatedLink.shortCode}`,
+        updatedAt: updatedLink.updatedAt,
+        createdAt: updatedLink.createdAt,
+        clicksCount: updatedLink.clicksCount,
+        expiresAt: updatedLink.expiresAt,
+        userId: updatedLink.userId,
+      };
+    } catch (error: any) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        throw new LinkNotFoundError();
+      } else if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new CustomAliasTakenByAnotherLinkError();
+      }
+      throw error;
+    }
   }
 
   async deleteLink(linkId: number, userId: number): Promise<void> {
     const link = await this.linkRepository.findById(linkId);
 
-    if (!link || link.userId !== userId) {
-      throw new Error("Link not found or not owned by user.");
+    if (!link) {
+      throw new LinkNotFoundError();
     }
 
-    await this.linkRepository.delete(linkId);
+    if (link.userId !== userId) {
+      throw new LinkNotOwnedByUserError();
+    }
+
+    try {
+      await this.linkRepository.delete(linkId);
+    } catch (error: any) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        throw new LinkNotFoundError();
+      }
+      throw error;
+    }
   }
 
   async generateQRCodeForLink(linkId: number, userId: number): Promise<string> {
     const link = await this.linkRepository.findById(linkId);
 
-    if (!link || link.userId !== userId) {
-      throw new Error("Link not found or not owned by user.");
+    if (!link) {
+      throw new LinkNotFoundError();
+    }
+
+    if (link.userId !== userId) {
+      throw new LinkNotOwnedByUserError();
     }
 
     if (link.expiresAt && new Date() > link.expiresAt) {
-      throw new Error("Cannot generate QR code for an expired link.");
+      throw new CannotGenerateQRCodeForExpiredLinkError();
     }
 
     const fullShortUrl = `${this.baseUrl}/${link.shortCode}`;
@@ -187,29 +251,34 @@ export class LinkService {
       const qrCodeDataUrl = await qrcode.toDataURL(fullShortUrl);
       return qrCodeDataUrl;
     } catch (error: any) {
-      throw new Error("Failed to generate QR code.");
+      throw new QRCodeGenerationError();
     }
   }
 
-  async getOriginalUrl(shortCode: string, req: any): Promise<string> {
-    // req bisa dilewatkan sebagai Express.Request untuk akses yang lebih tipe-aman
+  public async getOriginalUrl(shortCode: string, req: any): Promise<string> {
     const link = await this.linkRepository.findByShortCode(shortCode);
 
     if (!link) {
-      throw new Error("Link not found or expired."); // Ubah pesan agar konsisten dengan controller
+      throw new LinkNotFoundOrExpiredError();
     }
 
     if (link.expiresAt && new Date() > link.expiresAt) {
-      throw new Error("Link has expired.");
+      throw new LinkExpiredError();
     }
 
-    await this.linkRepository.incrementClicks(link.id);
+    console.log(
+      `[LinkService] Link ditemukan: ID ${link.id}, Original: ${link.original}`
+    );
+
+    try {
+      await this.linkRepository.incrementClicks(link.id);
+    } catch (error: any) {}
 
     let browserName: string | null = null;
     let osName: string | null = null;
 
     const userAgent = req.headers["user-agent"];
-    const ipAddress = req.ip; // Express's req.ip handles X-Forwarded-For if app.set('trust proxy') is used
+    const ipAddress = req.ip;
 
     if (userAgent) {
       const parser = new UAParser.UAParser(userAgent);
@@ -219,14 +288,15 @@ export class LinkService {
       osName = os.name || null;
     }
 
-    await this.linkRepository.createClick({
-      linkId: link.id,
-      ip: ipAddress,
-      userAgent: userAgent,
-      browser: browserName,
-      os: osName,
-      // country dan city tidak diisi jika tidak ada data geolokasi
-    });
+    try {
+      await this.linkRepository.createClick({
+        linkId: link.id,
+        ip: ipAddress,
+        userAgent: userAgent,
+        browser: browserName,
+        os: osName,
+      });
+    } catch (error) {}
 
     return link.original;
   }
@@ -263,11 +333,11 @@ export class LinkService {
     const link = await this.linkRepository.findById(linkId);
 
     if (!link) {
-      throw new Error("Link not found.");
+      throw new LinkNotFoundError();
     }
 
     if (link.userId !== userId) {
-      throw new Error("Unauthorized: You do not own this link");
+      throw new LinkNotOwnedByUserError();
     }
 
     const clicks = await this.linkRepository.getClicksByLinkId(linkId);
