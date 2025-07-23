@@ -1,19 +1,15 @@
 // src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client"; // Untuk mencari user di DB
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Perluas tipe Request dari Express untuk menambahkan properti user
-// Ini memungkinkan kita menyimpan data user yang terautentikasi di objek req
+// Perluas interface Request untuk TypeScript agar bisa menambahkan properti user
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        id: number;
-        email: string;
-      };
+      user?: { id: number; email: string };
     }
   }
 }
@@ -23,50 +19,43 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  // 1. Ambil token dari header Authorization
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res
       .status(401)
-      .json({ message: "Unauthorized: No token provided or invalid format" });
+      .json({ message: "Unauthorized: No token provided or invalid format." });
   }
 
-  const token = authHeader.split(" ")[1]; // Ambil token setelah "Bearer "
+  const token = authHeader.split(" ")[1];
 
-  // 2. Verifikasi token
   try {
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is not defined in environment variables");
-    }
+    // Pastikan process.env.JWT_SECRET sudah diset di .env
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
-      id: number;
-      email: string;
-    };
-
-    // 3. Cari user di database untuk memastikan user masih ada
-    // Ini adalah langkah penting untuk keamanan (misal: jika user dihapus setelah token dibuat)
+    // PENTING: Pastikan token yang dibuat di userService menggunakan 'userId'
+    // Contoh payload: { userId: user.id, email: user.email }
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      select: { id: true, email: true }, // Hanya ambil id dan email
+      where: { id: decoded.userId }, // Membaca userId dari token
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Unauthorized: User not found" });
+      return res.status(401).json({ message: "Unauthorized: User not found." });
     }
 
-    // 4. Tambahkan informasi user ke objek request
-    req.user = user; // Sekarang, controller selanjutnya bisa mengakses req.user.id atau req.user.email
-    next(); // Lanjutkan ke middleware/controller berikutnya
+    req.user = { id: user.id, email: user.email };
+    next();
   } catch (error: any) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ message: "Unauthorized: Token expired" });
+    // Tangani error JWT secara spesifik untuk pesan yang lebih jelas
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: Token has expired." });
     }
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Unauthorized: Invalid token." });
     }
-    // Tangani error lainnya
-    next(error); // Teruskan ke middleware penanganan error umum
+    // Untuk error lain yang tidak terduga
+    res.status(500).json({ message: "Authentication failed." });
   }
 };

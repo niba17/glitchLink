@@ -6,8 +6,9 @@
 
 generator client {
   provider = "prisma-client-js"
-  // Hapus baris 'output' atau ubah menjadi path default:
-  // output = "../src/prisma/generated" <-- HAPUS BARIS INI ATAU KOMENTARI
+  // Jika kamu menghapus baris 'output', Prisma akan mengenerate client di node_modules/.prisma/client
+  // Jika kamu ingin menempatkannya di src/prisma/generated, biarkan baris ini:
+  // output = "../src/prisma/generated"
 }
 
 datasource db {
@@ -26,28 +27,28 @@ model User {
 }
 
 model Link {
-  id        String    @id @default(cuid())
-  shortCode String    @unique
-  original  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-  userId    Int? 
-  user      User?     @relation(fields: [userId], references: [id])
-
-  clicks Click[]
+  id          Int       @id @default(autoincrement()) // Ini harus Int (number)
+  original    String
+  shortCode   String    @unique
+  customAlias String?   @unique
+  userId      Int?      // Ini harus Int? jika userId bisa nullable/undefined. Jika tidak, hapus tanda tanya.
+  user        User?     @relation(fields: [userId], references: [id])
+  clicks      Click[]
+  clicksCount Int       @default(0) // <--- TAMBAHKAN BARIS INI
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expiresAt   DateTime? // Ini harus DateTime? jika Anda menggunakannya
 }
 
 model Click {
-  id        String   @id @default(cuid())
-  linkId    String
-  link      Link     @relation(fields: [linkId], references: [id])
-  ip        String
-  country   String?
-  city      String?
-  userAgent String?
-  browser   String?
-  os        String?
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement()) // Ini harus Int (number)
+  linkId     Int      // Ini harus Int (number)
+  link       Link     @relation(fields: [linkId], references: [id])
+  ipAddress  String   // Pastikan ini `ipAddress` bukan `ip`
+  userAgent  String?
+  browser    String?
+  os         String?
+  country    String?  // Tambahkan jika Anda menyimpannya
+  city       String?  // Tambahkan jika Anda menyimpannya
+  clickedAt  DateTime @default(now()) // Pastikan ini `clickedAt` bukan `timestamp`
 }
-
-

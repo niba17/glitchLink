@@ -1,7 +1,7 @@
 // src/controllers/userController.ts
 import { Request, Response, NextFunction } from "express";
 import { UserService } from "../services/userService";
-import { registerUserSchema, loginUserSchema } from "../dtos/user.dto"; // Import loginUserSchema
+import { registerUserSchema, loginUserSchema } from "../dtos/user.dto";
 import { ZodError } from "zod";
 
 export class UserController {
@@ -11,18 +11,19 @@ export class UserController {
     this.userService = new UserService();
   }
 
-  async register(
+  // Menggunakan fungsi panah untuk mempertahankan konteks 'this' secara otomatis
+  register = async (
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> {
+  ): Promise<void> => {
     try {
       const validatedData = registerUserSchema.parse(req.body);
 
       const newUser = await this.userService.registerUser(validatedData);
 
       res.status(201).json({
-        message: "User registered successfully",
+        message: "Register success",
         user: newUser,
       });
     } catch (error: any) {
@@ -44,32 +45,24 @@ export class UserController {
       }
       next(error);
     }
-  }
+  };
 
-  // --- NEW CODE ---
-
-  /**
-   * Menangani permintaan login pengguna.
-   * @param req Objek permintaan Express.
-   * @param res Objek respons Express.
-   * @param next Fungsi middleware berikutnya.
-   */
-  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+  login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      // 1. Validasi input menggunakan Zod
       const validatedData = loginUserSchema.parse(req.body);
 
-      // 2. Panggil service untuk logika bisnis login
       const { token, user } = await this.userService.loginUser(validatedData);
 
-      // 3. Kirim respons sukses dengan token dan informasi pengguna
       res.status(200).json({
-        message: "Login successful",
+        message: "Login success",
         token,
         user,
       });
     } catch (error: any) {
-      // 4. Tangani error
       if (error instanceof ZodError) {
         res.status(400).json({
           message: "Validation failed",
@@ -83,11 +76,66 @@ export class UserController {
         error instanceof Error &&
         error.message === "Invalid credentials"
       ) {
-        res.status(401).json({ message: error.message }); // 401 Unauthorized
+        res.status(401).json({ message: error.message });
         return;
       }
-      // Serahkan error lain ke middleware penanganan error umum
       next(error);
     }
-  }
+  };
+
+  detail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      if (!req.user || !req.user.id) {
+        res.status(401).json({ message: "Unauthorized: User data not found" });
+        return;
+      }
+
+      const userId = req.user.id;
+
+      const userDetail = await this.userService.getUserById(userId);
+
+      if (!userDetail) {
+        res.status(404).json({ message: "User not found." });
+        return;
+      }
+
+      res.status(200).json({
+        message: "Detail success",
+        data: userDetail,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Unauthorized: User data not found" });
+        return;
+      }
+
+      const userId = req.user.id;
+
+      await this.userService.deleteUser(userId);
+
+      res.status(200).json({
+        message: "Deleted success",
+      });
+    } catch (error: any) {
+      if (error instanceof Error && error.message === "User not found") {
+        res.status(404).json({ message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
 }

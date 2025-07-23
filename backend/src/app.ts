@@ -1,8 +1,10 @@
 // src/app.ts
 import express from "express";
 import userRoutes from "./routes/userRoutes";
+import linkRoutes from "./routes/linkRoutes";
 import dotenv from "dotenv";
-import { errorMiddleware } from "./middleware/errorMiddleware"; // Import middleware error
+import { errorMiddleware } from "./middleware/errorMiddleware";
+import { LinkController } from "./controllers/linkController";
 
 dotenv.config();
 
@@ -10,11 +12,16 @@ const app = express();
 
 app.use(express.json());
 
-// Rute aplikasi
 app.use("/api/users", userRoutes);
+app.use("/api/links", linkRoutes);
 
-// Middleware penanganan error harus selalu diletakkan PALING AKHIR
-// setelah semua rute dan middleware lainnya
+const linkController = new LinkController();
+
+app.get(
+  "/:shortCode",
+  linkController.redirectToOriginalUrl.bind(linkController)
+);
+
 app.use(errorMiddleware);
 
 export default app;
