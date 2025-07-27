@@ -19,11 +19,13 @@ export const errorMiddleware = (
     const validationError = new ValidationError(
       undefined,
       err.issues.map((issue) => ({
+        status: "error",
         path: issue.path.join("."),
         message: issue.message,
       }))
     );
     return res.status(validationError.statusCode).json({
+      status: "error",
       message: validationError.message,
       errors: validationError.issues,
     });
@@ -31,12 +33,14 @@ export const errorMiddleware = (
 
   if (err instanceof CustomError) {
     return res.status(err.statusCode).json({
+      status: "error",
       message: err.message,
     });
   }
 
   const internalError = new InternalServerError();
   return res.status(internalError.statusCode).json({
+    status: "error",
     message: internalError.message,
   });
 };

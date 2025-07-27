@@ -20,8 +20,9 @@ export class UserController {
       const newUser = await this.userService.registerUser(validatedData);
 
       res.status(201).json({
+        status: "success",
         message: "User register successfully",
-        user: newUser,
+        data: newUser,
       });
     } catch (error: any) {
       next(error);
@@ -37,10 +38,9 @@ export class UserController {
       const validatedData = loginUserSchema.parse(req.body);
       const { token, user } = await this.userService.loginUser(validatedData);
 
-      res.status(200).json({
-        message: "User login successfully",
-        token,
-      });
+      res
+        .status(200)
+        .json({ status: "success", message: "User login successfully", token });
     } catch (error: any) {
       next(error);
     }
@@ -56,6 +56,7 @@ export class UserController {
       const userDetail = await this.userService.getUserById(userId);
 
       res.status(200).json({
+        status: "success",
         message: "User detail retrieved successfully",
         data: userDetail,
       });
@@ -73,9 +74,9 @@ export class UserController {
       const userId = req.user!.id;
       await this.userService.deleteUser(userId);
 
-      res.status(200).json({
-        message: "User deleted successfully",
-      });
+      res
+        .status(200)
+        .json({ status: "success", message: "User deleted successfully" });
     } catch (error: any) {
       next(error);
     }

@@ -10,7 +10,6 @@ const linkController = new LinkController();
 router.post("/", optionalAuthMiddleware, linkController.createShortLink);
 
 router.put("/:linkId", authMiddleware, linkController.updateLink);
-router.delete("/:linkId", authMiddleware, linkController.deleteLink);
 router.get("/:linkId/qrcode", authMiddleware, linkController.generateQRCode);
 router.get("/dashboard", authMiddleware, linkController.getUserLinks);
 router.get(
@@ -18,6 +17,7 @@ router.get(
   authMiddleware,
   linkController.getLinkAnalytics
 );
+router.delete("/:linkId", authMiddleware, linkController.deleteLink);
 
 router.get("/:shortCode", linkController.redirectToOriginalUrl);
 

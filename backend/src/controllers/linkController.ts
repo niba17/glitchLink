@@ -19,6 +19,7 @@ export class LinkController {
       );
 
       res.status(201).json({
+        status: "success",
         message: "Short link created successfully",
         data: newLink,
       });
@@ -43,6 +44,7 @@ export class LinkController {
       );
 
       res.status(200).json({
+        status: "success",
         message: "Link updated successfully",
         data: updatedLink,
       });
@@ -61,7 +63,9 @@ export class LinkController {
       const linkId = Number(req.params.linkId);
       await this.linkService.deleteLink(linkId, userId);
 
-      res.status(200).json({ message: "Link deleted successfully" });
+      res
+        .status(200)
+        .json({ status: "success", message: "Link deleted successfully" });
     } catch (error) {
       next(error);
     }
@@ -81,6 +85,7 @@ export class LinkController {
       );
 
       res.status(200).json({
+        status: "success",
         message: "QR Code generated successfully",
         data: qrCodeDataUrl,
       });
@@ -115,6 +120,7 @@ export class LinkController {
       const userLinks = await this.linkService.getUserLinks(userId);
 
       res.status(200).json({
+        status: "success",
         message: "Links retrieved successfully",
         data: userLinks,
       });
@@ -137,6 +143,7 @@ export class LinkController {
       );
 
       res.status(200).json({
+        status: "success",
         message: "Link analytics retrieved successfully",
         data: analyticsData,
       });

@@ -5,16 +5,17 @@ import { shortenUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
 
 type ShortLinkEntry = {
-  original: string;
-  shortCode: string;
+  originalUrl: string;
+  customAlias: string;
+  shortUrl: string; // ✅ Tambahkan ini
   createdAt: number;
 };
 
 export default function LandingPage() {
-  const [original, setOriginal] = useState("");
-  const [customCode, setCustomCode] = useState("");
+  const [originalUrl, setOriginalUrl] = useState("");
+  const [customAlias, setCustomAlias] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [shortCode, setShortCode] = useState<string | null>(null);
+  const [generatedAlias, setGeneratedAlias] = useState<string | null>(null); // ganti agar tidak bentrok
   const [loading, setLoading] = useState(false);
   const [originalError, setOriginalError] = useState<string | null>(null);
   const [aliasError, setAliasError] = useState<string | null>(null);
@@ -25,12 +26,10 @@ export default function LandingPage() {
     type: "success" | "error";
   } | null>(null);
 
-  // Panggil ini saat berhasil atau gagal
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ message: msg, type });
   };
 
-  // Load dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("guest_links");
     if (saved) {
@@ -41,22 +40,23 @@ export default function LandingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
-    setShortCode(null);
+    setGeneratedAlias(null);
     setOriginalError(null);
     setAliasError(null);
     setLoading(true);
 
     try {
-      const data = await shortenUrl(original, customCode);
+      const data = await shortenUrl(originalUrl, customAlias || undefined);
       setMessage(data.message || "Shortened!");
-      setShortCode(data.shortCode);
+      setGeneratedAlias(data.customAlias);
 
-      // Simpan ke history + localStorage
       const newEntry: ShortLinkEntry = {
-        original,
-        shortCode: data.shortCode,
+        originalUrl: data.originalUrl,
+        customAlias: data.customAlias,
+        shortUrl: data.shortUrl, // ✅ Simpan dari response backend
         createdAt: Date.now(),
       };
+
       const newHistory = [newEntry, ...history];
       setHistory(newHistory);
       localStorage.setItem("guest_links", JSON.stringify(newHistory));
@@ -65,14 +65,12 @@ export default function LandingPage() {
     } catch (err: any) {
       const errorMsg = err?.message || "Failed to shorten link";
 
-      // Validasi dari backend (misal alias taken)
       if (errorMsg.toLowerCase().includes("alias")) {
         setAliasError(errorMsg);
       } else {
         setOriginalError(errorMsg);
       }
 
-      // Hanya tampilkan toast jika error dari server (400/500)
       if (err?.status && Number(err.status) >= 400) {
         showToast("Failed to shorten link", "error");
       }
@@ -82,8 +80,8 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white px-[20vw]">
-      <section className="flex h-screen gap-x-[2vw] pt-[6vw]">
+    <main className="bg-zinc-950 text-white px-[20vw]">
+      <section className="flex gap-x-[2vw] pt-[6vw]">
         {/* Kiri: Headline */}
         <div className="flex flex-col w-[50vw] gap-y-[1.5vw]">
           <p className="text-[3.2vw] leading-tight font-semibold">
@@ -113,8 +111,8 @@ export default function LandingPage() {
                 autoComplete="off"
                 type="text"
                 id="originalUrl"
-                value={original}
-                onChange={(e) => setOriginal(e.target.value)}
+                value={originalUrl}
+                onChange={(e) => setOriginalUrl(e.target.value)}
                 className={`bg-zinc-700 rounded-lg w-full p-[0.8vw] border ${
                   originalError ? "border-red-500" : "border-transparent"
                 }`}
@@ -138,8 +136,8 @@ export default function LandingPage() {
                 autoComplete="off"
                 type="text"
                 id="alias"
-                value={customCode}
-                onChange={(e) => setCustomCode(e.target.value)}
+                value={customAlias}
+                onChange={(e) => setCustomAlias(e.target.value)}
                 className={`bg-zinc-700 rounded-lg w-full p-[0.8vw] border ${
                   aliasError ? "border-red-500" : "border-transparent"
                 }`}
@@ -159,42 +157,49 @@ export default function LandingPage() {
               {loading ? "Generating..." : "Get Link"}
             </button>
           </form>
+        </div>
+      </section>
+      <section className="w-full">
+        {history.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-4">Your Shortened Links</h2>
 
-          {/* Daftar link sebelumnya */}
-          {history.length > 0 && (
-            <div className="mt-[2vw] space-y-[1vw]">
-              <h2 className="text-[1.2vw] font-semibold text-[#1de2ae]">
-                Your Shortened Links:
-              </h2>
-              <ul className="text-[0.95vw] space-y-2">
-                {history.map((item, idx) => (
-                  <li key={item.createdAt} className="flex flex-col gap-1">
-                    <div className="flex gap-2 items-start">
-                      <span className="text-gray-400 min-w-[2ch]">
-                        {idx + 1}.
-                      </span>
+            <ul className="grid grid-cols-2 gap-4">
+              {history.map((item, index) => (
+                <li
+                  key={index}
+                  className="bg-[#0f0f0f] p-4 rounded-xl shadow-sm w-full flex justify-between items-start gap-4"
+                >
+                  <div className="flex-1 space-y-1">
+                    <div>
+                      {/* <span className="text-gray-300">Short:</span>{" "} */}
                       <a
-                        href={`http://localhost:4000/r/${item.shortCode}`}
+                        href={item.shortUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#1de2ae] underline break-all"
                       >
-                        http://localhost:4000/r/{item.shortCode}
+                        {item.shortUrl}
                       </a>
                     </div>
-                    <div className="flex gap-2 items-start">
-                      <span className="text-gray-400 min-w-[2ch] invisible">
-                        {idx + 1}.
+                    <div>
+                      <span className="text-gray-300">Original:</span>{" "}
+                      <span className="text-white break-all">
+                        {item.originalUrl}
                       </span>
-                      <span className="text-gray-300">Original:</span>
-                      <span>{item.original}</span>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+                  </div>
+                  <button
+                    className="text-red-500 text-xs hover:underline"
+                    onClick={() => handleDeleteLink(item.id)}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       {/* Toast notification */}
