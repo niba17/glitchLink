@@ -1,22 +1,18 @@
-// src/services/linkService.ts
 import { LinkRepository } from "../repositories/linkRepository";
-import { CreateLinkDto, UpdateLinkDto } from "../dtos/link.dto";
+import { CreateLinkDto, UpdateLinkDto } from "../DTOs/linkDTO";
 import { nanoid } from "nanoid";
 import * as UAParser from "ua-parser-js";
-import type { Link, Click } from "@prisma/client";
 import qrcode from "qrcode";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import {
-  MissingJwtSecretError,
-  CustomAliasAlreadyInUseError,
-  LinkNotFoundError,
-  LinkNotOwnedByUserError,
-  CustomAliasTakenByAnotherLinkError,
-  LinkExpiredError,
-  LinkNotFoundOrExpiredError,
-  QRCodeGenerationError,
-  CannotGenerateQRCodeForExpiredLinkError,
+  NotFoundError,
+  ConflictError,
+  ExpiredError,
+  InternalServerError,
+  ForbiddenError,
 } from "../utils/errors";
+import { mapLinkToDto } from "../mappers/linkMapper";
+import type { Link } from "@prisma/client";
 
 export class LinkService {
   private linkRepository: LinkRepository;
@@ -24,199 +20,115 @@ export class LinkService {
 
   constructor() {
     this.linkRepository = new LinkRepository();
-    if (!process.env.BASE_URL) {
-      throw new MissingJwtSecretError(
-        "Server configuration error: BASE_URL not defined."
-      );
-    }
-    this.baseUrl = process.env.BASE_URL;
+    this.baseUrl = process.env.BASE_URL as string;
   }
 
-  async createShortLink(
-    linkData: CreateLinkDto,
-    userId?: number
-  ): Promise<{
-    id: number;
-    shortUrl: string;
-    originalUrl: string;
-    customAlias?: string | null;
-    expiresAt?: Date | null;
-    clicksCount: number;
-  }> {
-    const { originalUrl, customAlias, expiresAt } = linkData;
-    let shortCodeToUse: string;
-
-    const ownerId = userId;
-
-    if (customAlias) {
-      const existingLinkWithAlias = await this.linkRepository.findByCustomAlias(
-        customAlias
-      );
-      if (existingLinkWithAlias) {
-        throw new CustomAliasAlreadyInUseError();
-      }
-      shortCodeToUse = customAlias;
-    } else {
-      let isUnique = false;
-      let generatedCode = "";
-      while (!isUnique) {
-        generatedCode = nanoid(7);
-        const existingLink = await this.linkRepository.findByShortCode(
-          generatedCode
-        );
-        if (!existingLink) {
-          isUnique = true;
-        }
-      }
-      shortCodeToUse = generatedCode;
+  private async generateUniqueShortCode(): Promise<string> {
+    while (true) {
+      const code = nanoid(7);
+      const exists = await this.linkRepository.findByShortCode(code);
+      if (!exists) return code;
     }
+  }
 
-    const expiresAtDate = expiresAt ? new Date(expiresAt) : null;
+  private buildFullShortUrl(shortCode: string): string {
+    return `${this.baseUrl}/${shortCode}`;
+  }
+
+  private async getOwnedLinkOrThrow(
+    linkId: number,
+    userId: number
+  ): Promise<Link> {
+    const link = await this.linkRepository.findById(linkId);
+    if (!link) throw new NotFoundError("Link");
+    if (link.userId !== userId)
+      throw new ForbiddenError("You do not own this link");
+    return link;
+  }
+
+  async createShortLink(linkData: CreateLinkDto, userId?: number) {
+    const { originalUrl, customAlias, expiresAt } = linkData;
+
+    let shortCode: string;
+    if (customAlias) {
+      const existing = await this.linkRepository.findByCustomAlias(customAlias);
+      if (existing) throw new ConflictError("Alias is already in use");
+      shortCode = customAlias;
+    } else {
+      shortCode = await this.generateUniqueShortCode();
+    }
 
     try {
       const newLink = await this.linkRepository.create({
         original: originalUrl,
-        shortCode: shortCodeToUse,
-        customAlias: customAlias,
-        userId: ownerId,
-        expiresAt: expiresAtDate,
+        shortCode,
+        customAlias,
+        userId,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
       });
 
-      return {
-        id: newLink.id,
-        shortUrl: `${this.baseUrl}/${newLink.shortCode}`,
-        originalUrl: newLink.original,
-        customAlias: newLink.customAlias,
-        expiresAt: newLink.expiresAt,
-        clicksCount: newLink.clicksCount,
-      };
+      return mapLinkToDto(newLink, this.baseUrl);
     } catch (error: any) {
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2002"
       ) {
-        throw new CustomAliasAlreadyInUseError(
-          "Generated short code or custom alias is already in use."
-        );
+        throw new ConflictError("Alias is already in use");
       }
       throw error;
     }
   }
 
-  async updateLink(
-    linkId: number,
-    userId: number,
-    updateData: UpdateLinkDto
-  ): Promise<
-    Pick<
-      Link,
-      | "id"
-      | "original"
-      | "shortCode"
-      | "customAlias"
-      | "updatedAt"
-      | "createdAt"
-      | "expiresAt"
-      | "userId"
-      | "clicksCount"
-    > & { fullShortUrl: string }
-  > {
-    const link = await this.linkRepository.findById(linkId);
+  async updateLink(linkId: number, userId: number, updateData: UpdateLinkDto) {
+    const link = await this.getOwnedLinkOrThrow(linkId, userId);
 
-    if (!link) {
-      throw new LinkNotFoundError();
-    }
-
-    if (link.userId !== userId) {
-      throw new LinkNotOwnedByUserError();
-    }
-
-    if (
-      updateData.customAlias !== undefined &&
-      updateData.customAlias !== null &&
-      updateData.customAlias !== link.customAlias
-    ) {
-      const existingLinkWithAlias = await this.linkRepository.findByCustomAlias(
-        updateData.customAlias
-      );
-      if (existingLinkWithAlias && existingLinkWithAlias.id !== linkId) {
-        throw new CustomAliasTakenByAnotherLinkError();
-      }
-    }
-
-    const dataToUpdate: {
+    const updateFields: {
       customAlias?: string | null;
+      shortCode?: string;
       expiresAt?: Date | null;
     } = {};
 
-    if (updateData.customAlias !== undefined) {
-      dataToUpdate.customAlias = updateData.customAlias;
-    }
-    if (updateData.expiresAt !== undefined) {
-      dataToUpdate.expiresAt =
-        updateData.expiresAt === null ? null : new Date(updateData.expiresAt);
+    // Jika customAlias berubah, validasi dan update juga shortCode
+    if (updateData.customAlias && updateData.customAlias !== link.customAlias) {
+      const existing = await this.linkRepository.findByCustomAlias(
+        updateData.customAlias
+      );
+      if (existing && existing.id !== link.id) {
+        throw new ConflictError("Alias is already in use");
+      }
+      updateFields.customAlias = updateData.customAlias;
+      updateFields.shortCode = updateData.customAlias;
+    } else if (updateData.customAlias === null) {
+      updateFields.customAlias = null;
     }
 
-    if (Object.keys(dataToUpdate).length === 0) {
-      return {
-        id: link.id,
-        original: link.original,
-        shortCode: link.shortCode,
-        customAlias: link.customAlias,
-        fullShortUrl: `${this.baseUrl}/${link.shortCode}`,
-        updatedAt: link.updatedAt,
-        createdAt: link.createdAt,
-        clicksCount: link.clicksCount,
-        expiresAt: link.expiresAt,
-        userId: link.userId,
-      };
+    // Update tanggal expired jika disediakan
+    if ("expiresAt" in updateData) {
+      updateFields.expiresAt = updateData.expiresAt
+        ? new Date(updateData.expiresAt)
+        : null;
+    }
+
+    // Kalau tidak ada field yang diupdate, kembalikan link lama
+    if (Object.keys(updateFields).length === 0) {
+      return mapLinkToDto(link, this.baseUrl);
     }
 
     try {
-      const updatedLink = await this.linkRepository.update(
-        linkId,
-        dataToUpdate
-      );
-
-      return {
-        id: updatedLink.id,
-        original: updatedLink.original,
-        shortCode: updatedLink.shortCode,
-        customAlias: updatedLink.customAlias,
-        fullShortUrl: `${this.baseUrl}/${updatedLink.shortCode}`,
-        updatedAt: updatedLink.updatedAt,
-        createdAt: updatedLink.createdAt,
-        clicksCount: updatedLink.clicksCount,
-        expiresAt: updatedLink.expiresAt,
-        userId: updatedLink.userId,
-      };
+      const updated = await this.linkRepository.update(link.id, updateFields);
+      return mapLinkToDto(updated, this.baseUrl);
     } catch (error: any) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === "P2025"
-      ) {
-        throw new LinkNotFoundError();
-      } else if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        throw new CustomAliasTakenByAnotherLinkError();
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2002")
+          throw new ConflictError("Alias is already in use");
+        if (error.code === "P2025") throw new NotFoundError("Link");
       }
       throw error;
     }
   }
 
   async deleteLink(linkId: number, userId: number): Promise<void> {
-    const link = await this.linkRepository.findById(linkId);
-
-    if (!link) {
-      throw new LinkNotFoundError();
-    }
-
-    if (link.userId !== userId) {
-      throw new LinkNotOwnedByUserError();
-    }
-
+    await this.getOwnedLinkOrThrow(linkId, userId);
     try {
       await this.linkRepository.delete(linkId);
     } catch (error: any) {
@@ -224,138 +136,82 @@ export class LinkService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2025"
       ) {
-        throw new LinkNotFoundError();
+        throw new NotFoundError("Link");
       }
       throw error;
     }
   }
 
   async generateQRCodeForLink(linkId: number, userId: number): Promise<string> {
-    const link = await this.linkRepository.findById(linkId);
-
-    if (!link) {
-      throw new LinkNotFoundError();
-    }
-
-    if (link.userId !== userId) {
-      throw new LinkNotOwnedByUserError();
-    }
-
+    const link = await this.getOwnedLinkOrThrow(linkId, userId);
     if (link.expiresAt && new Date() > link.expiresAt) {
-      throw new CannotGenerateQRCodeForExpiredLinkError();
+      throw new ExpiredError("Link");
     }
-
-    const fullShortUrl = `${this.baseUrl}/${link.shortCode}`;
 
     try {
-      const qrCodeDataUrl = await qrcode.toDataURL(fullShortUrl);
-      return qrCodeDataUrl;
-    } catch (error: any) {
-      throw new QRCodeGenerationError();
+      return await qrcode.toDataURL(this.buildFullShortUrl(link.shortCode));
+    } catch (error) {
+      throw new InternalServerError();
     }
   }
 
-  public async getOriginalUrl(shortCode: string, req: any): Promise<string> {
+  async getOriginalUrl(shortCode: string, req: any): Promise<string> {
     const link = await this.linkRepository.findByShortCode(shortCode);
-
-    if (!link) {
-      throw new LinkNotFoundOrExpiredError();
-    }
-
+    if (!link) throw new ExpiredError("Link");
     if (link.expiresAt && new Date() > link.expiresAt) {
-      throw new LinkExpiredError();
+      throw new ExpiredError("Link");
     }
-
-    console.log(
-      `[LinkService] Link ditemukan: ID ${link.id}, Original: ${link.original}`
-    );
 
     try {
       await this.linkRepository.incrementClicks(link.id);
-    } catch (error: any) {}
-
-    let browserName: string | null = null;
-    let osName: string | null = null;
+    } catch (_) {}
 
     const userAgent = req.headers["user-agent"];
-    const ipAddress = req.ip;
+    const ip = req.ip;
+
+    let browser: string | null = null;
+    let os: string | null = null;
 
     if (userAgent) {
-      const parser = new UAParser.UAParser(userAgent);
-      const browser = parser.getBrowser();
-      const os = parser.getOS();
-      browserName = browser.name || null;
-      osName = os.name || null;
+      const parsed = new UAParser.UAParser(userAgent);
+      browser = parsed.getBrowser().name || null;
+      os = parsed.getOS().name || null;
     }
 
     try {
       await this.linkRepository.createClick({
         linkId: link.id,
-        ip: ipAddress,
-        userAgent: userAgent,
-        browser: browserName,
-        os: osName,
+        ip,
+        userAgent,
+        browser,
+        os,
       });
-    } catch (error) {}
+    } catch (_) {}
 
     return link.original;
   }
 
-  async getUserLinks(userId: number): Promise<
-    Array<{
-      id: number;
-      originalUrl: string;
-      shortCode: string;
-      shortUrl: string;
-      customAlias?: string | null;
-      clicksCount: number;
-      createdAt: Date;
-      updatedAt: Date | null;
-      expiresAt?: Date | null;
-    }>
-  > {
-    const userLinks = await this.linkRepository.getLinksByUserId(userId);
-
-    return userLinks.map((link) => ({
-      id: link.id,
-      originalUrl: link.original,
-      shortCode: link.shortCode,
-      shortUrl: `${this.baseUrl}/${link.shortCode}`,
-      customAlias: link.customAlias,
-      clicksCount: link.clicksCount,
-      createdAt: link.createdAt,
-      updatedAt: link.updatedAt,
-      expiresAt: link.expiresAt,
-    }));
+  async getUserLinks(userId: number) {
+    const links = await this.linkRepository.getLinksByUserId(userId);
+    return links.map((link) => mapLinkToDto(link, this.baseUrl));
   }
 
-  async getLinkAnalytics(linkId: number, userId: number): Promise<any> {
-    const link = await this.linkRepository.findById(linkId);
-
-    if (!link) {
-      throw new LinkNotFoundError();
-    }
-
-    if (link.userId !== userId) {
-      throw new LinkNotOwnedByUserError();
-    }
-
+  async getLinkAnalytics(linkId: number, userId: number) {
+    const link = await this.getOwnedLinkOrThrow(linkId, userId);
     const clicks = await this.linkRepository.getClicksByLinkId(linkId);
-
-    const formattedClicks = clicks.map((click) => ({
-      id: click.id,
-      ip: click.ipAddress,
-      country: click.country || null,
-      city: click.city || null,
-      userAgent: click.userAgent || null,
-      browser: click.browser || null,
-      os: click.os || null,
-      timestamp: click.clickedAt,
-    }));
-
+    console.log("ok");
     return {
       totalClicks: link.clicksCount,
-      clicks: formattedClicks,
+      clicks: clicks.map((click) => ({
+        id: click.id,
+        ip: click.ipAddress,
+        country: click.country || null,
+        city: click.city || null,
+        userAgent: click.userAgent || null,
+        browser: click.browser || null,
+        os: click.os || null,
+        timestamp: click.clickedAt,
+      })),
     };
   }
 }

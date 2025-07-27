@@ -3,7 +3,7 @@ import express from "express";
 import userRoutes from "./routes/userRoutes";
 import linkRoutes from "./routes/linkRoutes";
 import dotenv from "dotenv";
-import { errorMiddleware } from "./middleware/errorMiddleware";
+import { errorMiddleware } from "./middlewares/errorMiddleware";
 import { LinkController } from "./controllers/linkController";
 
 dotenv.config();

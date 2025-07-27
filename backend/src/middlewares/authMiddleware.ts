@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import {
-  NoTokenError,
-  UserNotFoundError,
-  MissingJwtSecretError,
+  ForbiddenError,
+  NotFoundError,
+  InternalServerError,
   TokenExpiredError,
   InvalidTokenError,
 } from "../utils/errors";
@@ -28,13 +28,15 @@ export const authMiddleware = async (
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return next(new NoTokenError());
+    return next(new ForbiddenError("No token provided"));
   }
 
   const token = authHeader.split(" ")[1];
 
   if (!process.env.JWT_SECRET) {
-    return next(new MissingJwtSecretError());
+    return next(
+      new InternalServerError("JWT secret is missing in server config")
+    );
   }
 
   try {
@@ -48,7 +50,7 @@ export const authMiddleware = async (
     });
 
     if (!user) {
-      return next(new UserNotFoundError());
+      return next(new NotFoundError("User"));
     }
 
     req.user = { id: user.id, email: user.email };

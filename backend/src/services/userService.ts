@@ -2,46 +2,35 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserRepository } from "../repositories/userRepository";
-import { RegisterUserDto, LoginUserDto } from "../dtos/user.dto";
+import { RegisterUserDto, LoginUserDto } from "../DTOs/userDTO";
 import type { User } from "@prisma/client";
 import {
-  UserAlreadyExistsError,
-  InvalidCredentialsError,
-  UserNotFoundByIdError,
-  MissingJwtSecretError,
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
 } from "../utils/errors";
 
 type UserWithoutPassword = Pick<User, "id" | "email">;
 
 export class UserService {
-  private userRepository: UserRepository;
-  private jwtSecret: string;
-
-  constructor() {
-    this.userRepository = new UserRepository();
-    if (!process.env.JWT_SECRET) {
-      throw new MissingJwtSecretError();
-    }
-    this.jwtSecret = process.env.JWT_SECRET;
-  }
+  private userRepository = new UserRepository();
+  private jwtSecret = process.env.JWT_SECRET as string;
 
   async registerUser(userData: RegisterUserDto): Promise<UserWithoutPassword> {
     const { email, password } = userData;
 
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new UserAlreadyExistsError();
+      throw new ConflictError("User with this email already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await this.userRepository.create({
       email,
       password: hashedPassword,
     });
 
-    const { password: _, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
+    return this.excludePassword(newUser);
   }
 
   async loginUser(
@@ -50,41 +39,37 @@ export class UserService {
     const { email, password } = userData;
 
     const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      throw new InvalidCredentialsError();
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedError("Invalid email or password");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new InvalidCredentialsError();
-    }
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      this.jwtSecret,
+      { expiresIn: "1h" }
+    );
 
-    const tokenPayload = {
-      userId: user.id,
-      email: user.email,
-    };
-
-    const token = jwt.sign(tokenPayload, this.jwtSecret, { expiresIn: "1h" });
-
-    const { password: _, ...userWithoutPassword } = user;
-
-    return { token, user: userWithoutPassword };
+    return { token, user: this.excludePassword(user) };
   }
 
   async getUserById(id: number): Promise<UserWithoutPassword> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new UserNotFoundByIdError();
+      throw new NotFoundError("User");
     }
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return this.excludePassword(user);
   }
 
   async deleteUser(userId: number): Promise<void> {
-    const userToDelete = await this.userRepository.findById(userId);
-    if (!userToDelete) {
-      throw new UserNotFoundByIdError();
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundError("User");
     }
     await this.userRepository.delete(userId);
+  }
+
+  private excludePassword(user: User): UserWithoutPassword {
+    const { password: _, ...rest } = user;
+    return rest;
   }
 }

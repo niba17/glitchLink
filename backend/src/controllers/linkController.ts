@@ -1,15 +1,9 @@
-// src/controllers/linkController.ts
 import { Request, Response, NextFunction } from "express";
 import { LinkService } from "../services/linkService";
-import { createShortLinkSchema, updateLinkSchema } from "../dtos/link.dto";
-import { UnauthorizedError, InvalidInputError } from "../utils/errors";
+import { createShortLinkSchema, updateLinkSchema } from "../DTOs/linkDTO";
 
 export class LinkController {
-  private linkService: LinkService;
-
-  constructor() {
-    this.linkService = new LinkService();
-  }
+  private linkService = new LinkService();
 
   createShortLink = async (
     req: Request,
@@ -17,9 +11,8 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      const userId = Number(req.user?.id);
       const validatedData = createShortLinkSchema.parse(req.body);
-      const userId = req.user?.id;
-
       const newLink = await this.linkService.createShortLink(
         validatedData,
         userId
@@ -29,7 +22,7 @@ export class LinkController {
         message: "Short link created successfully",
         data: newLink,
       });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   };
@@ -40,41 +33,20 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { linkId } = req.params;
-      const userId = req.user?.id;
-
-      if (!userId) {
-        throw new UnauthorizedError();
-      }
-
+      const userId = Number(req.user?.id);
+      const linkId = Number(req.params.linkId);
       const validatedData = updateLinkSchema.parse(req.body);
-
-      const id = parseInt(linkId, 10);
-      if (isNaN(id)) {
-        throw new InvalidInputError();
-      }
-
       const updatedLink = await this.linkService.updateLink(
-        id,
+        linkId,
         userId,
         validatedData
       );
 
       res.status(200).json({
         message: "Link updated successfully",
-        data: {
-          id: updatedLink.id,
-          originalUrl: updatedLink.original,
-          shortCode: updatedLink.shortCode,
-          shortUrl: updatedLink.fullShortUrl,
-          customAlias: updatedLink.customAlias,
-          clicksCount: updatedLink.clicksCount,
-          createdAt: updatedLink.createdAt,
-          updatedAt: updatedLink.updatedAt,
-          expiresAt: updatedLink.expiresAt,
-        },
+        data: updatedLink,
       });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   };
@@ -85,22 +57,12 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { linkId } = req.params;
-      const userId = req.user?.id;
-
-      if (!userId) {
-        throw new UnauthorizedError();
-      }
-
-      const id = parseInt(linkId, 10);
-      if (isNaN(id)) {
-        throw new InvalidInputError();
-      }
-
-      await this.linkService.deleteLink(id, userId);
+      const userId = Number(req.user?.id);
+      const linkId = Number(req.params.linkId);
+      await this.linkService.deleteLink(linkId, userId);
 
       res.status(200).json({ message: "Link deleted successfully" });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   };
@@ -111,28 +73,18 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { linkId } = req.params;
-
-      const userId = req.user?.id;
-
-      if (!userId) {
-        throw new UnauthorizedError();
-      }
-
-      const id = parseInt(linkId, 10);
-      if (isNaN(id)) {
-        throw new InvalidInputError();
-      }
-
+      const userId = Number(req.user?.id);
+      const linkId = Number(req.params.linkId);
       const qrCodeDataUrl = await this.linkService.generateQRCodeForLink(
-        id,
+        linkId,
         userId
       );
+
       res.status(200).json({
         message: "QR Code generated successfully",
         data: qrCodeDataUrl,
       });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   };
@@ -143,10 +95,12 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { shortCode } = req.params;
-      const originalUrl = await this.linkService.getOriginalUrl(shortCode, req);
+      const originalUrl = await this.linkService.getOriginalUrl(
+        req.params.shortCode,
+        req
+      );
       res.redirect(originalUrl);
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   };
@@ -157,12 +111,7 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const userId = req.user?.id;
-
-      if (!userId) {
-        throw new UnauthorizedError();
-      }
-
+      const userId = Number(req.user?.id);
       const userLinks = await this.linkService.getUserLinks(userId);
 
       res.status(200).json({
@@ -180,25 +129,18 @@ export class LinkController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { linkId } = req.params;
-      const userId = req.user?.id;
-
-      if (!userId) {
-        throw new UnauthorizedError();
-      }
-
-      const id = parseInt(linkId, 10);
-      if (isNaN(id)) {
-        throw new InvalidInputError();
-      }
-
-      const analyticsData = await this.linkService.getLinkAnalytics(id, userId);
+      const userId = Number(req.user?.id);
+      const linkId = Number(req.params.linkId);
+      const analyticsData = await this.linkService.getLinkAnalytics(
+        linkId,
+        userId
+      );
 
       res.status(200).json({
         message: "Link analytics retrieved successfully",
         data: analyticsData,
       });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   };

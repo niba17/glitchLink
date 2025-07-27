@@ -105,17 +105,26 @@ export class LinkRepository {
     linkId: number,
     data: {
       customAlias?: string | null;
+      shortCode?: string;
       expiresAt?: Date | null;
     }
   ): Promise<Link> {
-    const updateData: { customAlias?: string | null; expiresAt?: Date | null } =
-      {};
+    const updateData: {
+      customAlias?: string | null;
+      shortCode?: string;
+      expiresAt?: Date | null;
+    } = {};
+
     if (data.customAlias !== undefined) {
       updateData.customAlias = data.customAlias;
+    }
+    if (data.shortCode !== undefined) {
+      updateData.shortCode = data.shortCode;
     }
     if (data.expiresAt !== undefined) {
       updateData.expiresAt = data.expiresAt;
     }
+
     return prisma.link.update({
       where: { id: linkId },
       data: updateData,

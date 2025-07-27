@@ -1,8 +1,8 @@
 // src/routes/linkRoutes.ts
 import { Router } from "express";
 import { LinkController } from "../controllers/linkController";
-import { authMiddleware } from "../middleware/authMiddleware";
-import { optionalAuthMiddleware } from "../middleware/optionalAuthMiddleware";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { optionalAuthMiddleware } from "../middlewares/optionalAuthMiddleware";
 
 const router = Router();
 const linkController = new LinkController();

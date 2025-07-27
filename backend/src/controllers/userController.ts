@@ -1,7 +1,7 @@
 // src/controllers/userController.ts
 import { Request, Response, NextFunction } from "express";
 import { UserService } from "../services/userService";
-import { registerUserSchema, loginUserSchema } from "../dtos/user.dto";
+import { registerUserSchema, loginUserSchema } from "../DTOs/userDTO";
 
 export class UserController {
   private userService: UserService;
@@ -40,7 +40,6 @@ export class UserController {
       res.status(200).json({
         message: "User login successfully",
         token,
-        user,
       });
     } catch (error: any) {
       next(error);
