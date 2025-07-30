@@ -3,23 +3,30 @@
 import { useEffect, useState } from "react";
 import { shortenUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
+import { Copy, Trash2 } from "lucide-react";
 
 type ShortLinkEntry = {
+  id: number;
   originalUrl: string;
   customAlias: string;
-  shortUrl: string; // ✅ Tambahkan ini
-  createdAt: number;
+  shortUrl: string;
+  createdAt: string;
 };
 
 export default function LandingPage() {
   const [originalUrl, setOriginalUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [generatedAlias, setGeneratedAlias] = useState<string | null>(null); // ganti agar tidak bentrok
+  const [generatedAlias, setGeneratedAlias] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [originalError, setOriginalError] = useState<string | null>(null);
   const [aliasError, setAliasError] = useState<string | null>(null);
   const [history, setHistory] = useState<ShortLinkEntry[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const [toast, setToast] = useState<{
     message: string;
@@ -50,11 +57,14 @@ export default function LandingPage() {
       setMessage(data.message || "Shortened!");
       setGeneratedAlias(data.customAlias);
 
+      const now = new Date().toISOString();
+
       const newEntry: ShortLinkEntry = {
+        id: data.id,
         originalUrl: data.originalUrl,
         customAlias: data.customAlias,
         shortUrl: data.shortUrl, // ✅ Simpan dari response backend
-        createdAt: Date.now(),
+        createdAt: now,
       };
 
       const newHistory = [newEntry, ...history];
@@ -79,9 +89,25 @@ export default function LandingPage() {
     }
   };
 
+  const handleCopyLink = async (shortUrl: string) => {
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+      showToast("Short link copied!", "success");
+    } catch (err) {
+      showToast("Failed to copy link", "error");
+    }
+  };
+
+  const handleDeleteLink = (customAlias: string) => {
+    const filtered = history.filter((item) => item.customAlias !== customAlias);
+    setHistory(filtered);
+    localStorage.setItem("guest_links", JSON.stringify(filtered));
+    showToast("Link deleted!", "success");
+  };
+
   return (
-    <main className="bg-zinc-950 text-white px-[20vw]">
-      <section className="flex gap-x-[2vw] pt-[6vw]">
+    <main className="bg-zinc-950 text-white px-[20vw] py-[3vw]">
+      <section className="flex gap-x-[2vw]">
         {/* Kiri: Headline */}
         <div className="flex flex-col w-[50vw] gap-y-[1.5vw]">
           <p className="text-[3.2vw] leading-tight font-semibold">
@@ -160,19 +186,24 @@ export default function LandingPage() {
         </div>
       </section>
       <section className="w-full">
-        {history.length > 0 && (
+        {isClient && history.length > 0 && (
           <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-4">Your Shortened Links</h2>
+            <div className="flex items-center justify-center my-[2vw]">
+              <div className="flex-grow border-t-2"></div>
+              <h2 className="mx-[1.5vw] text-[1.3vw] font-semibold text-center text-white">
+                Your Shortened Links
+              </h2>
+              <div className="flex-grow border-t-2"></div>
+            </div>
 
             <ul className="grid grid-cols-2 gap-4">
               {history.map((item, index) => (
                 <li
-                  key={index}
+                  key={item.customAlias}
                   className="bg-[#0f0f0f] p-4 rounded-xl shadow-sm w-full flex justify-between items-start gap-4"
                 >
-                  <div className="flex-1 space-y-1">
+                  <div className="flex flex-col space-y-1">
                     <div>
-                      {/* <span className="text-gray-300">Short:</span>{" "} */}
                       <a
                         href={item.shortUrl}
                         target="_blank"
@@ -188,13 +219,23 @@ export default function LandingPage() {
                         {item.originalUrl}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleCopyLink(item.shortUrl)}
+                        className="p-1 text-white hover:text-[#1de2ae] transition"
+                        title="Copy short URL"
+                      >
+                        <Copy size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteLink(item.customAlias)}
+                        className="p-1 text-white hover:text-red-500 transition"
+                        title="Delete link"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    className="text-red-500 text-xs hover:underline"
-                    onClick={() => handleDeleteLink(item.id)}
-                  >
-                    Delete
-                  </button>
                 </li>
               ))}
             </ul>

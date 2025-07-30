@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 export default function Nav() {
   return (
     <nav className="sticky top-0 z-50 w-full bg-zinc-800 text-stone-200">
