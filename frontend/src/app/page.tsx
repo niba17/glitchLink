@@ -124,58 +124,67 @@ export default function LandingPage() {
 
         {/* Kanan: Form */}
         <div className="w-[50vw] pt-[0.4vw] text-[1vw]">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-3">
-            {/* Original link */}
-            <div className="space-y-3">
-              <label htmlFor="originalUrl" className="text-[1.3vw] font-medium">
-                Original Link
-              </label>
-              <input
-                autoComplete="off"
-                type="text"
-                id="originalUrl"
-                value={originalUrl}
-                onChange={(e) => setOriginalUrl(e.target.value)}
-                className={`bg-zinc-800 rounded-lg w-full p-[0.8vw] border ${
-                  originalError ? "border-red-500" : "border-transparent"
-                }`}
-                placeholder="your original link ..."
-                required
-              />
-              <div className="min-h-[1vw] text-[0.9vw] text-red-400">
-                {originalError ?? "\u00A0"}
+          <form onSubmit={handleSubmit} className="flex flex-col">
+            <div className="space-y-[1vw]">
+              <div className="space-y-[-0.2vw]">
+                {/* Original link */}
+                <div className="space-y-[0.5vw]">
+                  <label
+                    htmlFor="originalUrl"
+                    className="text-[1.3vw] font-medium"
+                  >
+                    Original Link
+                  </label>
+                  <input
+                    autoComplete="off"
+                    type="text"
+                    id="originalUrl"
+                    value={originalUrl}
+                    onChange={(e) => setOriginalUrl(e.target.value)}
+                    className={`bg-zinc-800 rounded-lg w-full p-[0.8vw] border ${
+                      originalError ? "border-red-500" : "border-transparent"
+                    }`}
+                    placeholder="your original link ..."
+                    required
+                  />
+                  <div className="min-h-[1vw] text-[0.9vw] text-red-400">
+                    {originalError ?? "\u00A0"}
+                  </div>
+                </div>
+
+                {/* Alias */}
+                <div className="space-y-[0.5vw]">
+                  <label htmlFor="alias" className="text-[1.3vw] font-medium">
+                    Alias (optional)
+                  </label>
+                  <input
+                    autoComplete="off"
+                    type="text"
+                    id="alias"
+                    value={customAlias}
+                    onChange={(e) => setCustomAlias(e.target.value)}
+                    className={`bg-zinc-800 rounded-lg w-full p-[0.8vw] border ${
+                      aliasError ? "border-red-500" : "border-transparent"
+                    }`}
+                    placeholder="your alias ..."
+                  />
+                  <div className="min-h-[1vw] text-[0.9vw] text-red-400">
+                    {aliasError ?? "\u00A0"}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                {/* Tombol Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full py-[0.8vw] text-center"
+                >
+                  {loading ? "Generating..." : "Get Link"}
+                </button>
               </div>
             </div>
-
-            {/* Alias */}
-            <div className="space-y-3">
-              <label htmlFor="alias" className="text-[1.3vw] font-medium">
-                Alias (optional)
-              </label>
-              <input
-                autoComplete="off"
-                type="text"
-                id="alias"
-                value={customAlias}
-                onChange={(e) => setCustomAlias(e.target.value)}
-                className={`bg-zinc-800 rounded-lg w-full p-[0.8vw] border ${
-                  aliasError ? "border-red-500" : "border-transparent"
-                }`}
-                placeholder="your alias ..."
-              />
-              <div className="min-h-[1vw] text-[0.9vw] text-red-400">
-                {aliasError ?? "\u00A0"}
-              </div>
-            </div>
-
-            {/* Tombol Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full py-[0.8vw] mt-[1vw] text-center"
-            >
-              {loading ? "Generating..." : "Get Link"}
-            </button>
           </form>
         </div>
       </section>
