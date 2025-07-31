@@ -63,7 +63,7 @@ export default function LandingPage() {
         id: data.id,
         originalUrl: data.originalUrl,
         customAlias: data.customAlias,
-        shortUrl: data.shortUrl, // ✅ Simpan dari response backend
+        shortUrl: data.shortUrl,
         createdAt: now,
       };
 
@@ -98,16 +98,16 @@ export default function LandingPage() {
     }
   };
 
-  const handleDeleteLink = (customAlias: string) => {
-    const filtered = history.filter((item) => item.customAlias !== customAlias);
+  const handleDeleteLink = (id: number) => {
+    const filtered = history.filter((item) => item.id !== id);
     setHistory(filtered);
     localStorage.setItem("guest_links", JSON.stringify(filtered));
     showToast("Link deleted!", "success");
   };
 
   return (
-    <main className="bg-zinc-950 text-white px-[20vw] py-[3vw]">
-      <section className="flex gap-x-[2vw]">
+    <main className="bg-zinc-950 min-h-screen px-[15vw] py-[3vw] text-stone-200">
+      <section className="flex">
         {/* Kiri: Headline */}
         <div className="flex flex-col w-[50vw] gap-y-[1.5vw]">
           <p className="text-[3.2vw] leading-tight font-semibold">
@@ -115,7 +115,7 @@ export default function LandingPage() {
             <br /> your link is <br />a{" "}
             <span className="text-[#159976]">weapon</span>
           </p>
-          <p className="text-[1.5vw]">
+          <p className="text-[1.35vw]">
             Jack into real-time analytics, <br />
             forge custom-alias links, <br />
             take the control
@@ -123,14 +123,11 @@ export default function LandingPage() {
         </div>
 
         {/* Kanan: Form */}
-        <div className="flex flex-col w-[50vw] pt-[0.4vw]">
-          <form onSubmit={handleSubmit} className="flex flex-col text-[1vw]">
+        <div className="w-[50vw] pt-[0.4vw] text-[1vw]">
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-3">
             {/* Original link */}
-            <div>
-              <label
-                htmlFor="originalUrl"
-                className="block mb-[0.5vw] text-[1.3vw] font-medium"
-              >
+            <div className="space-y-3">
+              <label htmlFor="originalUrl" className="text-[1.3vw] font-medium">
                 Original Link
               </label>
               <input
@@ -139,23 +136,20 @@ export default function LandingPage() {
                 id="originalUrl"
                 value={originalUrl}
                 onChange={(e) => setOriginalUrl(e.target.value)}
-                className={`bg-zinc-700 rounded-lg w-full p-[0.8vw] border ${
+                className={`bg-zinc-800 rounded-lg w-full p-[0.8vw] border ${
                   originalError ? "border-red-500" : "border-transparent"
                 }`}
                 placeholder="your original link ..."
                 required
               />
-              <div className="min-h-[1vw] mt-[0.3vw] block text-[0.9vw] text-red-400">
+              <div className="min-h-[1vw] text-[0.9vw] text-red-400">
                 {originalError ?? "\u00A0"}
               </div>
             </div>
 
             {/* Alias */}
-            <div>
-              <label
-                htmlFor="alias"
-                className="block mb-[0.5vw] text-[1.3vw] font-medium"
-              >
+            <div className="space-y-3">
+              <label htmlFor="alias" className="text-[1.3vw] font-medium">
                 Alias (optional)
               </label>
               <input
@@ -164,12 +158,12 @@ export default function LandingPage() {
                 id="alias"
                 value={customAlias}
                 onChange={(e) => setCustomAlias(e.target.value)}
-                className={`bg-zinc-700 rounded-lg w-full p-[0.8vw] border ${
+                className={`bg-zinc-800 rounded-lg w-full p-[0.8vw] border ${
                   aliasError ? "border-red-500" : "border-transparent"
                 }`}
                 placeholder="your alias ..."
               />
-              <div className="min-h-[1vw] mt-[0.3vw] block text-[0.9vw] text-red-400">
+              <div className="min-h-[1vw] text-[0.9vw] text-red-400">
                 {aliasError ?? "\u00A0"}
               </div>
             </div>
@@ -178,61 +172,58 @@ export default function LandingPage() {
             <button
               type="submit"
               disabled={loading}
-              className="text-white bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full py-[0.8vw] mt-[1vw] text-center"
+              className="bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full py-[0.8vw] mt-[1vw] text-center"
             >
               {loading ? "Generating..." : "Get Link"}
             </button>
           </form>
         </div>
       </section>
-      <section className="w-full">
+      <section>
         {isClient && history.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-[2vw]">
             <div className="flex items-center justify-center my-[2vw]">
               <div className="flex-grow border-t-2"></div>
-              <h2 className="mx-[1.5vw] text-[1.3vw] font-semibold text-center text-white">
+              <h2 className="mx-[1.5vw] text-[1.3vw] font-semibold">
                 Your Shortened Links
               </h2>
               <div className="flex-grow border-t-2"></div>
             </div>
 
-            <ul className="grid grid-cols-2 gap-4">
-              {history.map((item, index) => (
+            <ul className="grid grid-cols-3 gap-[1vw]">
+              {history.map((item) => (
                 <li
-                  key={item.customAlias}
-                  className="bg-[#0f0f0f] p-4 rounded-xl shadow-sm w-full flex justify-between items-start gap-4"
+                  key={item.id}
+                  className="bg-zinc-900 p-[1vw] rounded-xl shadow-sm w-full flex justify-between items-start"
                 >
-                  <div className="flex flex-col space-y-1">
-                    <div>
-                      <a
-                        href={item.shortUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#1de2ae] underline break-all"
-                      >
-                        {item.shortUrl}
-                      </a>
-                    </div>
-                    <div>
-                      <span className="text-gray-300">Original:</span>{" "}
-                      <span className="text-white break-all">
-                        {item.originalUrl}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col space-y-[0.5vw]">
+                    <a
+                      href={item.shortUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#1de2ae] underline break-all text-[1vw]"
+                    >
+                      {item.shortUrl}
+                    </a>
+
+                    <span className="text-gray-400 break-all text-[0.9vw]">
+                      {item.originalUrl}
+                    </span>
+
+                    <div className="flex items-center space-x-[1vw]">
                       <button
                         onClick={() => handleCopyLink(item.shortUrl)}
-                        className="p-1 text-white hover:text-[#1de2ae] transition"
+                        className="hover:text-[#1de2ae] transition"
                         title="Copy short URL"
                       >
-                        <Copy size={16} />
+                        <Copy style={{ width: "1.1vw", height: "1.1vw" }} />
                       </button>
                       <button
-                        onClick={() => handleDeleteLink(item.customAlias)}
-                        className="p-1 text-white hover:text-red-500 transition"
+                        onClick={() => handleDeleteLink(item.id)}
+                        className="hover:text-red-500 transition"
                         title="Delete link"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 style={{ width: "1.1vw", height: "1.1vw" }} />
                       </button>
                     </div>
                   </div>
