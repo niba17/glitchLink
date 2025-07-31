@@ -1,39 +1,51 @@
 "use client";
 
-import Modal from "../ui/Modal";
+import Modal from "../Modal";
 import { useState } from "react";
-import AuthForm from "../form/Auth";
+import AuthForm from "../../form/Auth";
+import { signUp } from "@/lib/api";
+import Toast from "@/components/toast/Toast";
 
-type RegisterModalProps = {
+type SignUpModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToLogin: () => void;
+  onSwitchToSignIn: () => void;
 };
 
-export default function RegisterModal({
+export default function SignUpModal({
   isOpen,
   onClose,
-  onSwitchToLogin,
-}: RegisterModalProps) {
+  onSwitchToSignIn,
+}: SignUpModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement register logic
+
+    try {
+      const res = await signUp({ email, password, confirmPassword });
+
+      Toast.success(res.message || "Account created. You can now sign in.");
+
+      onClose();
+      onSwitchToSignIn();
+    } catch (err: any) {
+      Toast.error(err.message || "Failed to register");
+    }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <AuthForm
-        title="Register"
-        onSubmit={handleRegister}
+        title="Sign Up"
+        onSubmit={handleSignUp}
         footer={
           <p className="text-[1vw] text-center">
             Already have an account?{" "}
             <button
-              onClick={onSwitchToLogin}
+              onClick={onSwitchToSignIn}
               className="underline text-stone-300 hover:text-stone-100"
             >
               Sign in here

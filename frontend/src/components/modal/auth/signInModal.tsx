@@ -1,41 +1,57 @@
 "use client";
 
-import Modal from "../ui/Modal";
+import Modal from "../Modal";
 import { useState } from "react";
-import AuthForm from "../form/Auth";
+import AuthForm from "../../form/Auth";
+import Toast from "@/components/toast/Toast";
+import { signIn } from "@/lib/api";
 
-type LoginModalProps = {
+type SignInModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToRegister: () => void;
+  onSwitchToSignUp: () => void;
 };
 
-export default function LoginModal({
+export default function SignInModal({
   isOpen,
   onClose,
-  onSwitchToRegister,
-}: LoginModalProps) {
+  onSwitchToSignUp,
+}: SignInModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic
+
+    try {
+      const res = await signIn({ email, password });
+
+      // Simpan token (opsional: kamu bisa pakai cookies juga)
+      localStorage.setItem("token", res.token);
+
+      // Tampilkan toast dengan pesan dari backend
+      Toast.success(res.message || "Login successful");
+
+      onClose();
+      // Jika memang kamu ingin redirect ke halaman lain, kamu bisa tambahkan di sini
+    } catch (err: any) {
+      Toast.error(err.message || "Failed to login");
+    }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <AuthForm
         title="Sign In"
-        onSubmit={handleLogin}
+        onSubmit={handleSignIn}
         footer={
           <p className="text-[1vw] text-center">
             Don’t have an account?{" "}
             <button
-              onClick={onSwitchToRegister}
+              onClick={onSwitchToSignUp}
               className="underline text-stone-300 hover:text-stone-100"
             >
-              Register here
+              Sign up here
             </button>
           </p>
         }

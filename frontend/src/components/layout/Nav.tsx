@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import LoginModal from "@/components/auth/loginModal";
-import RegisterModal from "@/components/auth/registerModal";
-import { Button } from "@/components/ui/Button";
+import LoginModal from "@/components/modal/auth/signInModal";
+import RegisterModal from "@/components/modal/auth/signUpModal";
+import { Button } from "@/components/button/Button";
 
 export default function Nav() {
-  const [modal, setModal] = useState<"login" | "register" | null>(null);
+  const [modal, setModal] = useState<"signUp" | "signIn" | null>(null);
 
-  const openLogin = () => setModal("login");
-  const openRegister = () => setModal("register");
+  const openSignIn = () => setModal("signUp");
+  const openSignUp = () => setModal("signIn");
   const closeModal = () => setModal(null);
 
   return (
@@ -19,24 +19,24 @@ export default function Nav() {
         {/* Logo dan navigasi lainnya */}
 
         <Button
-          onClick={openLogin}
+          onClick={openSignIn}
           variant="default"
           size="none"
-          className="text-stone-200 hover:text-stone-400"
+          className="text-stone-200 hover:text-stone-400 text-[1.3vw]"
         >
           Sign In
         </Button>
 
         <LoginModal
-          isOpen={modal === "login"}
+          isOpen={modal === "signUp"}
           onClose={closeModal}
-          onSwitchToRegister={openRegister}
+          onSwitchToSignUp={openSignUp}
         />
 
         <RegisterModal
-          isOpen={modal === "register"}
+          isOpen={modal === "signIn"}
           onClose={closeModal}
-          onSwitchToLogin={openLogin}
+          onSwitchToSignIn={openSignIn}
         />
       </div>
     </nav>

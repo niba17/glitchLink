@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { Button } from "../button/Button";
 
 type AuthFormProps = {
   title: string;
@@ -20,7 +21,7 @@ export default function AuthForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-[1vw] text-white w-full text-[1.2vw]"
+      className="flex flex-col gap-[1vw] text-white w-full text-[1vw]"
     >
       <div>
         <h2 className="text-[1.2vw] font-semibold text-center">{title}</h2>
@@ -29,12 +30,12 @@ export default function AuthForm({
 
       {children}
 
-      <button
-        type="submit"
-        className="bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full py-[0.8vw] text-center"
-      >
-        {title}
-      </button>
+      <Button type="submit" variant="primary">
+        Submit
+      </Button>
+      <Button variant="light" iconSrc="/google.svg" iconAlt="Google">
+        Sign with Google
+      </Button>
 
       {footer && (
         <div className="text-[0.7vw] text-stone-400 mt-[0.6vw] text-center">

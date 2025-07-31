@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { shortenUrl } from "@/lib/api";
-import Toast from "@/components/ui/Toast";
+import { shortenUrl } from "../lib/api";
 import { Copy, Trash2 } from "lucide-react";
+import { Button } from "../components/button/Button";
+import Toast from "../components/toast/Toast";
 
 type ShortLinkEntry = {
   id: number;
@@ -27,15 +28,6 @@ export default function LandingPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
-
-  const showToast = (msg: string, type: "success" | "error" = "success") => {
-    setToast({ message: msg, type });
-  };
 
   useEffect(() => {
     const saved = localStorage.getItem("guest_links");
@@ -71,7 +63,7 @@ export default function LandingPage() {
       setHistory(newHistory);
       localStorage.setItem("guest_links", JSON.stringify(newHistory));
 
-      showToast(data.message || "Link shortened successfully!", "success");
+      Toast.success(data.message || "Link shortened successfully!");
     } catch (err: any) {
       const errorMsg = err?.message || "Failed to shorten link";
 
@@ -82,7 +74,7 @@ export default function LandingPage() {
       }
 
       if (err?.status && Number(err.status) >= 400) {
-        showToast("Failed to shorten link", "error");
+        Toast.error("Failed to shorten link");
       }
     } finally {
       setLoading(false);
@@ -92,9 +84,9 @@ export default function LandingPage() {
   const handleCopyLink = async (shortUrl: string) => {
     try {
       await navigator.clipboard.writeText(shortUrl);
-      showToast("Short link copied!", "success");
+      Toast.success("Short link copied!");
     } catch (err) {
-      showToast("Failed to copy link", "error");
+      Toast.error("Failed to copy link");
     }
   };
 
@@ -102,7 +94,7 @@ export default function LandingPage() {
     const filtered = history.filter((item) => item.id !== id);
     setHistory(filtered);
     localStorage.setItem("guest_links", JSON.stringify(filtered));
-    showToast("Link deleted!", "success");
+    Toast.success("Link deleted!");
   };
 
   return (
@@ -176,13 +168,9 @@ export default function LandingPage() {
 
               <div>
                 {/* Tombol Submit */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full py-[0.8vw] text-center"
-                >
-                  {loading ? "Generating..." : "Get Link"}
-                </button>
+                <Button type="submit" disabled={loading} variant="primary">
+                  Get Link
+                </Button>
               </div>
             </div>
           </form>
@@ -242,15 +230,6 @@ export default function LandingPage() {
           </div>
         )}
       </section>
-
-      {/* Toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </main>
   );
 }

@@ -16,6 +16,7 @@ export class UserController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      console.log("controller");
       const validatedData = registerUserSchema.parse(req.body);
       const newUser = await this.userService.registerUser(validatedData);
 
