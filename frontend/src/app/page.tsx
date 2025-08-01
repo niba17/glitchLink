@@ -5,6 +5,7 @@ import { shortenUrl } from "../lib/api";
 import { Copy, Trash2 } from "lucide-react";
 import { Button } from "../components/button/Button";
 import Toast from "../components/toast/Toast";
+import { mapFieldErrors } from "@/helper/mapFieldErrors";
 
 type ShortLinkEntry = {
   id: number;
@@ -24,6 +25,8 @@ export default function LandingPage() {
   const [aliasError, setAliasError] = useState<string | null>(null);
   const [history, setHistory] = useState<ShortLinkEntry[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
     setIsClient(true);
@@ -63,21 +66,21 @@ export default function LandingPage() {
       setHistory(newHistory);
       localStorage.setItem("guest_links", JSON.stringify(newHistory));
 
+      setOriginalUrl("");
+      setCustomAlias("");
+      setLoading(false);
+
       Toast.success(data.message || "Link shortened successfully!");
     } catch (err: any) {
-      const errorMsg = err?.message || "Failed to shorten link";
-
-      if (errorMsg.toLowerCase().includes("alias")) {
-        setAliasError(errorMsg);
-      } else {
-        setOriginalError(errorMsg);
+      if (Array.isArray(err?.errors)) {
+        err.errors.forEach((e) => {
+          if (e.path === "originalUrl") setOriginalError(e.message);
+          if (e.path === "customAlias") setAliasError(e.message);
+        });
       }
 
-      if (err?.status && Number(err.status) >= 400) {
-        Toast.error("Failed to shorten link");
-      }
-    } finally {
-      setLoading(false);
+      Toast.error(err.message || "Failed to shorten link");
+      setLoading(false); // 🧨 Tambahkan ini juga di catch
     }
   };
 
@@ -102,7 +105,7 @@ export default function LandingPage() {
       <section className="flex">
         {/* Kiri: Headline */}
         <div className="flex flex-col w-[50vw] gap-y-[1.5vw]">
-          <p className="text-[3.2vw] leading-tight font-semibold">
+          <p className="text-[3.5vw] leading-tight font-semibold">
             In the grid of data,
             <br /> your link is <br />a{" "}
             <span className="text-[#159976]">weapon</span>
@@ -118,7 +121,7 @@ export default function LandingPage() {
         <div className="w-[50vw] pt-[0.4vw] text-[1vw]">
           <form onSubmit={handleSubmit} className="flex flex-col">
             <div className="space-y-[1vw]">
-              <div className="space-y-[-0.2vw]">
+              <div className="space-y-[0.8vw]">
                 {/* Original link */}
                 <div className="space-y-[0.5vw]">
                   <label

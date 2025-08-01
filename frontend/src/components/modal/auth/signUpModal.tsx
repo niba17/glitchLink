@@ -27,7 +27,7 @@ export default function SignUpModal({
     try {
       const res = await signUp({ email, password, confirmPassword });
 
-      Toast.success(res.message || "Account created. You can now sign in.");
+      Toast.success(res.message || "Account created. You can now sign in");
 
       onClose();
       onSwitchToSignIn();

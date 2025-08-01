@@ -23,7 +23,7 @@ export const registerUserSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["confirmPassword"], // error akan ditandai pada field confirmPassword
+    path: ["confirmPassword"],
   });
 
 export type RegisterUserDto = z.infer<typeof registerUserSchema>;

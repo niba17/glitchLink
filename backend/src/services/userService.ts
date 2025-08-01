@@ -1,4 +1,3 @@
-// src/services/userService.ts
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserRepository } from "../repositories/userRepository";
@@ -6,25 +5,50 @@ import { RegisterUserDto, LoginUserDto } from "../DTOs/userDTO";
 import type { User } from "@prisma/client";
 import {
   ConflictError,
+  CredentialError,
   NotFoundError,
   UnauthorizedError,
+  ValidationError,
 } from "../utils/errors";
 
 type UserWithoutPassword = Pick<User, "id" | "email">;
 
 export class UserService {
   private userRepository = new UserRepository();
-  private jwtSecret = process.env.JWT_SECRET as string;
+  private jwtSecret = process.env.JWT_SECRET;
+
+  constructor() {
+    if (!this.jwtSecret) {
+      throw new Error("JWT_SECRET must be defined in environment variables");
+    }
+  }
 
   async registerUser(userData: RegisterUserDto): Promise<UserWithoutPassword> {
-    const { email, password } = userData;
+    const { email, password, confirmPassword } = userData;
+
+    const validationErrors: { path: string; message: string }[] = [];
+
+    if (password !== confirmPassword) {
+      validationErrors.push({
+        path: "confirmPassword",
+        message: "Passwords do not match",
+      });
+    }
 
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new ConflictError("User with this email already exists");
+      validationErrors.push({
+        path: "email",
+        message: "User with this email already exists",
+      });
+    }
+
+    if (validationErrors.length > 0) {
+      throw new ValidationError(validationErrors);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await this.userRepository.create({
       email,
       password: hashedPassword,
@@ -39,13 +63,16 @@ export class UserService {
     const { email, password } = userData;
 
     const user = await this.userRepository.findByEmail(email);
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedError("Invalid email or password");
+    const passwordValid =
+      user && (await bcrypt.compare(password, user.password));
+
+    if (!user || !passwordValid) {
+      throw new CredentialError("Invalid credential", ["email", "password"]);
     }
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      this.jwtSecret,
+      this.jwtSecret!,
       { expiresIn: "1h" }
     );
 

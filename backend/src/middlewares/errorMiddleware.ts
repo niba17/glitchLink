@@ -1,33 +1,22 @@
-// src/middleware/errorMiddleware.ts
-import { Request, Response, NextFunction } from "express";
-import {
-  CustomError,
-  InternalServerError,
-  ValidationError,
-} from "../utils/errors";
+import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
+import { CustomError } from "../utils/errors";
 
-export const errorMiddleware = (
-  err: Error,
+export function errorMiddleware(
+  err: any,
   req: Request,
   res: Response,
   next: NextFunction
-) => {
-  console.error(err);
-
+) {
   if (err instanceof ZodError) {
-    const validationError = new ValidationError(
-      undefined,
-      err.issues.map((issue) => ({
-        status: "error",
-        path: issue.path.join("."),
-        message: issue.message,
-      }))
-    );
-    return res.status(validationError.statusCode).json({
+    return res.status(400).json({
       status: "error",
-      message: validationError.message,
-      errors: validationError.issues,
+      message: "Validation failed",
+      errors: err.issues.map((issue) => ({
+        // status: "error",
+        path: issue.path.join("."), // biasanya string key
+        message: issue.message,
+      })),
     });
   }
 
@@ -35,12 +24,15 @@ export const errorMiddleware = (
     return res.status(err.statusCode).json({
       status: "error",
       message: err.message,
+      ...(err.meta && { errors: err.meta }), // ← penting!
     });
   }
 
-  const internalError = new InternalServerError();
-  return res.status(internalError.statusCode).json({
+  console.error("[Internal Error]", err);
+
+  // default error
+  return res.status(500).json({
     status: "error",
-    message: internalError.message,
+    message: "Internal Server Error",
   });
-};
+}

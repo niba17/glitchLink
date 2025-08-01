@@ -10,6 +10,7 @@ import {
   ExpiredError,
   InternalServerError,
   ForbiddenError,
+  ValidationError,
 } from "../utils/errors";
 import { mapLinkToDto } from "../mappers/linkMapper";
 import type { Link } from "@prisma/client";
@@ -49,20 +50,41 @@ export class LinkService {
   async createShortLink(linkData: CreateLinkDto, userId?: number) {
     const { originalUrl, customAlias, expiresAt } = linkData;
 
-    let shortCode: string;
+    const validationErrors: { path: string; message: string }[] = [];
+
     if (customAlias) {
       const existing = await this.linkRepository.findByCustomAlias(customAlias);
-      if (existing) throw new ConflictError("Alias is already in use");
-      shortCode = customAlias;
-    } else {
-      shortCode = await this.generateUniqueShortCode();
+      if (existing) {
+        throw new ConflictError("Conflict error", [
+          {
+            path: "customAlias",
+            message: "Alias already in use",
+          },
+        ]);
+      }
     }
+
+    if (expiresAt) {
+      const expiryDate = new Date(expiresAt);
+      if (isNaN(expiryDate.getTime()) || expiryDate < new Date()) {
+        validationErrors.push({
+          path: "expiresAt",
+          message: "Expiration date must be a valid future date",
+        });
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      throw new ValidationError(validationErrors);
+    }
+
+    const shortCode = customAlias || (await this.generateUniqueShortCode());
 
     try {
       const newLink = await this.linkRepository.create({
         original: originalUrl,
         shortCode,
-        customAlias,
+        customAlias: customAlias || null,
         userId,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
       });

@@ -9,13 +9,13 @@ export async function shortenUrl(originalUrl: string, customAlias?: string) {
     body: JSON.stringify({ originalUrl, customAlias }),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Something went wrong");
+    throw data; // ⬅️ fix disini
   }
 
-  const result = await res.json();
-  return result.data; // <== ✅ Pastikan return-nya langsung { shortUrl, originalUrl, customAlias, ... }
+  return data.data;
 }
 
 export async function signUp(payload: {
@@ -31,7 +31,7 @@ export async function signUp(payload: {
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.message || "Failed to sign up");
+    throw err; // <-- bukan `new Error(err.message)`
   }
 
   return await res.json();
@@ -46,7 +46,7 @@ export async function signIn(payload: { email: string; password: string }) {
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.message || "Failed to sign in");
+    throw err; // <-- bukan `new Error(err.message)`
   }
 
   return await res.json();

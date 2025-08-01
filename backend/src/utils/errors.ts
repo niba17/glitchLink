@@ -1,11 +1,44 @@
 export class CustomError extends Error {
-  statusCode: number;
+  public statusCode: number;
+  public meta?: any;
 
-  constructor(message: string, statusCode: number = 500) {
+  constructor(message: string, statusCode: number = 500, meta?: any) {
     super(message);
-    this.name = new.target.name;
     this.statusCode = statusCode;
+    this.meta = meta;
+
+    // Untuk mendukung instanceof CustomError
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class ValidationError extends Error {
+  status = "error";
+  httpCode = 400;
+  errors: { path: string; message: string }[];
+
+  constructor(errors: { path: string; message: string }[]) {
+    super("Validation failed");
+    this.errors = errors;
+  }
+}
+
+export class CredentialError extends CustomError {
+  constructor(
+    message: string = "Credential",
+    paths: string[] = [] // contoh: ["email", "password"]
+  ) {
+    const errors = paths.map((path) => ({ path, message: "" }));
+    super(message, 401, { errors });
+  }
+}
+
+export class ConflictError extends CustomError {
+  constructor(
+    message = "Conflict error",
+    meta?: { path?: string; message?: string }[] // sesuai kebutuhanmu
+  ) {
+    super(message, 409, meta);
   }
 }
 
@@ -35,28 +68,13 @@ export class NotFoundError extends CustomError {
 
 export class ExpiredError extends CustomError {
   constructor(entity: string = "Resource") {
-    super(`${entity} expired`, 410); // 410 Gone
-  }
-}
-
-export class ConflictError extends CustomError {
-  constructor(message: string = "Conflict occurred") {
-    super(message, 409);
+    super(`${entity} expired`, 410);
   }
 }
 
 export class InternalServerError extends CustomError {
   constructor(message: string = "Internal server error") {
     super(message, 500);
-  }
-}
-
-export class ValidationError extends BadRequestError {
-  public issues?: any[];
-
-  constructor(message: string = "Validation failed", issues?: any[]) {
-    super(message);
-    this.issues = issues;
   }
 }
 
