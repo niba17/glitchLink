@@ -80,7 +80,7 @@ export default function LandingPage() {
       }
 
       Toast.error(err.message || "Failed to shorten link");
-      setLoading(false); // 🧨 Tambahkan ini juga di catch
+      setLoading(false);
     }
   };
 
