@@ -5,6 +5,9 @@ import { useState } from "react";
 import AuthForm from "../../form/Auth";
 import Toast from "@/components/toast/Toast";
 import { signIn } from "@/lib/api";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 type SignInModalProps = {
   isOpen: boolean;
@@ -17,16 +20,21 @@ export default function SignInModal({
   onClose,
   onSwitchToSignUp,
 }: SignInModalProps) {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const { setIsAuthenticated } = useAuth();
 
   const resetForm = () => {
     setEmail("");
     setPassword("");
     setEmailError("");
     setPasswordError("");
+    setShowPassword(false);
   };
 
   const handleClose = () => {
@@ -36,25 +44,22 @@ export default function SignInModal({
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Hilangkan fokus dari tombol submit (agar tidak terus ter-highlight)
     (e.nativeEvent as SubmitEvent).submitter?.blur();
 
-    // Reset error state
     setEmailError("");
     setPasswordError("");
 
     try {
       const res = await signIn({ email, password });
-
       localStorage.setItem("token", res.token);
+      setIsAuthenticated(true);
       Toast.success(res.message || "Login successful");
-    } catch (err: any) {
-      // Reset error dulu
-      setEmailError("");
-      setPasswordError("");
 
-      const errors = err?.errors?.errors;
+      // ⬇️ Redirect ke halaman /links setelah login sukses
+      handleClose();
+      router.push("/links");
+    } catch (err: any) {
+      const errors = err?.errors;
       if (errors && Array.isArray(errors)) {
         errors.forEach((error: any) => {
           if (error.path === "email") {
@@ -86,6 +91,7 @@ export default function SignInModal({
           </p>
         }
       >
+        {/* Email */}
         <div className="w-full">
           <input
             type="email"
@@ -97,25 +103,41 @@ export default function SignInModal({
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          {/* {emailError && (
-            <p className="text-red-500 text-sm mt-1">{emailError}</p>
-          )} */}
+          {emailError && (
+            <p className="text-red-500 text-[0.8vw] mt-[0.3vw]">{emailError}</p>
+          )}
         </div>
 
-        <div className="w-full">
+        {/* Password */}
+        <div className="w-full relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className={`rounded-lg w-full p-[0.8vw] bg-zinc-950 border ${
+            className={`rounded-lg w-full p-[0.8vw] pr-[2.5vw] bg-zinc-950 border ${
               passwordError ? "border-red-500" : "border-transparent"
             }`}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {/* {passwordError && (
-            <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-          )} */}
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-[0.8vw] top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            tabIndex={-1}
+            title="Show password"
+          >
+            {showPassword ? (
+              <EyeOff className="w-[1.2vw] h-[1.2vw]" />
+            ) : (
+              <Eye className="w-[1.2vw] h-[1.2vw]" />
+            )}
+          </button>
+          {passwordError && (
+            <p className="text-red-500 text-[0.8vw] mt-[0.3vw]">
+              {passwordError}
+            </p>
+          )}
         </div>
       </AuthForm>
     </Modal>

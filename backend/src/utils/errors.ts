@@ -12,14 +12,9 @@ export class CustomError extends Error {
   }
 }
 
-export class ValidationError extends Error {
-  status = "error";
-  httpCode = 400;
-  errors: { path: string; message: string }[];
-
+export class ValidationError extends CustomError {
   constructor(errors: { path: string; message: string }[]) {
-    super("Validation failed");
-    this.errors = errors;
+    super("Validation failed", 400, { errors });
   }
 }
 

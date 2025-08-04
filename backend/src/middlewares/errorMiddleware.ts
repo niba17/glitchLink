@@ -24,7 +24,11 @@ export function errorMiddleware(
     return res.status(err.statusCode).json({
       status: "error",
       message: err.message,
-      ...(err.meta && { errors: err.meta }), // ← penting!
+      ...(err.meta?.errors
+        ? { errors: err.meta.errors }
+        : err.meta
+        ? { errors: err.meta }
+        : {}),
     });
   }
 

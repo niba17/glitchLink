@@ -120,8 +120,8 @@ export default function LandingPage() {
         {/* Kanan: Form */}
         <div className="w-[50vw] pt-[0.4vw] text-[1vw]">
           <form onSubmit={handleSubmit} className="flex flex-col">
-            <div className="space-y-[1vw]">
-              <div className="space-y-[0.8vw]">
+            <div className="space-y-[1.5vw]">
+              <div className="space-y-[0.5vw]">
                 {/* Original link */}
                 <div className="space-y-[0.5vw]">
                   <label
@@ -142,7 +142,7 @@ export default function LandingPage() {
                     placeholder="your original link ..."
                     required
                   />
-                  <div className="min-h-[1vw] text-[0.9vw] text-red-400">
+                  <div className="min-h-[1vw] text-[0.9vw] text-red-500">
                     {originalError ?? "\u00A0"}
                   </div>
                 </div>
@@ -163,7 +163,7 @@ export default function LandingPage() {
                     }`}
                     placeholder="your alias ..."
                   />
-                  <div className="min-h-[1vw] text-[0.9vw] text-red-400">
+                  <div className="min-h-[1vw] text-[0.9vw] text-red-500">
                     {aliasError ?? "\u00A0"}
                   </div>
                 </div>
@@ -194,7 +194,7 @@ export default function LandingPage() {
               {history.map((item) => (
                 <li
                   key={item.id}
-                  className="bg-zinc-900 p-[1vw] rounded-xl shadow-sm w-full flex justify-between items-start"
+                  className="bg-zinc-800 p-[1vw] rounded-xl shadow-sm w-full flex justify-between items-start"
                 >
                   <div className="flex flex-col space-y-[0.5vw]">
                     <a
