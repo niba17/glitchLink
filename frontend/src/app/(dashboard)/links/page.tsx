@@ -13,7 +13,7 @@ const link = () => {
       {/* Tabel */}
       <div className="overflow-x-auto">
         <table className="min-w-full text-left border-collapse">
-          <thead className="bg-transparent">
+          <thead className="bg-transparent text-[1.5vw]">
             <tr>
               <th className="px-[1vw] py-[1.3vw]"></th>
               <th className="px-[1vw] py-[1.3vw]">Link</th>
