@@ -2,23 +2,22 @@
 
 import { Button } from "@/components/button/Button";
 import React from "react";
-import { Copy, Share2, Edit, Trash2, Star } from "lucide-react";
-import { useLinks } from "@/hooks/useLinks"; // ✅ pakai hook
+import { Copy, Edit, Trash2, Star } from "lucide-react";
+import { useLinks } from "@/hooks/useLinks";
+import Toast from "@/components/toast/Toast";
+import { deleteLink } from "@/lib/api";
 
 const LinkPage = () => {
-  const { links, loading, error } = useLinks(); // ✅ data, loading, error dari hook
+  const { links, setLinks, loading, error } = useLinks();
 
   // Handler tombol
-  const handleCopy = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    alert("Link copied!");
-  };
-
-  const handleShare = async (url: string) => {
-    if (navigator.share) {
-      await navigator.share({ url });
-    } else {
-      alert("Sharing tidak didukung di browser ini");
+  const handleCopy = async (shortUrl: string) => {
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+      Toast.success("Short link copied");
+    } catch (err) {
+      Toast.error("Copy short link failed");
+      console.error(err);
     }
   };
 
@@ -34,8 +33,16 @@ const LinkPage = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Hapus link ini?")) return;
-    console.log("Delete link:", id);
-    // TODO: panggil API DELETE
+
+    try {
+      await deleteLink(id);
+      alert("Link berhasil dihapus");
+
+      // Update state: filter link yang sudah dihapus
+      setLinks((prev) => prev.filter((link) => link.id !== id));
+    } catch (error: any) {
+      alert(error.message || "Gagal menghapus link");
+    }
   };
 
   return (
@@ -54,7 +61,7 @@ const LinkPage = () => {
         ) : (
           <table className="min-w-full text-left border-collapse">
             <thead className="bg-transparent text-[1.5vw]">
-              <tr className="grid grid-cols-[5vw_1fr_1fr_1fr] py-[1vw]">
+              <tr className="grid grid-cols-[5vw_30vw_15vw_1fr] py-[1vw]">
                 <th></th>
                 <th>Links</th>
                 <th>Clicks</th>
@@ -65,7 +72,7 @@ const LinkPage = () => {
               {links.map((item, idx) => (
                 <tr
                   key={item.id}
-                  className={`grid grid-cols-[5vw_1fr_1fr_1fr] py-[0.5vw] ${
+                  className={`grid grid-cols-[5vw_30vw_15vw_1fr] py-[0.5vw] ${
                     idx % 2 === 0 ? "bg-zinc-700" : "bg-zinc-600"
                   }`}
                 >
@@ -77,33 +84,26 @@ const LinkPage = () => {
                     <div className="flex flex-col">
                       <a
                         title="Visit short link"
-                        href={item.short}
+                        href={item.shortUrl}
                         target="_blank"
-                        className="text-[1.3vw] text-blue-500 font-semibold underline"
+                        className="text-[1.3vw] text-blue-500 font-semibold underline block break-words"
                       >
-                        {item.short}
+                        {item.shortUrl}
                       </a>
+
                       <span
                         title="Original link"
-                        className="text-[1vw] break-all"
+                        className="text-[1vw] break-all text-gray-400"
                       >
                         {item.original}
                       </span>
                       <div className="flex mt-[0.5vw] ml-[-0.45vw]">
                         <button
                           title="Copy short link"
-                          onClick={() => handleCopy(item.short)}
-                          className="text-stone-200 hover:text-blue-500 p-[0.5vw]"
-                        >
-                          <Copy style={{ width: "1.5vw", height: "1.5vw" }} />
-                        </button>
-
-                        <button
-                          title="Share short link"
-                          onClick={() => handleShare(item.short)}
+                          onClick={() => handleCopy(item.shortUrl)}
                           className="text-stone-200 hover:text-green-500 p-[0.5vw]"
                         >
-                          <Share2 style={{ width: "1.5vw", height: "1.5vw" }} />
+                          <Copy style={{ width: "1.5vw", height: "1.5vw" }} />
                         </button>
 
                         <button

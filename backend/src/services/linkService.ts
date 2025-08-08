@@ -15,6 +15,7 @@ import {
 import { mapLinkToDto } from "../mappers/linkMapper";
 import type { Link } from "@prisma/client";
 import { formatDateTime } from "../utils/date";
+import { buildShortUrl } from "src/utils/buildShortUrl";
 
 export class LinkService {
   private linkRepository: LinkRepository;
@@ -25,27 +26,15 @@ export class LinkService {
     this.baseUrl = process.env.BASE_URL as string;
   }
 
-  private async generateUniqueShortCode(): Promise<string> {
-    while (true) {
-      const code = nanoid(7);
-      const exists = await this.linkRepository.findByShortCode(code);
-      if (!exists) return code;
-    }
-  }
-
-  private buildFullShortUrl(shortCode: string): string {
-    return `${this.baseUrl}/${shortCode}`;
-  }
-
-  private async getOwnedLinkOrThrow(
-    linkId: number,
-    userId: number
-  ): Promise<Link> {
-    const link = await this.linkRepository.findById(linkId);
-    if (!link) throw new NotFoundError("Link");
-    if (link.userId !== userId)
-      throw new ForbiddenError("You do not own this link");
-    return link;
+  async getUserLinks(userId: number) {
+    const links = await this.linkRepository.getLinksByUserId(userId);
+    return links.map((link) => ({
+      ...link,
+      shortUrl: buildShortUrl(this.baseUrl, link.shortCode),
+      createdAt: formatDateTime(link.createdAt),
+      updatedAt: formatDateTime(link.updatedAt),
+      expiresAt: link.expiresAt ? formatDateTime(link.expiresAt) : null,
+    }));
   }
 
   async createShortLink(linkData: CreateLinkDto, userId?: number) {
@@ -165,17 +154,34 @@ export class LinkService {
     }
   }
 
-  async generateQRCodeForLink(linkId: number, userId: number): Promise<string> {
+  async getLinkAnalytics(linkId: number, userId: number) {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
-    if (link.expiresAt && new Date() > link.expiresAt) {
-      throw new ExpiredError("Link");
-    }
+    const clicks = await this.linkRepository.getClicksByLinkId(linkId);
+    console.log("ok");
+    return {
+      totalClicks: link.clicksCount,
+      clicks: clicks.map((click) => ({
+        id: click.id,
+        ip: click.ipAddress,
+        country: click.country || null,
+        city: click.city || null,
+        userAgent: click.userAgent || null,
+        browser: click.browser || null,
+        os: click.os || null,
+        timestamp: click.clickedAt,
+      })),
+    };
+  }
 
-    try {
-      return await qrcode.toDataURL(this.buildFullShortUrl(link.shortCode));
-    } catch (error) {
-      throw new InternalServerError();
-    }
+  private async getOwnedLinkOrThrow(
+    linkId: number,
+    userId: number
+  ): Promise<Link> {
+    const link = await this.linkRepository.findById(linkId);
+    if (!link) throw new NotFoundError("Link");
+    if (link.userId !== userId)
+      throw new ForbiddenError("You do not own this link");
+    return link;
   }
 
   async getOriginalUrl(shortCode: string, req: any): Promise<string> {
@@ -214,32 +220,28 @@ export class LinkService {
     return link.original;
   }
 
-  async getUserLinks(userId: number) {
-    const links = await this.linkRepository.getLinksByUserId(userId);
-    return links.map((link) => ({
-      ...link,
-      createdAt: formatDateTime(link.createdAt),
-      updatedAt: formatDateTime(link.updatedAt),
-      expiresAt: formatDateTime(link.expiresAt),
-    }));
+  private async generateUniqueShortCode(): Promise<string> {
+    while (true) {
+      const code = nanoid(7);
+      const exists = await this.linkRepository.findByShortCode(code);
+      if (!exists) return code;
+    }
   }
 
-  async getLinkAnalytics(linkId: number, userId: number) {
+  private buildFullShortUrl(shortCode: string): string {
+    return `${this.baseUrl}/${shortCode}`;
+  }
+
+  async generateQRCodeForLink(linkId: number, userId: number): Promise<string> {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
-    const clicks = await this.linkRepository.getClicksByLinkId(linkId);
-    console.log("ok");
-    return {
-      totalClicks: link.clicksCount,
-      clicks: clicks.map((click) => ({
-        id: click.id,
-        ip: click.ipAddress,
-        country: click.country || null,
-        city: click.city || null,
-        userAgent: click.userAgent || null,
-        browser: click.browser || null,
-        os: click.os || null,
-        timestamp: click.clickedAt,
-      })),
-    };
+    if (link.expiresAt && new Date() > link.expiresAt) {
+      throw new ExpiredError("Link");
+    }
+
+    try {
+      return await qrcode.toDataURL(this.buildFullShortUrl(link.shortCode));
+    } catch (error) {
+      throw new InternalServerError();
+    }
   }
 }

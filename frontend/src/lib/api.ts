@@ -74,9 +74,29 @@ export async function getDashboardLinks() {
     id: link.id,
     original: link.original,
     short: link.shortCode,
+    shortUrl: link.shortUrl,
     clicks: link.clicksCount,
     created: link.createdAt,
     updated: link.updatedAt,
     expired: link.expiresAt,
   }));
+}
+
+export async function deleteLink(linkId: string) {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Token tidak ditemukan");
+
+  const res = await fetch(`http://localhost:3000/api/links/${linkId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Gagal menghapus link");
+  }
+
+  return await res.json();
 }
