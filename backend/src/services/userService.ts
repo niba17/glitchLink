@@ -4,10 +4,8 @@ import { UserRepository } from "../repositories/userRepository";
 import { RegisterUserDto, LoginUserDto } from "../DTOs/userDTO";
 import type { User } from "@prisma/client";
 import {
-  ConflictError,
   CredentialError,
   NotFoundError,
-  UnauthorizedError,
   ValidationError,
 } from "../utils/errors";
 

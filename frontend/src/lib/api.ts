@@ -51,3 +51,32 @@ export async function signIn(payload: { email: string; password: string }) {
 
   return await res.json();
 }
+
+export async function getDashboardLinks() {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Token tidak ditemukan");
+
+  const res = await fetch("http://localhost:3000/api/links/dashboard", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw json; // langsung lempar error setelah baca json sekali
+  }
+
+  return json.data.map((link: any) => ({
+    id: link.id,
+    original: link.original,
+    short: link.shortCode,
+    clicks: link.clicksCount,
+    created: link.createdAt,
+    updated: link.updatedAt,
+    expired: link.expiresAt,
+  }));
+}

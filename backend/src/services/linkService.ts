@@ -14,6 +14,7 @@ import {
 } from "../utils/errors";
 import { mapLinkToDto } from "../mappers/linkMapper";
 import type { Link } from "@prisma/client";
+import { formatDateTime } from "../utils/date";
 
 export class LinkService {
   private linkRepository: LinkRepository;
@@ -215,7 +216,12 @@ export class LinkService {
 
   async getUserLinks(userId: number) {
     const links = await this.linkRepository.getLinksByUserId(userId);
-    return links.map((link) => mapLinkToDto(link, this.baseUrl));
+    return links.map((link) => ({
+      ...link,
+      createdAt: formatDateTime(link.createdAt),
+      updatedAt: formatDateTime(link.updatedAt),
+      expiresAt: formatDateTime(link.expiresAt),
+    }));
   }
 
   async getLinkAnalytics(linkId: number, userId: number) {
