@@ -75,6 +75,7 @@ export async function getDashboardLinks() {
     original: link.original,
     short: link.shortCode,
     shortUrl: link.shortUrl,
+    alias: link.customAlias,
     clicks: link.clicksCount,
     created: link.createdAt,
     updated: link.updatedAt,
@@ -99,4 +100,26 @@ export async function deleteLink(linkId: string) {
   }
 
   return await res.json();
+}
+
+// src/lib/api.ts
+export async function updateLink(
+  id: string,
+  data: { customAlias?: string; expiresAt?: string }
+) {
+  const res = await fetch(`http://localhost:3000/api/links/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Failed to update link");
+  }
+
+  return res.json();
 }

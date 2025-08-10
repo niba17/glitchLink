@@ -5,7 +5,7 @@ import clsx from "clsx";
 import Image from "next/image";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "default" | "outline" | "ghost" | "primary" | "light";
+  variant?: "default" | "outline" | "ghost" | "primary" | "light" | "danger";
   size?: "sm" | "md" | "lg" | "none";
   iconSrc?: string; // ✅ Tambahkan path icon (dari /public)
   iconAlt?: string;
@@ -35,6 +35,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "bg-[#159976] hover:bg-[#0e7056] focus:ring-2 focus:outline-none focus:ring-[#1de2ae] font-medium rounded-lg text-[1vw] w-full h-[3vw] text-center",
       light:
         "bg-white hover:bg-stone-300 focus:ring-2 focus:outline-none focus:ring-white font-medium rounded-lg text-[1vw] w-full h-[3vw] text-center text-black",
+      danger:
+        "bg-[#db4646] hover:bg-red-700 focus:ring-2 focus:outline-none focus:ring-white font-medium rounded-lg text-[1vw] w-full h-[3vw] text-center text-white",
     };
     const sizes = {
       sm: "px-[0.6vw] py-[0.3vw] text-[0.7vw]",

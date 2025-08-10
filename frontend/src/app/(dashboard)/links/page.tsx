@@ -1,14 +1,17 @@
 "use client";
 
 import { Button } from "@/components/button/Button";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Copy, Edit, Trash2, Star } from "lucide-react";
 import { useLinks } from "@/hooks/useLinks";
 import Toast from "@/components/toast/Toast";
-import { deleteLink } from "@/lib/api";
+import { deleteLink, getDashboardLinks } from "@/lib/api";
+import EditLinkModal from "@/components/modal/links/EditLinkModal";
 
 const LinkPage = () => {
-  const { links, setLinks, loading, error } = useLinks();
+  const { links, setLinks, loading, error, fetchLinks } = useLinks();
+  const [isEditOpen, setEditOpen] = useState(false);
+  const [selectedLink, setSelectedLink] = useState<any>(null);
 
   // Handler tombol
   const handleCopy = async (shortUrl: string) => {
@@ -26,27 +29,32 @@ const LinkPage = () => {
     // TODO: panggil API untuk mark as starred
   };
 
-  const handleEdit = (id: string) => {
-    console.log("Edit link:", id);
-    // TODO: redirect ke halaman edit
-  };
-
   const handleDelete = async (id: string) => {
     if (!confirm("Hapus link ini?")) return;
 
     try {
       await deleteLink(id);
-      alert("Link berhasil dihapus");
-
-      // Update state: filter link yang sudah dihapus
+      Toast.success("Link berhasil dihapus");
       setLinks((prev) => prev.filter((link) => link.id !== id));
     } catch (error: any) {
-      alert(error.message || "Gagal menghapus link");
+      Toast.error(error.message || "Gagal menghapus link");
     }
   };
 
+  useEffect(() => {
+    fetchLinks();
+  }, []);
+
   return (
     <div className="bg-zinc-950 min-h-screen px-[15vw] py-[3vw] text-stone-200 space-y-[1vw]">
+      {/* ✅ Modal edit */}
+      <EditLinkModal
+        isOpen={isEditOpen}
+        onClose={() => setEditOpen(false)}
+        linkData={selectedLink}
+        onSuccess={fetchLinks}
+      />
+
       <div className="flex w-1/2 gap-[1vw]">
         <Button variant="primary">Get Link</Button>
         <Button variant="primary">Newest</Button>
@@ -116,7 +124,14 @@ const LinkPage = () => {
 
                         <button
                           title="Edit short link"
-                          onClick={() => handleEdit(item.id)}
+                          onClick={() => {
+                            setSelectedLink({
+                              id: item.id,
+                              customAlias: item.alias,
+                              expiresAt: item.expired,
+                            });
+                            setEditOpen(true);
+                          }}
                           className="text-stone-200 hover:text-yellow-500 p-[0.5vw]"
                         >
                           <Edit style={{ width: "1.5vw", height: "1.5vw" }} />
