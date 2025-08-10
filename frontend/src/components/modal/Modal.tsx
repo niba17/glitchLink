@@ -34,7 +34,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-zinc-900 text-white p-[2vw] rounded-[0.8vw] w-[28vw] max-w-[90vw]"
+        className="bg-zinc-900 text-white p-[2vw] rounded-[0.8vw] w-[28vw] max-w-[90vw] border border-stone-600"
         onClick={(e) => e.stopPropagation()}
       >
         {children}

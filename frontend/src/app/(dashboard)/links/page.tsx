@@ -7,11 +7,13 @@ import { useLinks } from "@/hooks/useLinks";
 import Toast from "@/components/toast/Toast";
 import { deleteLink, getDashboardLinks } from "@/lib/api";
 import EditLinkModal from "@/components/modal/links/EditLinkModal";
+import ConfirmDeleteModal from "@/components/modal/ConfirmDeleteModal";
 
 const LinkPage = () => {
   const { links, setLinks, loading, error, fetchLinks } = useLinks();
   const [isEditOpen, setEditOpen] = useState(false);
   const [selectedLink, setSelectedLink] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Handler tombol
   const handleCopy = async (shortUrl: string) => {
@@ -30,8 +32,6 @@ const LinkPage = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Hapus link ini?")) return;
-
     try {
       await deleteLink(id);
       Toast.success("Link berhasil dihapus");
@@ -139,7 +139,7 @@ const LinkPage = () => {
 
                         <button
                           title="Delete short link"
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => setDeleteId(item.id)}
                           className="text-stone-200 hover:text-red-500 p-[0.5vw]"
                         >
                           <Trash2 style={{ width: "1.5vw", height: "1.5vw" }} />
@@ -173,6 +173,13 @@ const LinkPage = () => {
           </table>
         )}
       </div>
+      <ConfirmDeleteModal
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => {
+          if (deleteId) handleDelete(deleteId);
+        }}
+      />
     </div>
   );
 };
