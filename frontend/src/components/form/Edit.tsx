@@ -3,38 +3,32 @@
 import { ReactNode } from "react";
 import { Button } from "../button/Button";
 
-type AuthFormProps = {
-  title: string;
-  subtitle?: string;
+type Edit = {
+  title?: string;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   children: ReactNode;
   footer?: ReactNode;
 };
 
-export default function AuthForm({
-  title,
-  subtitle,
+export default function Edit({
+  title = "Edit Link",
   onSubmit,
   children,
   footer,
-}: AuthFormProps) {
+}: Edit) {
   return (
     <form
       onSubmit={onSubmit}
       className="flex flex-col gap-[1vw] text-stone-200 text-[1vw]"
     >
-      <div>
+      {title && (
         <h2 className="text-[1.5vw] font-semibold text-center">{title}</h2>
-        {subtitle && <p className="text-[0.8vw]">{subtitle}</p>}
-      </div>
+      )}
 
       {children}
 
       <Button type="submit" variant="primary">
-        Submit
-      </Button>
-      <Button variant="light" iconSrc="/google.svg" iconAlt="Google">
-        Sign with Google
+        Save
       </Button>
 
       {footer && (

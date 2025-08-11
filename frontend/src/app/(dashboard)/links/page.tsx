@@ -51,8 +51,15 @@ const LinkPage = () => {
       <EditLinkModal
         isOpen={isEditOpen}
         onClose={() => setEditOpen(false)}
-        linkData={selectedLink}
+        initialData={selectedLink}
         onSuccess={fetchLinks}
+      />
+      <ConfirmDeleteModal
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => {
+          if (deleteId) handleDelete(deleteId);
+        }}
       />
 
       <div className="flex w-1/2 gap-[1vw]">
@@ -127,8 +134,8 @@ const LinkPage = () => {
                           onClick={() => {
                             setSelectedLink({
                               id: item.id,
-                              customAlias: item.alias,
-                              expiresAt: item.expired,
+                              customAlias: item.customAlias,
+                              expiresAt: item.expiresAt,
                             });
                             setEditOpen(true);
                           }}
@@ -157,13 +164,13 @@ const LinkPage = () => {
                   <td>
                     <div className="flex flex-col">
                       <span title="Short link created" className="text-[1.2vw]">
-                        {item.created}
+                        {item.createdAt}
                       </span>
                       <span
                         title="Short link Expired"
                         className="text-[1.2vw] text-red-500"
                       >
-                        {item.expired || "-"}
+                        {item.expiresAt || "-"}
                       </span>
                     </div>
                   </td>
@@ -173,13 +180,6 @@ const LinkPage = () => {
           </table>
         )}
       </div>
-      <ConfirmDeleteModal
-        isOpen={deleteId !== null}
-        onClose={() => setDeleteId(null)}
-        onConfirm={() => {
-          if (deleteId) handleDelete(deleteId);
-        }}
-      />
     </div>
   );
 };

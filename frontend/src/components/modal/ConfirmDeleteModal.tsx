@@ -17,7 +17,7 @@ export default function ConfirmDeleteModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="text-center space-y-[2vw]">
-        <h2 className="text-lg font-semibold text-[2vw]">Delete confirm</h2>
+        <span className="font-semibold text-[1.8vw]">Confirm delete</span>
         <div className="flex justify-center gap-[1.5vw]">
           <Button
             variant="danger"

@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "../Modal";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import AuthForm from "../../form/Auth";
 import Toast from "@/components/toast/Toast";
 import { signIn } from "@/lib/api";
@@ -29,6 +29,10 @@ export default function SignInModal({
   const [showPassword, setShowPassword] = useState(false);
   const { setIsAuthenticated } = useAuth();
 
+  // 🔹 Tambah ref untuk akses input
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
   const resetForm = () => {
     setEmail("");
     setPassword("");
@@ -55,7 +59,6 @@ export default function SignInModal({
       setIsAuthenticated(true);
       Toast.success(res.message || "Login successful");
 
-      // ⬇️ Redirect ke halaman /links setelah login sukses
       handleClose();
       router.push("/links");
     } catch (err: any) {
@@ -64,10 +67,18 @@ export default function SignInModal({
         errors.forEach((error: any) => {
           if (error.path === "email") {
             setEmailError(error.message || " ");
+            emailRef.current?.blur(); // ⬅️ Blur email field
           } else if (error.path === "password") {
             setPasswordError(error.message || " ");
+            passwordRef.current?.blur(); // ⬅️ Blur password field
           }
         });
+      } else {
+        // Kalau error global seperti invalid credentials
+        setEmailError("Invalid email or password");
+        setPasswordError("Invalid email or password");
+        emailRef.current?.blur();
+        passwordRef.current?.blur();
       }
 
       Toast.error(err?.message || "Login failed");
@@ -94,6 +105,7 @@ export default function SignInModal({
         {/* Email */}
         <div className="w-full">
           <input
+            ref={emailRef} // ⬅️ pasang ref
             type="email"
             placeholder="Email"
             className={`rounded-lg w-full p-[0.8vw] bg-zinc-950 border ${
@@ -111,6 +123,7 @@ export default function SignInModal({
         {/* Password */}
         <div className="w-full relative">
           <input
+            ref={passwordRef} // ⬅️ pasang ref
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             className={`rounded-lg w-full p-[0.8vw] pr-[2.5vw] bg-zinc-950 border ${

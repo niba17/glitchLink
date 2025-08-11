@@ -73,13 +73,13 @@ export async function getDashboardLinks() {
   return json.data.map((link: any) => ({
     id: link.id,
     original: link.original,
-    short: link.shortCode,
+    shortCode: link.shortCode,
     shortUrl: link.shortUrl,
-    alias: link.customAlias,
-    clicks: link.clicksCount,
-    created: link.createdAt,
-    updated: link.updatedAt,
-    expired: link.expiresAt,
+    customAlias: link.customAlias,
+    clicksCount: link.clicksCount,
+    createdAt: link.createdAt,
+    updatedAt: link.updatedAt,
+    expiresAt: link.expiresAt,
   }));
 }
 
