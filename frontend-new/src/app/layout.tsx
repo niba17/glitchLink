@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ReactQueryProvider from "@/lib/react-query";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "GlitchLink",
@@ -15,7 +16,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ReactQueryProvider>{children}</ReactQueryProvider>{" "}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );
