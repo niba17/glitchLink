@@ -24,11 +24,11 @@ export default function LandingPage() {
   const {
     shortLinkList,
     setShortLinkList,
-    isDeleteModalOpen,
-    deleteModalContent,
-    openDeleteModal,
-    closeDeleteModal,
-    handleDelete,
+    isDeleteShortLinkModalOpen,
+    deleteShortLinkModalContent,
+    openDeleteShortLinkModal,
+    closeDeleteShortLinkModal,
+    handleDeleteShortLink,
   } = useDeleteShortLink(loadLocalShortLinks());
 
   const { handleCopyShortLink } = useCopyShortLink();
@@ -44,7 +44,7 @@ export default function LandingPage() {
     setShortLinkList(loadLocalShortLinks());
   }, [setShortLinkList]);
 
-  const handleUpdateLink = (id: string) => {
+  const handleUpdateShortLink = (id: string) => {
     toast("Update link not implemented yet");
   };
 
@@ -91,24 +91,28 @@ export default function LandingPage() {
                 shortUrl={item.shortUrl}
                 originalUrl={item.originalUrl}
                 onCopy={() => handleCopyShortLink(item.shortUrl)}
-                onUpdate={() => handleUpdateLink(item.id)}
-                onDelete={() => openDeleteModal(item.id, item.shortUrl)}
+                onUpdate={() => handleUpdateShortLink(item.id)}
+                onDelete={() =>
+                  openDeleteShortLinkModal(item.id, item.shortUrl)
+                }
               />
             ))}
           </ul>
         </section>
       )}
 
-      {deleteModalContent && (
+      {deleteShortLinkModalContent && (
         <DeleteShortLinkForm
-          isOpen={isDeleteModalOpen}
-          onClose={closeDeleteModal}
-          onConfirm={() => handleDelete(deleteModalContent.id)}
+          isOpen={isDeleteShortLinkModalOpen}
+          onClose={closeDeleteShortLinkModal}
+          onConfirm={() =>
+            handleDeleteShortLink(deleteShortLinkModalContent.id)
+          }
         >
           <p className="text-[1.2vw]">
             Sure to delete{" "}
             <span className="text-[#159976] break-all">
-              {deleteModalContent.shortUrl}
+              {deleteShortLinkModalContent.shortUrl}
             </span>{" "}
             ?
           </p>

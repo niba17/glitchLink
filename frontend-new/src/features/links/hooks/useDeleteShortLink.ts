@@ -4,23 +4,25 @@ import { toast } from "sonner";
 
 export const useDeleteShortLink = (initialLinks: ShortLink[] = []) => {
   const [shortLinkList, setShortLinkList] = useState<ShortLink[]>(initialLinks);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteModalContent, setDeleteModalContent] = useState<{
-    id: string;
-    shortUrl: string;
-  } | null>(null);
+  const [isDeleteShortLinkModalOpen, setIsDeleteShortLinkModalOpen] =
+    useState(false);
+  const [deleteShortLinkModalContent, setDeleteShortLinkModalContent] =
+    useState<{
+      id: string;
+      shortUrl: string;
+    } | null>(null);
 
-  const openDeleteModal = (id: string, shortUrl: string) => {
-    setDeleteModalContent({ id, shortUrl });
-    setIsDeleteModalOpen(true);
+  const openDeleteShortLinkModal = (id: string, shortUrl: string) => {
+    setDeleteShortLinkModalContent({ id, shortUrl });
+    setIsDeleteShortLinkModalOpen(true);
   };
 
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setDeleteModalContent(null);
+  const closeDeleteShortLinkModal = () => {
+    setIsDeleteShortLinkModalOpen(false);
+    setDeleteShortLinkModalContent(null);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDeleteShortLink = (id: string) => {
     // Gunakan filter terhadap state terbaru
     setShortLinkList((prev: ShortLink[]) => {
       const updated = prev.filter((link) => link.id !== id);
@@ -28,16 +30,16 @@ export const useDeleteShortLink = (initialLinks: ShortLink[] = []) => {
       return updated;
     });
     toast.success("Link deleted");
-    closeDeleteModal();
+    closeDeleteShortLinkModal();
   };
 
   return {
     shortLinkList,
     setShortLinkList,
-    isDeleteModalOpen,
-    deleteModalContent,
-    openDeleteModal,
-    closeDeleteModal,
-    handleDelete,
+    isDeleteShortLinkModalOpen,
+    deleteShortLinkModalContent,
+    openDeleteShortLinkModal,
+    closeDeleteShortLinkModal,
+    handleDeleteShortLink,
   };
 };
