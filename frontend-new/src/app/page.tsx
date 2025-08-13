@@ -9,11 +9,17 @@ import {
 import { ShortLink } from "@/features/links/types/type";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import DeleteShortLinkForm from "@/features/links/components/forms/DeleteShortLinkForm";
 
 export default function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const [shortLinkList, setShortLinkList] = useState<ShortLink[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<{
+    id: string;
+    shortUrl: string;
+  } | null>(null);
 
   // Helper aman untuk load localStorage
   const loadLocalLinks = (): ShortLink[] => {
@@ -102,32 +108,41 @@ export default function LandingPage() {
     toast.success("Link updated locally");
   };
 
-  const handleDeleteLink = (id: string) => {
+  const handleDeleteLink = (id: string, shortUrl: string) => {
+    setModalContent({ id, shortUrl });
+    setModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!modalContent) return;
+
     setShortLinkList((prev) => {
-      const updated = prev.filter((item) => item.id !== id);
+      const updated = prev.filter((item) => item.id !== modalContent.id);
       localStorage.setItem("shortLinks", JSON.stringify(updated));
       return updated;
     });
     toast.success("Link deleted");
+    setModalOpen(false);
+    setModalContent(null);
   };
 
   return (
     <main className="bg-zinc-950 min-h-screen px-[15vw] py-[3vw] text-stone-200">
-      <section className="flex">
-        <div className="flex flex-col w-[50vw] space-y-[1.85vw]">
-          <p className="text-[3.7vw] leading-tight font-semibold">
+      <section className="grid grid-cols-2">
+        <div className="flex flex-col space-y-[1.85vw]">
+          <p className="text-[3.75vw] leading-tight font-semibold">
             In the grid of data,
             <br /> your link is <br />a{" "}
             <span className="text-[#159976]">weapon</span>
           </p>
-          <p className="text-[1.9vw]">
+          <p className="text-[1.5vw]">
             Jack into real-time analytics, <br />
             forge custom-alias links, <br />
             take the control
           </p>
         </div>
 
-        <div className="pt-[0.2vw] w-[50vw] text-[1.3vw]">
+        <div className="pt-[0.2vw]">
           <CreateLinkForm
             onSubmit={handleCreateLink}
             isLoading={loading}
@@ -154,11 +169,19 @@ export default function LandingPage() {
                 originalUrl={item.originalUrl}
                 onCopy={handleCopyLink}
                 onUpdate={handleUpdateLink}
-                onDelete={handleDeleteLink}
+                onDelete={() => handleDeleteLink(item.id, item.shortUrl)}
               />
             ))}
           </ul>
         </section>
+      )}
+      {modalContent && (
+        <DeleteShortLinkForm
+          isOpen={modalOpen}
+          shortUrl={modalContent.shortUrl}
+          onClose={() => setModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+        />
       )}
     </main>
   );

@@ -35,9 +35,9 @@ export default function Nav() {
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-zinc-800 text-stone-200">
-      <div className="mx-auto px-[15vw] py-[0.5vw] flex items-center justify-between">
+      <div className="px-[15vw] py-[0.5vw] flex items-center justify-between h-[4vw]">
         {/* Logo */}
-        <div className="text-[1.5vw] font-semibold">glitchLink</div>
+        <div className="text-[1.9vw] font-semibold">glitchLink</div>
 
         {/* Navigation Links */}
         {isAuthenticated && (
@@ -57,12 +57,12 @@ export default function Nav() {
         )}
 
         {/* Auth Controls */}
-        <div>
+        <div className="text-[1.6vw]">
           {isAuthenticated ? (
             <Button
               onClick={handleLogout}
               variant="ghost"
-              className="hover:text-red-400 text-[1.2vw]"
+              className="hover:text-red-400"
             >
               Sign Out
             </Button>
@@ -70,7 +70,7 @@ export default function Nav() {
             <Button
               onClick={openSignIn}
               variant="ghost"
-              className="text-stone-200 hover:text-stone-400 text-[1.3vw]"
+              className="text-stone-200 hover:text-stone-400"
             >
               Sign In
             </Button>

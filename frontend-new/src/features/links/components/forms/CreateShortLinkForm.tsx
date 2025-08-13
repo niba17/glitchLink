@@ -43,8 +43,8 @@ export default function CreateLinkForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col space-y-[2vw]">
-        <div className="flex flex-col space-y-[1vw]">
+      <div className="flex flex-col space-y-[1.7vw]">
+        <div className="flex flex-col space-y-[0.7vw]">
           <Input
             label="Original Link"
             placeholder="https://example.com"
@@ -64,7 +64,7 @@ export default function CreateLinkForm({
           />
         </div>
         <Button
-          className="py-[0.7vw]"
+          className="text-[2vw]"
           type="submit"
           variant="primary"
           disabled={isLoading}

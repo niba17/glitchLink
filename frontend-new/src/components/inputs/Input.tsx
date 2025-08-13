@@ -11,9 +11,9 @@ type InputProps = {
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, id, className, ...props }, ref) => {
     return (
-      <div className="flex flex-col space-y-[0.5vw]">
+      <div className="flex flex-col space-y-[0.5vw] text-[1.3vw]">
         {label && (
-          <label htmlFor={id} className="text-[1.8vw]">
+          <label htmlFor={id} className="text-[1.4vw]">
             {label}
           </label>
         )}

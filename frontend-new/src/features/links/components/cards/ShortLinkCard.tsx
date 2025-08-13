@@ -24,15 +24,19 @@ export default function ShortLinkCard({
     <li className="bg-zinc-800 p-[1vw] rounded-[1vw] shadow-sm w-full">
       <div className="flex flex-col space-y-[0.5vw]">
         <a
+          title="Visit short link"
           href={shortUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#1de2ae] underline break-all text-[1vw]"
+          className="text-[#1de2ae] underline break-all text-[1.3vw]"
         >
           {shortUrl}
         </a>
 
-        <span className="text-gray-400 break-all text-[0.9vw]">
+        <span
+          title="Original link"
+          className="text-gray-400 break-all text-[1.1vw]"
+        >
           {originalUrl}
         </span>
 
@@ -43,7 +47,7 @@ export default function ShortLinkCard({
             onClick={() => onCopy(shortUrl)}
             title="Copy short link"
           >
-            <Copy className="w-[1vw] h-[1vw]" />
+            <Copy className="w-[1.3vw] h-[1.3vw]" />
           </Button>
 
           <Button
@@ -57,7 +61,7 @@ export default function ShortLinkCard({
             }}
             title="Edit short link"
           >
-            <Edit className="w-[1vw] h-[1vw]" />
+            <Edit className="w-[1.3vw] h-[1.3vw]" />
           </Button>
 
           <Button
@@ -66,7 +70,7 @@ export default function ShortLinkCard({
             onClick={() => onDelete(id)}
             title="Delete short link"
           >
-            <Trash2 className="w-[1vw] h-[1vw]" />
+            <Trash2 className="w-[1.3vw] h-[1.3vw]" />
           </Button>
         </div>
       </div>

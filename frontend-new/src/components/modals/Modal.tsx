@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect, useRef } from "react";
-import Button from "@/components/buttons/Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -36,25 +35,16 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm text-[1.5vw]"
       onMouseDown={handleClickOutside}
     >
       <div
         ref={modalRef}
-        className="bg-zinc-900 text-stone-200 rounded-lg shadow-lg w-[90%] max-w-md p-6 relative"
+        className="bg-zinc-900 text-stone-200 rounded-lg shadow-lg w-[30vw] p-[1.5vw] relative space-y-[1vw]"
       >
-        {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
-
-        <Button
-          onClick={onClose}
-          variant="ghost"
-          size="icon"
-          className="absolute top-3 right-3 text-stone-400 hover:text-stone-200"
-          aria-label="Close"
-        >
-          ✕
-        </Button>
-
+        {title && (
+          <h2 className="text-center font-semibold text-[1.6vw]">{title}</h2>
+        )}
         {children}
       </div>
     </div>

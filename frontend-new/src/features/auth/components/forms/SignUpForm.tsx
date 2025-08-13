@@ -28,48 +28,54 @@ export default function SignUpModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Sign Up">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-[1vw]">
-        <Input
-          id="name"
-          label="Name"
-          type="text"
-          placeholder="Enter your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <form onSubmit={handleSubmit}>
+        {" "}
+        <div className="flex flex-col space-y-[1vw]">
+          <div className="flex flex-col space-y-[0.5vw]">
+            <Input
+              id="name"
+              label="Name"
+              type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
 
-        <Input
-          id="email"
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            <Input
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-        <Input
-          id="password"
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col space-y-[0.5vw]">
+            <Button type="submit" variant="primary">
+              Sign Up
+            </Button>
 
-        <Button type="submit" variant="primary">
-          Sign Up
-        </Button>
-
-        <p className="text-[1vw] text-stone-400 text-center">
-          Already have an account?{" "}
-          <button
-            type="button"
-            className="text-[#159976] hover:underline"
-            onClick={onSwitchToSignIn}
-          >
-            Sign In
-          </button>
-        </p>
+            <p className="text-[1vw] text-stone-400 text-center">
+              Already have an account?{" "}
+              <button
+                type="button"
+                className="text-[#159976] hover:underline"
+                onClick={onSwitchToSignIn}
+              >
+                Sign In
+              </button>
+            </p>
+          </div>
+        </div>
       </form>
     </Modal>
   );
