@@ -1,31 +1,25 @@
 "use client";
 
-import { FC } from "react";
-import Modal from "@/components/modals/Modal";
 import Button from "@/components/buttons/Button";
+import Modal from "@/components/modals/Modal";
 
 interface DeleteShortLinkFormProps {
   isOpen: boolean;
-  shortUrl: string;
   onClose: () => void;
   onConfirm: () => void;
+  children: React.ReactNode;
 }
 
-const DeleteShortLinkForm: FC<DeleteShortLinkFormProps> = ({
+export default function DeleteShortLinkForm({
   isOpen,
-  shortUrl,
   onClose,
   onConfirm,
-}) => {
-  if (!isOpen) return null;
-
+  children,
+}: DeleteShortLinkFormProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Delete Short Link">
+    <Modal isOpen={isOpen} onClose={onClose} title="Confirm Delete">
       <div className="flex flex-col space-y-[1vw]">
-        <p className="text-stone-300">
-          Are you sure you want to delete "{shortUrl}"? This action cannot be
-          undone.
-        </p>
+        {children}
 
         <Button variant="primary" onClick={onConfirm}>
           Delete
@@ -33,6 +27,4 @@ const DeleteShortLinkForm: FC<DeleteShortLinkFormProps> = ({
       </div>
     </Modal>
   );
-};
-
-export default DeleteShortLinkForm;
+}

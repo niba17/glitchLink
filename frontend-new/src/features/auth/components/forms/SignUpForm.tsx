@@ -30,8 +30,8 @@ export default function SignUpModal({
     <Modal isOpen={isOpen} onClose={onClose} title="Sign Up">
       <form onSubmit={handleSubmit}>
         {" "}
-        <div className="flex flex-col space-y-[1vw]">
-          <div className="flex flex-col space-y-[0.5vw]">
+        <div className="flex flex-col space-y-[0.6vw]">
+          <div className="flex flex-col space-y-[0.1vw]">
             <Input
               id="name"
               label="Name"

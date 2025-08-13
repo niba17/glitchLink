@@ -6,10 +6,12 @@ import { cn } from "@/lib/utils";
 type InputProps = {
   label?: string;
   error?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, id, className, ...props }, ref) => {
+  ({ label, error, id, className, value, onChange, ...props }, ref) => {
     return (
       <div className="flex flex-col space-y-[0.5vw] text-[1.3vw]">
         {label && (
@@ -21,6 +23,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           id={id}
           ref={ref}
+          value={value}
+          onChange={onChange}
           {...props}
           className={cn(
             "bg-zinc-800 rounded-[0.5vw] w-full p-[0.8vw] placeholder:text-stone-400 focus:outline-none focus:ring-[0.1vw] focus:ring-stone-400 border",
@@ -35,7 +39,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               {error}
             </p>
           ) : (
-            // Placeholder kosong agar tinggi tetap sama
             <span className="invisible text-[1vw]">&nbsp;</span>
           )}
         </div>

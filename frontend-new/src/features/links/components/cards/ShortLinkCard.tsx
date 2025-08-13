@@ -21,7 +21,7 @@ export default function ShortLinkCard({
   onDelete,
 }: ShortLinkCardProps) {
   return (
-    <li className="bg-zinc-800 p-[1vw] rounded-[1vw] shadow-sm w-full">
+    <li className="bg-zinc-800 p-[1vw] rounded-[0.5vw] w-full">
       <div className="flex flex-col space-y-[0.5vw]">
         <a
           title="Visit short link"

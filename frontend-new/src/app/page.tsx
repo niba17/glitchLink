@@ -1,129 +1,51 @@
 "use client";
 
-import CreateLinkForm from "@/features/links/components/forms/CreateShortLinkForm";
+import CreateShortLinkForm from "@/features/links/components/forms/CreateShortLinkForm";
 import ShortLinkCard from "@/features/links/components/cards/ShortLinkCard";
-import {
-  linkService,
-  ApiError,
-} from "@/features/links/services/shortLinkService";
 import { ShortLink } from "@/features/links/types/type";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import DeleteShortLinkForm from "@/features/links/components/forms/DeleteShortLinkForm";
+import { useDeleteShortLink } from "@/features/links/hooks/useDeleteShortLink";
+import { useCreateShortLink } from "@/features/links/hooks/useCreateShortLink";
+import { useCopyShortLink } from "@/features/links/hooks/useCopyShortLink";
+
+// Load local storage function (ditempatkan di luar komponen)
+const loadLocalShortLinks = (): ShortLink[] => {
+  try {
+    const data = localStorage.getItem("shortLinks");
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
 
 export default function LandingPage() {
-  const [loading, setLoading] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
-  const [shortLinkList, setShortLinkList] = useState<ShortLink[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<{
-    id: string;
-    shortUrl: string;
-  } | null>(null);
+  const {
+    shortLinkList,
+    setShortLinkList,
+    isDeleteModalOpen,
+    deleteModalContent,
+    openDeleteModal,
+    closeDeleteModal,
+    handleDelete,
+  } = useDeleteShortLink(loadLocalShortLinks());
 
-  // Helper aman untuk load localStorage
-  const loadLocalLinks = (): ShortLink[] => {
-    try {
-      const data = localStorage.getItem("shortLinks");
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  };
+  const { copyLink } = useCopyShortLink();
 
+  const {
+    createShortLink,
+    loading: isCreating,
+    fieldErrors,
+  } = useCreateShortLink(shortLinkList, setShortLinkList);
+
+  // Isi state shortLinkList setelah mount
   useEffect(() => {
-    setShortLinkList(loadLocalLinks());
-  }, []);
+    setShortLinkList(loadLocalShortLinks());
+  }, [setShortLinkList]);
 
-  const handleCreateLink = async (data: {
-    originalUrl: string;
-    customAlias?: string | null;
-  }) => {
-    setFieldErrors({});
-    setLoading(true);
-
-    try {
-      const res = await linkService.createLink(data);
-
-      if (res.status === "success") {
-        toast.success("Link created successfully!", {
-          description: `Your short link: ${res.data.shortUrl}`,
-        });
-
-        // Gabungkan update state & localStorage
-        setShortLinkList((prev) => {
-          const updated = [...prev, res.data];
-          localStorage.setItem("shortLinks", JSON.stringify(updated));
-          return updated;
-        });
-      }
-    } catch (error: unknown) {
-      if (error instanceof ApiError) {
-        if (error.data?.errors) {
-          const newFieldErrors: { [key: string]: string } = {};
-          error.data.errors.forEach(
-            (err: { path: string; message: string }) => {
-              newFieldErrors[err.path] = err.message;
-            }
-          );
-          setFieldErrors(newFieldErrors);
-
-          const messages = error.data.errors
-            .map((e: { message: string }) => e.message)
-            .join(", ");
-          toast.error(messages);
-        } else {
-          toast.error(error.message);
-        }
-        return;
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-        return;
-      } else {
-        toast.error("Failed to create link");
-        return;
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopyLink = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast.success("Copied to clipboard!");
-  };
-
-  const handleUpdateLink = (id: string, newOriginalUrl: string) => {
-    setShortLinkList((prev) => {
-      const updated = prev.map((link) =>
-        link.id === id ? { ...link, originalUrl: newOriginalUrl } : link
-      );
-      try {
-        localStorage.setItem("shortLinks", JSON.stringify(updated));
-      } catch {
-        toast.error("Failed to update local storage");
-      }
-      return updated;
-    });
-    toast.success("Link updated locally");
-  };
-
-  const handleDeleteLink = (id: string, shortUrl: string) => {
-    setModalContent({ id, shortUrl });
-    setModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (!modalContent) return;
-
-    setShortLinkList((prev) => {
-      const updated = prev.filter((item) => item.id !== modalContent.id);
-      localStorage.setItem("shortLinks", JSON.stringify(updated));
-      return updated;
-    });
-    toast.success("Link deleted");
-    setModalOpen(false);
-    setModalContent(null);
+  const handleUpdateLink = (id: string) => {
+    toast("Update link not implemented yet");
   };
 
   return (
@@ -143,13 +65,14 @@ export default function LandingPage() {
         </div>
 
         <div className="pt-[0.2vw]">
-          <CreateLinkForm
-            onSubmit={handleCreateLink}
-            isLoading={loading}
+          <CreateShortLinkForm
+            onSubmit={createShortLink}
+            isLoading={isCreating}
             fieldErrors={fieldErrors}
           />
         </div>
       </section>
+
       {shortLinkList.length > 0 && (
         <section>
           <div className="flex items-center justify-center py-[2vw]">
@@ -167,21 +90,29 @@ export default function LandingPage() {
                 id={item.id}
                 shortUrl={item.shortUrl}
                 originalUrl={item.originalUrl}
-                onCopy={handleCopyLink}
-                onUpdate={handleUpdateLink}
-                onDelete={() => handleDeleteLink(item.id, item.shortUrl)}
+                onCopy={() => copyLink(item.shortUrl)}
+                onUpdate={() => handleUpdateLink(item.id)}
+                onDelete={() => openDeleteModal(item.id, item.shortUrl)}
               />
             ))}
           </ul>
         </section>
       )}
-      {modalContent && (
+
+      {deleteModalContent && (
         <DeleteShortLinkForm
-          isOpen={modalOpen}
-          shortUrl={modalContent.shortUrl}
-          onClose={() => setModalOpen(false)}
-          onConfirm={handleConfirmDelete}
-        />
+          isOpen={isDeleteModalOpen}
+          onClose={closeDeleteModal}
+          onConfirm={() => handleDelete(deleteModalContent.id)}
+        >
+          <p className="text-[1.2vw]">
+            Sure to delete{" "}
+            <span className="text-[#159976] break-all">
+              {deleteModalContent.shortUrl}
+            </span>{" "}
+            ?
+          </p>
+        </DeleteShortLinkForm>
       )}
     </main>
   );

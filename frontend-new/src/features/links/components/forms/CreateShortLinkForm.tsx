@@ -31,14 +31,20 @@ export default function CreateLinkForm({
     }
 
     try {
-      await onSubmit({
+      // Parent function harus mengembalikan true jika sukses
+      const success = await onSubmit({
         originalUrl: originalUrl.trim(),
         customAlias: customAlias.trim() || null,
       });
 
-      setOriginalUrl("");
-      setCustomAlias("");
-    } catch {}
+      if (success) {
+        setOriginalUrl("");
+        setCustomAlias("");
+      }
+    } catch (error) {
+      console.error(error);
+      // Jangan reset value jika ada error
+    }
   };
 
   return (
@@ -63,11 +69,12 @@ export default function CreateLinkForm({
             error={fieldErrors.customAlias}
           />
         </div>
+
         <Button
-          className="text-[2vw]"
           type="submit"
           variant="primary"
           disabled={isLoading}
+          className="text-[2vw]"
         >
           {isLoading ? "Processing..." : "Get Short Link"}
         </Button>

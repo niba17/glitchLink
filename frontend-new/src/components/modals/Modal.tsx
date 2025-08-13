@@ -40,7 +40,7 @@ export default function Modal({
     >
       <div
         ref={modalRef}
-        className="bg-zinc-900 text-stone-200 rounded-lg shadow-lg w-[30vw] p-[1.5vw] relative space-y-[1vw]"
+        className="bg-zinc-900 rounded-[0.5vw] w-[30vw] p-[1.5vw] relative space-y-[1vw]"
       >
         {title && (
           <h2 className="text-center font-semibold text-[1.6vw]">{title}</h2>

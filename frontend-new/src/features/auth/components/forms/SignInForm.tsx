@@ -28,8 +28,8 @@ export default function SignInModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Sign In">
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-col space-y-[1vw]">
-          <div className="flex flex-col space-y-[0.5vw]">
+        <div className="flex flex-col space-y-[0.6vw]">
+          <div className="flex flex-col space-y-[0.1vw]">
             <Input
               id="email"
               label="Email"
@@ -48,6 +48,7 @@ export default function SignInModal({
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
           <div className="flex flex-col space-y-[0.5vw]">
             <Button type="submit" variant="primary">
               Sign In
