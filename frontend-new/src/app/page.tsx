@@ -31,10 +31,10 @@ export default function LandingPage() {
     handleDelete,
   } = useDeleteShortLink(loadLocalShortLinks());
 
-  const { copyLink } = useCopyShortLink();
+  const { handleCopyLink } = useCopyShortLink();
 
   const {
-    createShortLink,
+    handleCreateShortLink,
     loading: isCreating,
     fieldErrors,
   } = useCreateShortLink(shortLinkList, setShortLinkList);
@@ -66,7 +66,7 @@ export default function LandingPage() {
 
         <div className="pt-[0.2vw]">
           <CreateShortLinkForm
-            onSubmit={createShortLink}
+            onSubmit={handleCreateShortLink}
             isLoading={isCreating}
             fieldErrors={fieldErrors}
           />
@@ -90,7 +90,7 @@ export default function LandingPage() {
                 id={item.id}
                 shortUrl={item.shortUrl}
                 originalUrl={item.originalUrl}
-                onCopy={() => copyLink(item.shortUrl)}
+                onCopy={() => handleCopyLink(item.shortUrl)}
                 onUpdate={() => handleUpdateLink(item.id)}
                 onDelete={() => openDeleteModal(item.id, item.shortUrl)}
               />

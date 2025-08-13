@@ -2,14 +2,14 @@
 import { toast } from "sonner";
 
 export const useCopyShortLink = () => {
-  const copyLink = (url: string) => {
+  const handleCopyLink = (url: string) => {
     try {
       navigator.clipboard.writeText(url);
       toast.success("Copied to clipboard!");
     } catch {
-      toast.error("Failed to copy link");
+      toast.error("Failed to copy short link");
     }
   };
 
-  return { copyLink };
+  return { handleCopyLink };
 };

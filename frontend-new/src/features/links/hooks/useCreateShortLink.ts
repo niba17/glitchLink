@@ -11,7 +11,7 @@ export const useCreateShortLink = (
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-  const createShortLink = async (data: {
+  const handleCreateShortLink = async (data: {
     originalUrl: string;
     customAlias?: string | null;
   }) => {
@@ -19,7 +19,7 @@ export const useCreateShortLink = (
     setLoading(true);
 
     try {
-      const res = await shortLinkService.createShortLink(data);
+      const res = await shortLinkService.handleCreateShortLink(data);
 
       if (res.status === "success") {
         const updatedList = [...shortLinkList, res.data];
@@ -52,5 +52,5 @@ export const useCreateShortLink = (
     }
   };
 
-  return { createShortLink, loading, fieldErrors };
+  return { handleCreateShortLink, loading, fieldErrors };
 };
