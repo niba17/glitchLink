@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import Input from "@/components/input/Input";
-import Button from "@/components/button/Button";
+import Input from "@/components/inputs/Input";
+import Button from "@/components/buttons/Button";
 
 interface CreateLinkFormProps {
   onSubmit: (data: {
@@ -63,7 +63,12 @@ export default function CreateLinkForm({
             error={fieldErrors.customAlias}
           />
         </div>
-        <Button type="submit" variant="primary" disabled={isLoading}>
+        <Button
+          className="py-[0.7vw]"
+          type="submit"
+          variant="primary"
+          disabled={isLoading}
+        >
           {isLoading ? "Processing..." : "Get Short Link"}
         </Button>
       </div>

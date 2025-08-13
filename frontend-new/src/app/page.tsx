@@ -1,32 +1,32 @@
 "use client";
 
-import CreateLinkForm from "@/features/links/components/CreateLinkForm";
-import { linkService, ApiError } from "@/features/links/services/linkService";
-import { Copy, Trash2 } from "lucide-react";
+import CreateLinkForm from "@/features/links/components/forms/CreateShortLinkForm";
+import ShortLinkCard from "@/features/links/components/cards/ShortLinkCard";
+import {
+  linkService,
+  ApiError,
+} from "@/features/links/services/shortLinkService";
+import { ShortLink } from "@/features/links/types/type";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
-  const [shortLinkList, setShortLinkList] = useState<
-    Array<{
-      id: string;
-      shortUrl: string;
-      originalUrl: string;
-    }>
-  >([]);
+  const [shortLinkList, setShortLinkList] = useState<ShortLink[]>([]);
+
+  // Helper aman untuk load localStorage
+  const loadLocalLinks = (): ShortLink[] => {
+    try {
+      const data = localStorage.getItem("shortLinks");
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  };
 
   useEffect(() => {
-    const savedLinks = localStorage.getItem("shortLinks");
-    if (savedLinks) {
-      try {
-        const parsedLinks = JSON.parse(savedLinks);
-        if (Array.isArray(parsedLinks)) {
-          setShortLinkList(parsedLinks);
-        }
-      } catch {}
-    }
+    setShortLinkList(loadLocalLinks());
   }, []);
 
   const handleCreateLink = async (data: {
@@ -44,13 +44,12 @@ export default function LandingPage() {
           description: `Your short link: ${res.data.shortUrl}`,
         });
 
-        setShortLinkList((prev) => [...prev, res.data]);
-
-        const existingLinks = JSON.parse(
-          localStorage.getItem("shortLinks") || "[]"
-        );
-        existingLinks.push(res.data);
-        localStorage.setItem("shortLinks", JSON.stringify(existingLinks));
+        // Gabungkan update state & localStorage
+        setShortLinkList((prev) => {
+          const updated = [...prev, res.data];
+          localStorage.setItem("shortLinks", JSON.stringify(updated));
+          return updated;
+        });
       }
     } catch (error: unknown) {
       if (error instanceof ApiError) {
@@ -70,13 +69,13 @@ export default function LandingPage() {
         } else {
           toast.error(error.message);
         }
-        throw error;
+        return;
       } else if (error instanceof Error) {
         toast.error(error.message);
-        throw error;
+        return;
       } else {
         toast.error("Failed to create link");
-        throw error;
+        return;
       }
     } finally {
       setLoading(false);
@@ -88,14 +87,27 @@ export default function LandingPage() {
     toast.success("Copied to clipboard!");
   };
 
-  const handleDeleteLink = (id: string) => {
-    setShortLinkList((prev) => prev.filter((item) => item.id !== id));
+  const handleUpdateLink = (id: string, newOriginalUrl: string) => {
+    setShortLinkList((prev) => {
+      const updated = prev.map((link) =>
+        link.id === id ? { ...link, originalUrl: newOriginalUrl } : link
+      );
+      try {
+        localStorage.setItem("shortLinks", JSON.stringify(updated));
+      } catch {
+        toast.error("Failed to update local storage");
+      }
+      return updated;
+    });
+    toast.success("Link updated locally");
+  };
 
-    const existingLinks = JSON.parse(
-      localStorage.getItem("shortLinks") || "[]"
-    );
-    const updatedLinks = existingLinks.filter((item: any) => item.id !== id);
-    localStorage.setItem("shortLinks", JSON.stringify(updatedLinks));
+  const handleDeleteLink = (id: string) => {
+    setShortLinkList((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      localStorage.setItem("shortLinks", JSON.stringify(updated));
+      return updated;
+    });
     toast.success("Link deleted");
   };
 
@@ -133,44 +145,17 @@ export default function LandingPage() {
             <div className="flex-grow border-t-[0.1vw]"></div>
           </div>
 
-          <ul className="grid grid-cols-3 space-x-[1vw]">
+          <ul className="grid grid-cols-3 gap-[1vw]">
             {shortLinkList.map((item) => (
-              <li
+              <ShortLinkCard
                 key={item.id}
-                className="bg-zinc-800 p-[1vw] rounded-[1vw] shadow-sm w-full flex justify-between items-start"
-              >
-                <div className="flex flex-col space-y-[0.5vw]">
-                  <a
-                    href={item.shortUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#1de2ae] underline break-all text-[1vw]"
-                  >
-                    {item.shortUrl}
-                  </a>
-
-                  <span className="text-gray-400 break-all text-[0.9vw]">
-                    {item.originalUrl}
-                  </span>
-
-                  <div className="flex items-center space-x-[1vw]">
-                    <button
-                      onClick={() => handleCopyLink(item.shortUrl)}
-                      className="hover:text-[#1de2ae] transition"
-                      title="Copy short URL"
-                    >
-                      <Copy style={{ width: "1.1vw", height: "1.1vw" }} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteLink(item.id)}
-                      className="hover:text-red-500 transition"
-                      title="Delete link"
-                    >
-                      <Trash2 style={{ width: "1.1vw", height: "1.1vw" }} />
-                    </button>
-                  </div>
-                </div>
-              </li>
+                id={item.id}
+                shortUrl={item.shortUrl}
+                originalUrl={item.originalUrl}
+                onCopy={handleCopyLink}
+                onUpdate={handleUpdateLink}
+                onDelete={handleDeleteLink}
+              />
             ))}
           </ul>
         </section>
