@@ -2,7 +2,7 @@
 import { toast } from "sonner";
 
 export const useCopyShortLink = () => {
-  const handleCopyLink = (url: string) => {
+  const handleCopyShortLink = (url: string) => {
     try {
       navigator.clipboard.writeText(url);
       toast.success("Copied to clipboard!");
@@ -11,5 +11,5 @@ export const useCopyShortLink = () => {
     }
   };
 
-  return { handleCopyLink };
+  return { handleCopyShortLink };
 };

@@ -11,7 +11,7 @@ export class ApiError extends Error {
 }
 
 export const shortLinkService = {
-  createShortLink: async (payload: {
+  handleCreateShortLink: async (payload: {
     originalUrl: string;
     customAlias?: string | null;
   }) => {

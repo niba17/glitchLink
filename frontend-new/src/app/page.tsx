@@ -31,7 +31,7 @@ export default function LandingPage() {
     handleDelete,
   } = useDeleteShortLink(loadLocalShortLinks());
 
-  const { handleCopyLink } = useCopyShortLink();
+  const { handleCopyShortLink } = useCopyShortLink();
 
   const {
     handleCreateShortLink,
@@ -90,7 +90,7 @@ export default function LandingPage() {
                 id={item.id}
                 shortUrl={item.shortUrl}
                 originalUrl={item.originalUrl}
-                onCopy={() => handleCopyLink(item.shortUrl)}
+                onCopy={() => handleCopyShortLink(item.shortUrl)}
                 onUpdate={() => handleUpdateLink(item.id)}
                 onDelete={() => openDeleteModal(item.id, item.shortUrl)}
               />
