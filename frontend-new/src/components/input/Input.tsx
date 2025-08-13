@@ -11,7 +11,7 @@ type InputProps = {
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, id, className, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-[0.5vw]">
+      <div className="flex flex-col space-y-[0.5vw]">
         {label && (
           <label htmlFor={id} className="text-[1.8vw]">
             {label}
@@ -23,7 +23,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           {...props}
           className={cn(
-            "bg-zinc-800 rounded-md w-full p-[0.8vw] border placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-400",
+            "bg-zinc-800 rounded-[0.5vw] w-full p-[0.8vw] placeholder:text-stone-400 focus:outline-none focus:ring-[0.1vw] focus:ring-stone-400",
             error ? "border-red-500" : "border-transparent",
             className
           )}

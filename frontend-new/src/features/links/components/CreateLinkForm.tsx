@@ -36,18 +36,15 @@ export default function CreateLinkForm({
         customAlias: customAlias.trim() || null,
       });
 
-      // Jika tidak error, reset input
       setOriginalUrl("");
       setCustomAlias("");
-    } catch {
-      // Jika error, jangan reset input
-    }
+    } catch {}
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-[2vw]">
-        <div className="flex flex-col gap-[1vw]">
+      <div className="flex flex-col space-y-[2vw]">
+        <div className="flex flex-col space-y-[1vw]">
           <Input
             label="Original Link"
             placeholder="https://example.com"
@@ -66,7 +63,6 @@ export default function CreateLinkForm({
             error={fieldErrors.customAlias}
           />
         </div>
-
         <Button type="submit" variant="primary" disabled={isLoading}>
           {isLoading ? "Processing..." : "Get Short Link"}
         </Button>
