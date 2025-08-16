@@ -1,14 +1,14 @@
 "use client";
 
-import CreateShortLinkForm from "@/features/links/components/forms/CreateShortLinkForm";
-import ShortLinkCard from "@/features/links/components/cards/ShortLinkCard";
-import { ShortLink } from "@/features/links/types/type";
+import CreateShortLinkForm from "@/features/shortLinks/components/forms/CreateShortLinkForm";
+import ShortLinkCard from "@/features/shortLinks/components/cards/ShortLinkCard";
+import { ShortLink } from "@/features/shortLinks/types/type";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import DeleteShortLinkForm from "@/features/links/components/forms/DeleteShortLinkForm";
-import { useDeleteShortLink } from "@/features/links/hooks/useDeleteShortLink";
-import { useCreateShortLink } from "@/features/links/hooks/useCreateShortLink";
-import { useCopyShortLink } from "@/features/links/hooks/useCopyShortLink";
+import DeleteShortLinkForm from "@/features/shortLinks/components/forms/DeleteShortLinkForm";
+import { useDeleteShortLink } from "@/features/shortLinks/hooks/useDeleteShortLink";
+import { useCreateShortLink } from "@/features/shortLinks/hooks/useCreateShortLink";
+import { useCopyShortLink } from "@/features/shortLinks/hooks/useCopyShortLink";
 
 // Load local storage function
 const loadLocalShortLinks = (): ShortLink[] => {

@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Button from "@/components/buttons/Button";
 import { useRequireAuth } from "@/features/auth/hooks/useRequireAuth";
-import { useFetchShortLink } from "@/features/links/hooks/useFetchShortLink";
+import { useFetchShortLink } from "@/features/shortLinks/hooks/useFetchShortLink";
 import { Copy, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LinksPage() {
   useRequireAuth(); // redirect otomatis jika belum login
 
-  const { links, loading, error, refetch } = useFetchShortLink();
+  const { shortLinks, loading, error, refetch } = useFetchShortLink();
   const [selectedLink, setSelectedLink] = useState<null | {
     id: string;
     customAlias?: string;
@@ -30,14 +30,14 @@ export default function LinksPage() {
   };
 
   if (loading)
-    return <p className="p-[3vw] text-stone-200">Loading links...</p>;
+    return <p className="p-[3vw] text-stone-200">Loading shortLinks...</p>;
   if (error) return <p className="p-[3vw] text-red-500">{error}</p>;
 
   return (
     <div className="bg-zinc-950 min-h-screen px-[15vw] py-[3vw] text-stone-200 space-y-[1vw]">
       <section>
-        <div className="flex w-1/2 gap-[1vw] mb-[1vw]">
-          <Button variant="primary">New Link</Button>
+        <div className="grid grid-cols-5 gap-[1vw]">
+          <Button variant="primary">New Short Link</Button>
           <Button variant="primary">Sort by</Button>
         </div>
 
@@ -51,7 +51,7 @@ export default function LinksPage() {
             </tr>
           </thead>
           <tbody>
-            {links.map((item, idx) => (
+            {shortLinks.map((item, idx) => (
               <tr
                 key={item.id}
                 className={`grid grid-cols-[5vw_30vw_15vw_1fr] py-[0.5vw] ${
@@ -68,6 +68,7 @@ export default function LinksPage() {
                       title="Visit short link"
                       href={item.shortUrl}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="text-[1.3vw] text-blue-500 font-semibold underline block break-words"
                     >
                       {item.shortUrl}
@@ -81,42 +82,51 @@ export default function LinksPage() {
                     </span>
 
                     <div className="flex mt-[0.5vw] ml-[-0.45vw]">
-                      <button
-                        title="Copy short link"
+                      <Button
+                        aria-label={`Copy ${item.shortUrl}`}
+                        type="button"
+                        variant="icon"
                         onClick={() => handleCopy(item.shortUrl)}
-                        className="text-stone-200 hover:text-green-500 p-[0.5vw]"
+                        title="Copy short link"
+                        className={`hover:bg-${
+                          idx % 2 !== 0 ? "zinc-700" : "zinc-600"
+                        }`}
                       >
-                        <Copy style={{ width: "1.5vw", height: "1.5vw" }} />
-                      </button>
+                        <Copy className="w-[1.3vw] h-[1.3vw]" />
+                      </Button>
 
-                      <button
+                      <Button
+                        aria-label={`Update ${item.customAlias}`}
+                        type="button"
+                        variant="icon"
+                        onClick={() => {}}
                         title="Edit short link"
-                        onClick={() =>
-                          setSelectedLink({
-                            id: item.id,
-                            customAlias: item.customAlias,
-                            expiresAt: item.expiresAt,
-                          })
-                        }
-                        className="text-stone-200 hover:text-yellow-500 p-[0.5vw]"
+                        className={`hover:bg-${
+                          idx % 2 !== 0 ? "zinc-700" : "zinc-600"
+                        }`}
                       >
-                        <Edit style={{ width: "1.5vw", height: "1.5vw" }} />
-                      </button>
+                        <Edit className="w-[1.3vw] h-[1.3vw]" />
+                      </Button>
 
-                      <button
+                      <Button
+                        aria-label={`Delete ${item.shortUrl}`}
+                        type="button"
+                        variant="icon"
+                        onClick={() => {}}
                         title="Delete short link"
-                        onClick={() => handleDelete(item.id)}
-                        className="text-stone-200 hover:text-red-500 p-[0.5vw]"
+                        className={`hover:bg-${
+                          idx % 2 !== 0 ? "zinc-700" : "zinc-600"
+                        }`}
                       >
-                        <Trash2 style={{ width: "1.5vw", height: "1.5vw" }} />
-                      </button>
+                        <Trash2 className="w-[1.3vw] h-[1.3vw]" />
+                      </Button>
                     </div>
                   </div>
                 </td>
 
                 {/* Kolom 3 */}
                 <td className="text-[1.2vw]">
-                  <span title="Click counted">{item.clicks}</span>
+                  <span title="Click counted">{item.clicksCount}</span>
                 </td>
 
                 {/* Kolom 4 */}

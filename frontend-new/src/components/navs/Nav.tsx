@@ -24,7 +24,7 @@ export default function Nav() {
   const closeLogoutModal = () => setLogoutModalOpen(false);
 
   const navLinks = [
-    { href: "/links", label: "Links" },
+    { href: "/shortLinks", label: "Links" },
     { href: "/analytics", label: "Analytics" },
     { href: "/account", label: "Account" },
     { href: "/about", label: "About" },

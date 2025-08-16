@@ -38,7 +38,7 @@ export default function SignInForm({
       login(data.token); // simpan token via context
       resetForm();
       onClose();
-      router.push("/links");
+      router.push("/shortLinks");
     } catch {
       // error sudah ditangani di hook
     }

@@ -6,7 +6,7 @@ import { shortLinkService, ApiError } from "../services/shortLinkService";
 import { ShortLink } from "../types/type";
 
 export function useFetchShortLink() {
-  const [links, setLinks] = useState<ShortLink[]>([]);
+  const [shortLinks, setShortLinks] = useState<ShortLink[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,9 +16,9 @@ export function useFetchShortLink() {
 
     try {
       const data = await shortLinkService.handleGetLink();
-      setLinks(data);
+      setShortLinks(data);
     } catch (err: unknown) {
-      let message = "Failed to fetch links";
+      let message = "Failed to fetch shortLinks";
 
       if (err instanceof ApiError) {
         message = err.message;
@@ -37,5 +37,5 @@ export function useFetchShortLink() {
     fetchLinks();
   }, []);
 
-  return { links, loading, error, refetch: fetchLinks };
+  return { shortLinks, loading, error, refetch: fetchLinks };
 }
