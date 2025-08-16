@@ -38,7 +38,7 @@ export default function LinksPage() {
       <section>
         <div className="flex w-1/2 gap-[1vw] mb-[1vw]">
           <Button variant="primary">New Link</Button>
-          <Button variant="primary">Newest</Button>
+          <Button variant="primary">Sort by</Button>
         </div>
 
         <table className="min-w-full text-left border-collapse">
