@@ -10,7 +10,7 @@ import { useDeleteShortLink } from "@/features/links/hooks/useDeleteShortLink";
 import { useCreateShortLink } from "@/features/links/hooks/useCreateShortLink";
 import { useCopyShortLink } from "@/features/links/hooks/useCopyShortLink";
 
-// Load local storage function (ditempatkan di luar komponen)
+// Load local storage function
 const loadLocalShortLinks = (): ShortLink[] => {
   try {
     const data = localStorage.getItem("shortLinks");
@@ -29,7 +29,7 @@ export default function LandingPage() {
     openDeleteShortLinkModal,
     closeDeleteShortLinkModal,
     handleDeleteShortLink,
-  } = useDeleteShortLink(loadLocalShortLinks());
+  } = useDeleteShortLink([]);
 
   const { handleCopyShortLink } = useCopyShortLink();
 
@@ -39,10 +39,19 @@ export default function LandingPage() {
     fieldErrors,
   } = useCreateShortLink(shortLinkList, setShortLinkList);
 
-  // Isi state shortLinkList setelah mount
+  // ⬅ Initial load dari localStorage
   useEffect(() => {
     setShortLinkList(loadLocalShortLinks());
   }, [setShortLinkList]);
+
+  // ⬅ Persist ke localStorage setiap kali list berubah
+  useEffect(() => {
+    if (shortLinkList.length > 0) {
+      localStorage.setItem("shortLinks", JSON.stringify(shortLinkList));
+    } else {
+      localStorage.removeItem("shortLinks"); // bersihkan kalau kosong
+    }
+  }, [shortLinkList]);
 
   const handleUpdateShortLink = (id: string) => {
     toast("Update link not implemented yet");
@@ -52,11 +61,11 @@ export default function LandingPage() {
     <main className="bg-zinc-950 min-h-screen px-[15vw] py-[3vw] text-stone-200">
       <section className="grid grid-cols-2">
         <div className="flex flex-col space-y-[1.85vw]">
-          <p className="text-[3.75vw] leading-tight font-semibold">
+          <h1 className="text-[3.75vw] leading-tight font-semibold">
             In the grid of data,
             <br /> your link is <br />a{" "}
             <span className="text-[#159976]">weapon</span>
-          </p>
+          </h1>
           <p className="text-[1.5vw]">
             Jack into real-time analytics, <br />
             forge custom-alias links, <br />

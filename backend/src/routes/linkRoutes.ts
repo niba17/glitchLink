@@ -11,7 +11,7 @@ router.post("/", optionalAuthMiddleware, linkController.createShortLink);
 
 router.put("/:linkId", authMiddleware, linkController.updateLink);
 router.get("/:linkId/qrcode", authMiddleware, linkController.generateQRCode);
-router.get("/dashboard", authMiddleware, linkController.getUserLinks);
+router.get("/", authMiddleware, linkController.getUserLinks);
 router.get(
   "/:linkId/analytics",
   authMiddleware,

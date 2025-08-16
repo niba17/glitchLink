@@ -30,4 +30,20 @@ export const shortLinkService = {
 
     return data;
   },
+
+  handleGetLink: async () => {
+    const res = await fetch("http://localhost:3000/api/links", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // pastikan token
+      },
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new ApiError(data.message || "Request failed", res.status, data);
+    }
+
+    return data.data || []; // pastikan array
+  },
 };

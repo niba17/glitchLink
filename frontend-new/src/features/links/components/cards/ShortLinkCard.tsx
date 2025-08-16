@@ -42,6 +42,7 @@ export default function ShortLinkCard({
 
         <div className="flex items-center gap-x-[0.5vw] justify-start">
           <Button
+            aria-label={`Copy ${shortUrl}`}
             type="button"
             variant="icon"
             onClick={() => onCopy(shortUrl)}
@@ -51,6 +52,7 @@ export default function ShortLinkCard({
           </Button>
 
           <Button
+            aria-label={`Update ${shortUrl}`}
             type="button"
             variant="icon"
             onClick={() => {
@@ -65,6 +67,7 @@ export default function ShortLinkCard({
           </Button>
 
           <Button
+            aria-label={`Delete ${shortUrl}`}
             type="button"
             variant="icon"
             onClick={() => onDelete(id)}

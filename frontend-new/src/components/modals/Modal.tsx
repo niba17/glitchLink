@@ -37,6 +37,8 @@ export default function Modal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm text-[1.5vw]"
       onMouseDown={handleClickOutside}
+      role="dialog"
+      aria-modal="true"
     >
       <div
         ref={modalRef}

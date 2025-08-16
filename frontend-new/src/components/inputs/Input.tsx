@@ -33,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         />
 
-        <div className="h-[1vw] mt-[-0.2vw]">
+        <div className="h-[1.7vw]">
           {error ? (
             <p className="text-[1vw] text-red-600" role="alert">
               {error}

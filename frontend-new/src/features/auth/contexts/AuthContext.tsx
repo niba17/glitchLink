@@ -1,4 +1,3 @@
-// src/features/auth/contexts/AuthContext.tsx
 "use client";
 
 import {
@@ -8,24 +7,47 @@ import {
   ReactNode,
   useEffect,
 } from "react";
+import { tokenStorage } from "../utils/tokenStorage";
 
 interface AuthContextType {
+  token: string | null; // ✅ simpan token
   isAuthenticated: boolean;
-  setIsAuthenticated: (value: boolean) => void;
+  isLoading: boolean;
+  login: (token: string) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // tambahkan
+  const [token, setToken] = useState<string | null>(null);
 
+  // Cek token di localStorage saat pertama kali render
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
+    const storedToken = tokenStorage.get();
+    setToken(storedToken);
+    setIsAuthenticated(!!storedToken);
+    setIsLoading(false);
   }, []);
 
+  const login = (newToken: string) => {
+    tokenStorage.set(newToken);
+    setToken(newToken);
+    setIsAuthenticated(true);
+  };
+
+  const logout = () => {
+    tokenStorage.remove();
+    setToken(null);
+    setIsAuthenticated(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+    <AuthContext.Provider
+      value={{ token, isAuthenticated, isLoading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

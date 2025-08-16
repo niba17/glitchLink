@@ -49,8 +49,8 @@ export default function CreateLinkForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col space-y-[1.7vw]">
-        <div className="flex flex-col space-y-[0.7vw]">
+      <div className="flex flex-col space-y-[1.4vw]">
+        <div className="flex flex-col space-y-[-0.5vw]">
           <Input
             label="Original Link"
             placeholder="https://example.com"

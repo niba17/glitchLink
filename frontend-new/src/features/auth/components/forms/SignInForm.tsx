@@ -4,30 +4,54 @@ import Modal from "@/components/modals/Modal";
 import Button from "@/components/buttons/Button";
 import Input from "@/components/inputs/Input";
 import { useState } from "react";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useSignIn } from "@/features/auth/hooks/useSignIn";
+import { useRouter } from "next/navigation";
 
-interface SignInModalProps {
+interface SignInFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignUp: () => void;
 }
 
-export default function SignInModal({
+export default function SignInForm({
   isOpen,
   onClose,
   onSwitchToSignUp,
-}: SignInModalProps) {
+}: SignInFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuth();
+  const { signIn, loading, fieldErrors, resetErrors } = useSignIn();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    resetErrors();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sign in with:", { email, password });
+    try {
+      const data = await signIn({ email, password });
+      login(data.token); // simpan token via context
+      resetForm();
+      onClose();
+      router.push("/links");
+    } catch {
+      // error sudah ditangani di hook
+    }
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Sign In">
-      <form onSubmit={handleSubmit}>
+    <Modal isOpen={isOpen} onClose={handleClose} title="Sign In">
+      <form onSubmit={handleSubmit} aria-busy={loading}>
         <div className="flex flex-col space-y-[0.6vw]">
           <div className="flex flex-col space-y-[0.1vw]">
             <Input
@@ -37,6 +61,8 @@ export default function SignInModal({
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              error={fieldErrors.email}
+              required
             />
 
             <Input
@@ -46,16 +72,18 @@ export default function SignInModal({
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              error={fieldErrors.password}
+              required
             />
           </div>
 
           <div className="flex flex-col space-y-[0.5vw]">
-            <Button type="submit" variant="primary">
-              Sign In
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
 
             <p className="text-[1vw] text-stone-400 text-center">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <button
                 type="button"
                 className="text-[#159976] hover:underline"
