@@ -9,7 +9,7 @@ interface CreateLinkFormProps {
   onSubmit: (data: {
     originalUrl: string;
     customAlias?: string | null;
-  }) => Promise<void> | void;
+  }) => Promise<boolean> | boolean;
   isLoading?: boolean;
   fieldErrors?: { [key: string]: string };
 }
@@ -31,7 +31,6 @@ export default function CreateLinkForm({
     }
 
     try {
-      // Parent function harus mengembalikan true jika sukses
       const success = await onSubmit({
         originalUrl: originalUrl.trim(),
         customAlias: customAlias.trim() || null,
@@ -43,7 +42,7 @@ export default function CreateLinkForm({
       }
     } catch (error) {
       console.error(error);
-      // Jangan reset value jika ada error
+      // Don't reset values if there's an error
     }
   };
 

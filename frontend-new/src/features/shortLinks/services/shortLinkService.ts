@@ -46,4 +46,47 @@ export const shortLinkService = {
 
     return data.data || []; // pastikan array
   },
+
+  handleUpdateLink: async (
+    id: string,
+    payload: {
+      customAlias?: string | null;
+      expiresAt?: string | null;
+    }
+  ) => {
+    const res = await fetch(`http://localhost:3000/api/links/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new ApiError(data.message || "Request failed", res.status, data);
+    }
+
+    return data;
+  },
+
+  handleDeleteLink: async (id: string) => {
+    const res = await fetch(`http://localhost:3000/api/links/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new ApiError(data.message || "Request failed", res.status, data);
+    }
+
+    return data;
+  },
 };

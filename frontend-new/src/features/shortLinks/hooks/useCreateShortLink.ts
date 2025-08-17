@@ -1,54 +1,75 @@
-// hooks/useCreateShortLink.ts
+// frontend-new\src\features\shortLinks\hooks\useCreateShortLink.ts
 import { useState } from "react";
-import { ShortLink } from "../types/type";
 import { shortLinkService, ApiError } from "../services/shortLinkService";
 import { toast } from "sonner";
+import { ShortLink } from "@/features/shortLinks/types/type";
 
-export const useCreateShortLink = (
-  shortLinkList: ShortLink[],
-  setShortLinkList: (links: ShortLink[]) => void
-) => {
+export const useCreateShortLink = (refreshLinks: () => void) => {
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   const handleCreateShortLink = async (data: {
     originalUrl: string;
     customAlias?: string | null;
-  }) => {
+  }): Promise<boolean> => {
     setFieldErrors({});
     setLoading(true);
 
-    try {
-      const res = await shortLinkService.handleCreateShortLink(data);
+    const token = localStorage.getItem("token");
 
-      if (res.status === "success") {
-        const updatedList = [...shortLinkList, res.data];
-        setShortLinkList(updatedList);
-        localStorage.setItem("shortLinks", JSON.stringify(updatedList));
-
-        toast.success("Link created successfully!", {
-          description: `Your short link: ${res.data.shortUrl}`,
-        });
+    // Jika pengguna sudah login (ada token), panggil API backend
+    if (token) {
+      try {
+        const res = await shortLinkService.handleCreateShortLink(data);
+        if (res.status === "success") {
+          toast.success("Link created successfully!", {
+            description: `Your short link: ${res.data.shortUrl}`,
+          });
+          refreshLinks(); // Perbarui daftar dari backend
+          return true;
+        }
+        return false;
+      } catch (error: unknown) {
+        if (error instanceof ApiError) {
+          if (error.status === 401 || error.status === 403) {
+            toast.error("Authentication failed. Please log in again.");
+          } else {
+            toast.error(error.message);
+          }
+        }
+        setLoading(false);
+        return false;
       }
-    } catch (error: unknown) {
-      if (error instanceof ApiError && error.data?.errors) {
-        const newFieldErrors: { [key: string]: string } = {};
-        error.data.errors.forEach((err: { path: string; message: string }) => {
-          newFieldErrors[err.path] = err.message;
-        });
-        setFieldErrors(newFieldErrors);
+    } else {
+      // Jika pengguna tamu (tidak ada token), simpan di local storage
+      const newShortLink: ShortLink = {
+        id: Math.random().toString(36).substring(7),
+        shortUrl: `${window.location.origin}/${
+          data.customAlias || Math.random().toString(36).substring(2, 8)
+        }`,
+        originalUrl: data.originalUrl,
+        alias: data.customAlias,
+        clicks: 0,
+        createdAt: new Date().toISOString(),
+        expiresAt: null,
+      };
 
-        const messages = error.data.errors
-          .map((e: { message: string }) => e.message)
-          .join(", ");
-        toast.error(messages);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to create link");
+      try {
+        const links = JSON.parse(localStorage.getItem("shortLinks") || "[]");
+        links.unshift(newShortLink);
+        localStorage.setItem("shortLinks", JSON.stringify(links));
+        toast.success("Link created locally!", {
+          description: `Your short link: ${newShortLink.shortUrl}`,
+        });
+        refreshLinks(); // Perbarui daftar dari local storage
+        return true;
+      } catch (e) {
+        toast.error("Failed to save link locally.");
+        console.error(e);
+        return false;
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   };
 

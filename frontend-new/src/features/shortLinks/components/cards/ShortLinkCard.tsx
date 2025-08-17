@@ -1,14 +1,17 @@
+// frontend-new\src\features\shortLinks\components\cards\ShortLinkCard.tsx
 "use client";
 
 import { Copy, Trash2, Edit } from "lucide-react";
 import Button from "@/components/buttons/Button";
+import { toast } from "sonner"; // Import toast
 
 interface ShortLinkCardProps {
   id: string;
   shortUrl: string;
   originalUrl: string;
   onCopy: (url: string) => void;
-  onUpdate: (id: string, newOriginalUrl: string) => void;
+  // onUpdate sekarang hanya menerima id dan memicu pesan toast placeholder
+  onUpdate: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -51,20 +54,16 @@ export default function ShortLinkCard({
             <Copy className="w-[1.3vw] h-[1.3vw]" />
           </Button>
 
-          <Button
+          {/* <Button
             aria-label={`Update ${shortUrl}`}
             type="button"
             variant="icon"
-            onClick={() => {
-              const newUrl = prompt("Enter new original URL", originalUrl);
-              if (newUrl && newUrl.trim() !== "" && newUrl !== originalUrl) {
-                onUpdate(id, newUrl.trim());
-              }
-            }}
+            // Mengubah onClick agar langsung memanggil onUpdate dengan id
+            onClick={() => onUpdate(id)}
             title="Edit short link"
           >
             <Edit className="w-[1.3vw] h-[1.3vw]" />
-          </Button>
+          </Button> */}
 
           <Button
             aria-label={`Delete ${shortUrl}`}

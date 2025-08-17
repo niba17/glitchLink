@@ -20,7 +20,6 @@ export const createShortLinkSchema = z.object({
   customAlias: z
     .string()
     .trim()
-    .min(3, { message: "Custom alias must be at least 3 characters long" })
     .max(20, { message: "Custom alias cannot exceed 20 characters" })
     .regex(/^[a-z0-9-]+$/, {
       message:
@@ -43,14 +42,12 @@ export const updateLinkSchema = z.object({
   customAlias: z
     .string()
     .trim()
-    .min(3, { message: "Custom alias must be at least 3 characters long" })
     .max(20, { message: "Custom alias cannot exceed 20 characters" })
     .regex(/^[a-z0-9-]+$/, {
       message:
         "Custom alias can only contain lowercase letters, numbers, and hyphens",
     })
-    .nullable() // Memungkinkan null untuk menghapus alias
-    .optional(), // Memungkinkan undefined (jika properti tidak ada dalam request)
+    .min(1, { message: "Alias is required" }),
 
   expiresAt: z
     .string()

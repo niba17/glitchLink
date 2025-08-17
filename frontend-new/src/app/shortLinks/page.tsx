@@ -1,3 +1,4 @@
+// frontend-new\src\app\shortLinks\page.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,32 +7,77 @@ import { useRequireAuth } from "@/features/auth/hooks/useRequireAuth";
 import { useFetchShortLink } from "@/features/shortLinks/hooks/useFetchShortLink";
 import { Copy, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import DeleteShortLinkForm from "@/features/shortLinks/components/forms/DeleteShortLinkForm";
+import { useDeleteShortLink } from "@/features/shortLinks/hooks/useDeleteShortLink";
+import UpdateShortLinkForm from "@/features/shortLinks/components/forms/UpdateShortLinkForm";
+import { useUpdateShortLink } from "@/features/shortLinks/hooks/useUpdateShortLink";
+import { ShortLink } from "@/features/shortLinks/types/type";
+import { ApiError } from "@/features/shortLinks/services/shortLinkService";
 
 export default function LinksPage() {
-  useRequireAuth(); // redirect otomatis jika belum login
+  useRequireAuth();
 
-  const { shortLinks, loading, error, refetch } = useFetchShortLink();
-  const [selectedLink, setSelectedLink] = useState<null | {
-    id: string;
-    customAlias?: string;
-    expiresAt?: string;
-  }>(null);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<null | string>(null);
+  const { shortLinks, isLoading, error } = useFetchShortLink();
+  const [selectedShortLink, setSelectedShortLink] = useState<ShortLink | null>(
+    null
+  );
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+
+  const { deleteLink, isDeleting } = useDeleteShortLink();
+
+  const {
+    mutateAsync: updateLink,
+    isLoading: isUpdating,
+    error: updateError,
+  } = useUpdateShortLink();
+
+  // ✅ Logika baru untuk mengekstrak fieldErrors dari respons backend
+  let fieldErrors: { [key: string]: string } = {}; // Gunakan index signature untuk kunci dinamis
+  if (
+    updateError instanceof ApiError &&
+    updateError.data &&
+    Array.isArray(updateError.data.errors) // Pastikan itu array
+  ) {
+    updateError.data.errors.forEach((errDetail: any) => {
+      if (errDetail.path && errDetail.message) {
+        fieldErrors[errDetail.path] = errDetail.message;
+      }
+    });
+  }
+  // console.log("updateError:", updateError); // Debugging
+  // console.log("Extracted fieldErrors:", fieldErrors); // Debugging
 
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
     toast.success("Copied to clipboard");
   };
 
-  const handleDelete = (id: string) => {
-    setDeleteId(id);
-    toast("Delete functionality not implemented yet");
+  const handleUpdate = async (data: {
+    customAlias?: string | null;
+    expiresAt?: string | null;
+  }) => {
+    if (!selectedShortLink) return;
+    try {
+      await updateLink({ id: selectedShortLink.id, payload: data });
+      setIsUpdateOpen(false);
+      setSelectedShortLink(null);
+    } catch (err) {
+      // Error handling sudah di hook useUpdateShortLink
+    }
   };
 
-  if (loading)
+  const handleConfirmDelete = async () => {
+    if (selectedShortLink) {
+      await deleteLink(selectedShortLink.id);
+      setIsDeleteOpen(false);
+      setSelectedShortLink(null);
+    }
+  };
+
+  if (isLoading)
     return <p className="p-[3vw] text-stone-200">Loading shortLinks...</p>;
-  if (error) return <p className="p-[3vw] text-red-500">{error}</p>;
+  if (error) return <p className="p-[3vw] text-red-500">{String(error)}</p>;
 
   return (
     <div className="bg-zinc-950 min-h-screen px-[15vw] py-[3vw] text-stone-200 space-y-[1vw]">
@@ -51,7 +97,7 @@ export default function LinksPage() {
             </tr>
           </thead>
           <tbody>
-            {shortLinks.map((item, idx) => (
+            {shortLinks?.map((item, idx) => (
               <tr
                 key={item.id}
                 className={`grid grid-cols-[5vw_30vw_15vw_1fr] py-[0.5vw] ${
@@ -88,9 +134,7 @@ export default function LinksPage() {
                         variant="icon"
                         onClick={() => handleCopy(item.shortUrl)}
                         title="Copy short link"
-                        className={`hover:bg-${
-                          idx % 2 !== 0 ? "zinc-700" : "zinc-600"
-                        }`}
+                        className="hover:bg-zinc-800"
                       >
                         <Copy className="w-[1.3vw] h-[1.3vw]" />
                       </Button>
@@ -99,11 +143,12 @@ export default function LinksPage() {
                         aria-label={`Update ${item.customAlias}`}
                         type="button"
                         variant="icon"
-                        onClick={() => {}}
-                        title="Edit short link"
-                        className={`hover:bg-${
-                          idx % 2 !== 0 ? "zinc-700" : "zinc-600"
-                        }`}
+                        onClick={() => {
+                          setSelectedShortLink(item);
+                          setIsUpdateOpen(true);
+                        }}
+                        title="Update short link"
+                        className="hover:bg-zinc-800"
                       >
                         <Edit className="w-[1.3vw] h-[1.3vw]" />
                       </Button>
@@ -112,11 +157,12 @@ export default function LinksPage() {
                         aria-label={`Delete ${item.shortUrl}`}
                         type="button"
                         variant="icon"
-                        onClick={() => {}}
+                        onClick={() => {
+                          setSelectedShortLink(item);
+                          setIsDeleteOpen(true);
+                        }}
                         title="Delete short link"
-                        className={`hover:bg-${
-                          idx % 2 !== 0 ? "zinc-700" : "zinc-600"
-                        }`}
+                        className="hover:bg-zinc-800"
                       >
                         <Trash2 className="w-[1.3vw] h-[1.3vw]" />
                       </Button>
@@ -147,6 +193,31 @@ export default function LinksPage() {
             ))}
           </tbody>
         </table>
+
+        {/* Modal Update */}
+        <UpdateShortLinkForm
+          isOpen={isUpdateOpen}
+          onClose={() => setIsUpdateOpen(false)}
+          shortLink={selectedShortLink}
+          onSubmit={handleUpdate}
+          isLoading={isUpdating}
+          fieldErrors={fieldErrors}
+        />
+
+        {/* Modal Delete */}
+        <DeleteShortLinkForm
+          isOpen={isDeleteOpen}
+          onClose={() => setIsDeleteOpen(false)}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
+        >
+          <p>
+            Are you sure you want to delete{" "}
+            <span className="text-blue-400 font-semibold">
+              {selectedShortLink?.shortUrl}?
+            </span>
+          </p>
+        </DeleteShortLinkForm>
       </section>
     </div>
   );

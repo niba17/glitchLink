@@ -1,45 +1,26 @@
-import { useState } from "react";
-import { ShortLink } from "../types/type";
+// frontend-new\src\features\shortLinks\hooks\useDeleteShortLink.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { shortLinkService, ApiError } from "../services/shortLinkService";
 import { toast } from "sonner";
 
-export const useDeleteShortLink = (initialLinks: ShortLink[] = []) => {
-  const [shortLinkList, setShortLinkList] = useState<ShortLink[]>(initialLinks);
-  const [isDeleteShortLinkModalOpen, setIsDeleteShortLinkModalOpen] =
-    useState(false);
-  const [deleteShortLinkModalContent, setDeleteShortLinkModalContent] =
-    useState<{
-      id: string;
-      shortUrl: string;
-    } | null>(null);
+export const useDeleteShortLink = () => {
+  const queryClient = useQueryClient();
 
-  const openDeleteShortLinkModal = (id: string, shortUrl: string) => {
-    setDeleteShortLinkModalContent({ id, shortUrl });
-    setIsDeleteShortLinkModalOpen(true);
-  };
+  const {
+    mutateAsync: deleteLink,
+    isLoading: isDeleting,
+    error,
+  } = useMutation({
+    mutationFn: (id: string) => shortLinkService.handleDeleteLink(id),
+    onSuccess: () => {
+      // ✅ Invalidasi cache untuk query 'shortLinks' agar data otomatis ter-refresh
+      queryClient.invalidateQueries({ queryKey: ["shortLinks"] });
+      toast.success("Link berhasil dihapus!");
+    },
+    onError: (err: ApiError) => {
+      toast.error(err.message || "Gagal menghapus link.");
+    },
+  });
 
-  const closeDeleteShortLinkModal = () => {
-    setIsDeleteShortLinkModalOpen(false);
-    setDeleteShortLinkModalContent(null);
-  };
-
-  const handleDeleteShortLink = (id: string) => {
-    // Gunakan filter terhadap state terbaru
-    setShortLinkList((prev: ShortLink[]) => {
-      const updated = prev.filter((link) => link.id !== id);
-      localStorage.setItem("shortLinks", JSON.stringify(updated));
-      return updated;
-    });
-    toast.success("Link deleted");
-    closeDeleteShortLinkModal();
-  };
-
-  return {
-    shortLinkList,
-    setShortLinkList,
-    isDeleteShortLinkModalOpen,
-    deleteShortLinkModalContent,
-    openDeleteShortLinkModal,
-    closeDeleteShortLinkModal,
-    handleDeleteShortLink,
-  };
+  return { deleteLink, isDeleting, error };
 };

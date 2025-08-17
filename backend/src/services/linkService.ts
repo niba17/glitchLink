@@ -85,7 +85,12 @@ export class LinkService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2002"
       ) {
-        throw new ConflictError("Alias is already in use");
+        throw new ConflictError("Conflict error", [
+          {
+            path: "customAlias",
+            message: "Alias already in use",
+          },
+        ]);
       }
       throw error;
     }
@@ -106,7 +111,12 @@ export class LinkService {
         updateData.customAlias
       );
       if (existing && existing.id !== link.id) {
-        throw new ConflictError("Alias is already in use");
+        throw new ConflictError("Conflict error", [
+          {
+            path: "customAlias",
+            message: "Alias already in use",
+          },
+        ]);
       }
       updateFields.customAlias = updateData.customAlias;
       updateFields.shortCode = updateData.customAlias;
@@ -132,7 +142,12 @@ export class LinkService {
     } catch (error: any) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === "P2002")
-          throw new ConflictError("Alias is already in use");
+          throw new ConflictError("Conflict error", [
+            {
+              path: "customAlias",
+              message: "Alias already in use",
+            },
+          ]);
         if (error.code === "P2025") throw new NotFoundError("Link");
       }
       throw error;

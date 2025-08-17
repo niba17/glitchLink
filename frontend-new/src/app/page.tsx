@@ -1,60 +1,40 @@
+// frontend-new\src\app\page.tsx
 "use client";
 
+import Button from "@/components/buttons/Button";
+import { toast } from "sonner";
 import CreateShortLinkForm from "@/features/shortLinks/components/forms/CreateShortLinkForm";
 import ShortLinkCard from "@/features/shortLinks/components/cards/ShortLinkCard";
-import { ShortLink } from "@/features/shortLinks/types/type";
-import { useEffect } from "react";
-import { toast } from "sonner";
 import DeleteShortLinkForm from "@/features/shortLinks/components/forms/DeleteShortLinkForm";
-import { useDeleteShortLink } from "@/features/shortLinks/hooks/useDeleteShortLink";
 import { useCreateShortLink } from "@/features/shortLinks/hooks/useCreateShortLink";
 import { useCopyShortLink } from "@/features/shortLinks/hooks/useCopyShortLink";
-
-// Load local storage function
-const loadLocalShortLinks = (): ShortLink[] => {
-  try {
-    const data = localStorage.getItem("shortLinks");
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-};
+import { useShortLinkList } from "@/features/shortLinks/hooks/useShortLinkList";
+import { useManageLocalShortLinks } from "@/features/shortLinks/hooks/useManageLocalShortLinks";
 
 export default function LandingPage() {
-  const {
-    shortLinkList,
-    setShortLinkList,
-    isDeleteShortLinkModalOpen,
-    deleteShortLinkModalContent,
-    openDeleteShortLinkModal,
-    closeDeleteShortLinkModal,
-    handleDeleteShortLink,
-  } = useDeleteShortLink([]);
-
+  const { shortLinkList, isFetching, isError, refetch } = useShortLinkList();
   const { handleCopyShortLink } = useCopyShortLink();
 
   const {
     handleCreateShortLink,
     loading: isCreating,
-    fieldErrors,
-  } = useCreateShortLink(shortLinkList, setShortLinkList);
+    fieldErrors: createFieldErrors,
+  } = useCreateShortLink(refetch);
 
-  // ⬅ Initial load dari localStorage
-  useEffect(() => {
-    setShortLinkList(loadLocalShortLinks());
-  }, [setShortLinkList]);
+  // 👈 Teruskan fungsi refetch ke hook delete
+  const {
+    isDeleteShortLinkModalOpen,
+    deleteShortLinkModalContent,
+    openDeleteShortLinkModal,
+    closeDeleteShortLinkModal,
+    handleDeleteShortLinkLocally,
+  } = useManageLocalShortLinks(refetch);
 
-  // ⬅ Persist ke localStorage setiap kali list berubah
-  useEffect(() => {
-    if (shortLinkList.length > 0) {
-      localStorage.setItem("shortLinks", JSON.stringify(shortLinkList));
-    } else {
-      localStorage.removeItem("shortLinks"); // bersihkan kalau kosong
-    }
-  }, [shortLinkList]);
-
-  const handleUpdateShortLink = (id: string) => {
-    toast("Update link not implemented yet");
+  const onSubmitCreateForm = async (data: {
+    originalUrl: string;
+    customAlias?: string | null;
+  }) => {
+    return await handleCreateShortLink(data);
   };
 
   return (
@@ -62,27 +42,29 @@ export default function LandingPage() {
       <section className="grid grid-cols-2">
         <div className="flex flex-col space-y-[1.85vw]">
           <h1 className="text-[3.75vw] leading-tight font-semibold">
-            In the grid of data,
-            <br /> your link is <br />a{" "}
+            In the grid of data, <br /> your link is <br />a{" "}
             <span className="text-[#159976]">weapon</span>
           </h1>
           <p className="text-[1.5vw]">
             Jack into real-time analytics, <br />
-            forge custom-alias links, <br />
-            take the control
+            forge custom-alias links, <br /> take the control
           </p>
         </div>
 
         <div className="pt-[0.2vw]">
           <CreateShortLinkForm
-            onSubmit={handleCreateShortLink}
+            onSubmit={onSubmitCreateForm}
             isLoading={isCreating}
-            fieldErrors={fieldErrors}
+            fieldErrors={createFieldErrors}
           />
         </div>
       </section>
 
-      {shortLinkList.length > 0 && (
+      {isFetching && <p className="text-center mt-8">Loading links...</p>}
+      {isError && (
+        <p className="text-center mt-8 text-red-500">Failed to load links.</p>
+      )}
+      {!isFetching && shortLinkList.length > 0 && (
         <section>
           <div className="flex items-center justify-center py-[2vw]">
             <div className="flex-grow border-t-[0.1vw]"></div>
@@ -100,7 +82,7 @@ export default function LandingPage() {
                 shortUrl={item.shortUrl}
                 originalUrl={item.originalUrl}
                 onCopy={() => handleCopyShortLink(item.shortUrl)}
-                onUpdate={() => handleUpdateShortLink(item.id)}
+                onUpdate={() => toast("Update link is pending locally.")}
                 onDelete={() =>
                   openDeleteShortLinkModal(item.id, item.shortUrl)
                 }
@@ -115,8 +97,9 @@ export default function LandingPage() {
           isOpen={isDeleteShortLinkModalOpen}
           onClose={closeDeleteShortLinkModal}
           onConfirm={() =>
-            handleDeleteShortLink(deleteShortLinkModalContent.id)
+            handleDeleteShortLinkLocally(deleteShortLinkModalContent.id)
           }
+          isLoading={false}
         >
           <p className="text-[1.2vw]">
             Sure to delete{" "}

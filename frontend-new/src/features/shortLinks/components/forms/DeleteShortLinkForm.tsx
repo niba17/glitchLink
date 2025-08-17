@@ -1,3 +1,4 @@
+// frontend-new\src\features\shortLinks\components\forms\DeleteShortLinkForm.tsx
 "use client";
 
 import Button from "@/components/buttons/Button";
@@ -7,6 +8,7 @@ interface DeleteShortLinkFormProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading: boolean; // ✅ Tambahkan properti ini
   children: React.ReactNode;
 }
 
@@ -14,6 +16,7 @@ export default function DeleteShortLinkForm({
   isOpen,
   onClose,
   onConfirm,
+  isLoading,
   children,
 }: DeleteShortLinkFormProps) {
   return (
@@ -21,8 +24,8 @@ export default function DeleteShortLinkForm({
       <div className="flex flex-col space-y-[1vw]">
         {children}
 
-        <Button variant="primary" onClick={onConfirm}>
-          Delete
+        <Button variant="primary" onClick={onConfirm} disabled={isLoading}>
+          {isLoading ? "Deleting..." : "Delete"}
         </Button>
       </div>
     </Modal>
