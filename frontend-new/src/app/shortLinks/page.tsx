@@ -32,12 +32,11 @@ export default function LinksPage() {
     error: updateError,
   } = useUpdateShortLink();
 
-  // ✅ Logika baru untuk mengekstrak fieldErrors dari respons backend
-  let fieldErrors: { [key: string]: string } = {}; // Gunakan index signature untuk kunci dinamis
+  let fieldErrors: { [key: string]: string } = {};
   if (
     updateError instanceof ApiError &&
     updateError.data &&
-    Array.isArray(updateError.data.errors) // Pastikan itu array
+    Array.isArray(updateError.data.errors)
   ) {
     updateError.data.errors.forEach((errDetail: any) => {
       if (errDetail.path && errDetail.message) {
@@ -45,8 +44,6 @@ export default function LinksPage() {
       }
     });
   }
-  // console.log("updateError:", updateError); // Debugging
-  // console.log("Extracted fieldErrors:", fieldErrors); // Debugging
 
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
@@ -62,9 +59,7 @@ export default function LinksPage() {
       await updateLink({ id: selectedShortLink.id, payload: data });
       setIsUpdateOpen(false);
       setSelectedShortLink(null);
-    } catch (err) {
-      // Error handling sudah di hook useUpdateShortLink
-    }
+    } catch (err) {}
   };
 
   const handleConfirmDelete = async () => {

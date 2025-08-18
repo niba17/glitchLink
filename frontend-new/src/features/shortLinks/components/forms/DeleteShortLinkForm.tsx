@@ -8,7 +8,7 @@ interface DeleteShortLinkFormProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  isLoading: boolean; // ✅ Tambahkan properti ini
+  isLoading: boolean;
   children: React.ReactNode;
 }
 

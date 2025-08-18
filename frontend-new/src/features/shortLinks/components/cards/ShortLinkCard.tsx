@@ -1,9 +1,8 @@
 // frontend-new\src\features\shortLinks\components\cards\ShortLinkCard.tsx
 "use client";
 
-import { Copy, Trash2, Edit } from "lucide-react";
+import { Copy, Trash2 } from "lucide-react";
 import Button from "@/components/buttons/Button";
-import { toast } from "sonner"; // Import toast
 
 interface ShortLinkCardProps {
   id: string;
@@ -20,7 +19,6 @@ export default function ShortLinkCard({
   shortUrl,
   originalUrl,
   onCopy,
-  onUpdate,
   onDelete,
 }: ShortLinkCardProps) {
   return (

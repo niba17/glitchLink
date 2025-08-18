@@ -1,7 +1,6 @@
 // frontend-new\src\app\page.tsx
 "use client";
 
-import Button from "@/components/buttons/Button";
 import { toast } from "sonner";
 import CreateShortLinkForm from "@/features/shortLinks/components/forms/CreateShortLinkForm";
 import ShortLinkCard from "@/features/shortLinks/components/cards/ShortLinkCard";
