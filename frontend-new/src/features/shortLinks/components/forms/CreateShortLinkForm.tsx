@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import Input from "@/components/inputs/Input";
-// import Button from "@/components/buttons/Button";
-import { Button } from "@/components/ui/button";
+import Button from "@/components/buttons/Button";
 
 interface CreateLinkFormProps {
   onSubmit: (data: {
@@ -72,13 +71,12 @@ export default function CreateLinkForm({
 
         <Button
           type="submit"
-          variant="default"
+          variant="primary"
           disabled={isLoading}
           className="text-[2vw]"
         >
           {isLoading ? "Processing..." : "Get Short Link"}
         </Button>
-        <Button></Button>
       </div>
     </form>
   );
