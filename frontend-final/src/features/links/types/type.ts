@@ -17,3 +17,19 @@ export interface ShortLinkResponse {
     updatedAt?: string;
   };
 }
+
+export interface GuestShortLinkUI {
+  id: number;
+  original: string;
+  shortCode: string | null;
+  shortUrl: string;
+  createdAt: string | null;
+}
+
+export interface GuestShortLink {
+  id: number;
+  originalUrl: string;
+  shortUrl: string;
+  shortCode?: string | null;
+  createdAt?: string | null;
+}

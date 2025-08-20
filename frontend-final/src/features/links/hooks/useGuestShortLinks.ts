@@ -1,19 +1,13 @@
-// frontend-final\src\features\links\hooks\useGuestShortLinks.ts
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ShortLinkPayload, ShortLinkResponse } from "../types/type";
+import { ShortLinkPayload } from "../types/type";
 import { shortLinkService } from "../services/shortLinkService";
-
-export interface GuestShortLink {
-  id: number;
-  originalUrl: string;
-  shortUrl: string;
-}
+import { GuestShortLink, GuestShortLinkUI } from "../types/type";
+import { mapGuestLinksToUI } from "../utils/mapGuestLinksToUI";
 
 const LOCAL_STORAGE_KEY = "guestShortLinks";
 
-// Fetch guest links dari localStorage
 function fetchGuestLinks(): GuestShortLink[] {
   if (typeof window === "undefined") return [];
   const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -29,14 +23,11 @@ function fetchGuestLinks(): GuestShortLink[] {
 export function useGuestShortLinks() {
   const queryClient = useQueryClient();
 
-  // Query untuk guest links
   const query = useQuery<GuestShortLink[]>({
     queryKey: ["guestShortLinks"],
     queryFn: fetchGuestLinks,
   });
 
-  // Mutation untuk create shortLink
-  // Mutation untuk create shortLink
   const createMutation = useMutation({
     mutationFn: async (payload: ShortLinkPayload) => {
       const res = await shortLinkService.createShortLink(payload);
@@ -50,32 +41,35 @@ export function useGuestShortLinks() {
       queryClient.setQueryData([LOCAL_STORAGE_KEY], updated);
     },
     onError: (err: any) => {
-      // Ambil message spesifik dari backend
       const message =
         err?.errors?.[0]?.message ||
         err?.message ||
         "Failed to create short link";
-      // lempar atau teruskan ke form
       throw new Error(message);
     },
   });
 
-  // Mutation untuk delete shortLink
   const deleteMutation = useMutation({
     mutationFn: (id: number): Promise<GuestShortLink[]> => {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       const parsed: GuestShortLink[] = stored ? JSON.parse(stored) : [];
       const updated = parsed.filter((link) => link.id !== id);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-      return Promise.resolve(updated); // ✅ pastikan return Promise
+      return Promise.resolve(updated);
     },
     onSuccess: (updated) => {
-      queryClient.setQueryData(["guestShortLinks"], updated); // ✅ gunakan array sebagai key
+      queryClient.setQueryData(["guestShortLinks"], updated);
     },
   });
 
+  // langsung map ke UI
+  const uiGuestLinks: GuestShortLinkUI[] = query.data
+    ? mapGuestLinksToUI(query.data)
+    : [];
+
   return {
     guestLinks: query.data || [],
+    uiGuestLinks,
     isLoading: query.isLoading,
     createShortLink: createMutation.mutate,
     deleteShortLink: deleteMutation.mutate,
