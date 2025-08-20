@@ -1,39 +1,27 @@
+// src/features/auth/components/forms/SignInFormContainer.tsx
 "use client";
 
 import { useState } from "react";
-import { useAuthStore } from "@/store/useAuthStore";
 import SignInFormUI from "./SignInFormUI";
+import { useSignIn } from "@/features/auth/hooks/useSignIn";
+import { SignInPayload } from "../../types/auth";
 
 export default function SignInFormContainer() {
-  const { setLoggedIn } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const { mutate, isPending } = useSignIn();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    try {
-      // Simulasi autentikasi
-      await new Promise<void>((resolve, reject) => {
-        setTimeout(() => {
-          if (email === "test@test.com" && password === "123456") {
-            resolve();
-          } else {
-            reject(new Error("Email atau password salah"));
-          }
-        }, 500);
-      });
+    const payload: SignInPayload = { email, password };
 
-      setLoggedIn(true);
-    } catch (err: any) {
-      setError(err.message || "Gagal Sign In");
-    } finally {
-      setLoading(false);
-    }
+    mutate(payload, {
+      onError: (err: any) => setError(err?.message || "Gagal Sign In"),
+    });
   };
 
   return (
@@ -43,7 +31,7 @@ export default function SignInFormContainer() {
       setEmail={setEmail}
       setPassword={setPassword}
       onSubmit={handleSubmit}
-      loading={loading}
+      loading={isPending}
       error={error}
     />
   );
