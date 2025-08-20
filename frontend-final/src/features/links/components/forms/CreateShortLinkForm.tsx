@@ -1,19 +1,19 @@
+// frontend-final\src\features\links\components\forms\CreateShortLinkForm.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
-import { useCreateShortLink } from "../../hooks/useCreateShortLink";
-import { ShortLinkPayload, ShortLinkResponse } from "../../types/type";
-import { toast } from "sonner";
+import { ShortLinkPayload } from "../../types/type";
+import { useGuestShortLinks } from "../../hooks/useGuestShortLinks";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useToastHandler } from "@/hooks/useToastHandler";
 
 interface CreateShortLinkFormProps {
   onCreated?: (shortUrl: string) => void;
   defaultOriginalUrl?: string;
   defaultCustomAlias?: string;
-  isGuest?: boolean;
 }
 
 export default function CreateShortLinkForm({
@@ -23,45 +23,13 @@ export default function CreateShortLinkForm({
 }: CreateShortLinkFormProps) {
   const [originalUrl, setOriginalUrl] = useState(defaultOriginalUrl);
   const [customAlias, setCustomAlias] = useState(defaultCustomAlias);
-  const [guestLinks, setGuestLinks] = useState<ShortLinkResponse["data"][]>([]);
+  const { showSuccess, showError } = useToastHandler();
 
   // Ambil status login dari store
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const isGuest = !isLoggedIn;
 
-  // Load guest shortlinks dari localStorage
-  useEffect(() => {
-    if (isGuest) {
-      const stored = localStorage.getItem("guestShortLinks");
-      if (stored) setGuestLinks(JSON.parse(stored));
-    }
-  }, [isGuest]);
-
-  const mutation = useCreateShortLink({
-    onSuccess: (data) => {
-      const link = data.data; // ambil dari response BE
-      setOriginalUrl("");
-      setCustomAlias("");
-      onCreated?.(link.shortUrl);
-
-      // tampilkan toast sukses
-      toast.success(data.message);
-
-      // simpan ke localStorage jika guest
-      if (isGuest) {
-        setGuestLinks((prev) => {
-          const updated = [link, ...prev];
-          localStorage.setItem("guestShortLinks", JSON.stringify(updated));
-          return updated;
-        });
-      }
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to create short link");
-    },
-  });
-
-  const isLoading = mutation.status === "pending";
+  // Gunakan hook guest shortLinks
+  const { createShortLink } = useGuestShortLinks();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,7 +38,19 @@ export default function CreateShortLinkForm({
       customAlias: customAlias || null,
       expiresAt: null,
     };
-    mutation.mutate(payload);
+
+    if (!isLoggedIn) {
+      createShortLink(payload, {
+        onSuccess: (link) => {
+          setOriginalUrl("");
+          setCustomAlias("");
+          showSuccess("Short link created!");
+        },
+        onError: (err: any) => {
+          showError(err.message);
+        },
+      });
+    }
   };
 
   return (
@@ -107,9 +87,8 @@ export default function CreateShortLinkForm({
           type="submit"
           variant="default"
           className="text-[2vw] h-14 mt-10"
-          disabled={isLoading}
         >
-          {isLoading ? "Generating..." : "Get Short Link"}
+          Get Short Link
         </Button>
       </form>
     </div>

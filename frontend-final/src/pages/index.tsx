@@ -1,37 +1,35 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import CreateLinkForm from "@/features/links/components/forms/CreateShortLinkForm";
 import { Button } from "@/components/ui/button";
 import { Copy, Trash2 } from "lucide-react";
-
-interface GuestLink {
-  id: number;
-  originalUrl: string;
-  shortUrl: string;
-}
+import { useGuestShortLinks } from "@/features/links/hooks/useGuestShortLinks";
+import { useClipboard } from "@/hooks/useClipboard";
+import { mapGuestLinksToUI } from "@/features/links/utils/mapGuestLinksToUI";
 
 export default function Home() {
-  const [guestLinks, setGuestLinks] = useState<GuestLink[]>([]);
+  const { guestLinks, deleteShortLink } = useGuestShortLinks();
+  const { copy } = useClipboard();
+  const uiLinks = mapGuestLinksToUI(guestLinks);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("guestShortLinks");
-    if (stored) {
-      try {
-        const parsed: (GuestLink | null)[] = JSON.parse(stored);
-        // filter null agar tidak crash
-        const validLinks = parsed.filter(
-          (link): link is GuestLink => link !== null
-        );
-        setGuestLinks(validLinks);
-      } catch {
-        setGuestLinks([]);
-      }
-    }
-  }, []);
+  const handleCopy = (shortUrl: string) => {
+    copy(shortUrl); // otomatis toast sukses
+  };
+
+  const handleDelete = (id: number) => {
+    deleteShortLink(id, {
+      onSuccess: () => {
+        // optional toast bisa ditambahkan di hook atau sini
+      },
+      onError: (err: any) => {
+        console.error("Failed to delete short link", err);
+      },
+    });
+  };
 
   return (
-    <main className="min-h-screen bg-zinc-950 px-[145px] pt-10">
+    <main className="min-h-screen bg-zinc-950 px-[145px] py-10">
       <section className="grid grid-cols-2 gap-7">
         <div className="flex flex-col space-y-6">
           <h1 className="text-[55px] leading-[60px] font-semibold">
@@ -44,7 +42,7 @@ export default function Home() {
           </h2>
         </div>
         <div className="flex flex-col">
-          <CreateLinkForm isGuest />
+          <CreateLinkForm />
         </div>
       </section>
 
@@ -58,7 +56,7 @@ export default function Home() {
         </div>
 
         <ul className="grid grid-cols-3 gap-[20px]">
-          {guestLinks.map((link) => (
+          {uiLinks.map((link) => (
             <li
               key={link.id}
               className="bg-zinc-800 p-[20px] rounded-sm w-full"
@@ -81,12 +79,13 @@ export default function Home() {
                   {link.originalUrl}
                 </span>
 
-                <div className="flex items-center justify-start">
+                <div className="flex items-center justify-start gap-2 mt-2">
                   <Button
                     aria-label={`Copy ${link.shortUrl}`}
                     type="button"
                     variant="icon"
                     title="Copy short link"
+                    onClick={() => handleCopy(link.shortUrl)}
                   >
                     <Copy />
                   </Button>
@@ -96,6 +95,7 @@ export default function Home() {
                     type="button"
                     variant="icon"
                     title="Delete short link"
+                    onClick={() => deleteShortLink(link.id)}
                   >
                     <Trash2 />
                   </Button>
