@@ -42,7 +42,7 @@ export default function Navbar() {
         {!isLoggedIn ? (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" className="text-2xl">
+              <Button variant="ghost" className="text-[20px]">
                 Sign In
               </Button>
             </DialogTrigger>

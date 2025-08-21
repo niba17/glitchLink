@@ -18,7 +18,7 @@ export interface ShortLinkResponse {
   };
 }
 
-export interface GuestShortLinkUI {
+export interface GuestLinkUI {
   id: number;
   original: string;
   shortCode: string | null;
@@ -26,7 +26,7 @@ export interface GuestShortLinkUI {
   createdAt: string | null;
 }
 
-export interface GuestShortLink {
+export interface GuestLink {
   id: number;
   originalUrl: string;
   shortUrl: string;

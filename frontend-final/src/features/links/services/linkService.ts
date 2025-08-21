@@ -1,6 +1,6 @@
 import { ShortLinkPayload, ShortLinkResponse } from "../types/type";
 
-export const shortLinkService = {
+export const linkService = {
   async createShortLink(payload: ShortLinkPayload): Promise<ShortLinkResponse> {
     const res = await fetch("http://localhost:3000/api/links", {
       method: "POST",

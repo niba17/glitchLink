@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { useGuestShortLinks } from "../useGuestShortLinks";
+import { useGuestLinks } from "../useGuestLinks";
 import { GUEST_SHORT_LINK_STRINGS } from "../../constants/strings";
 
 /**
@@ -9,7 +9,7 @@ import { GUEST_SHORT_LINK_STRINGS } from "../../constants/strings";
  * Kelebihan: reusable dan konsisten di seluruh app.
  */
 export function useDeleteShortLinkToast() {
-  const { deleteShortLink } = useGuestShortLinks();
+  const { deleteShortLink } = useGuestLinks();
 
   const deleteWithToast = (id: number) => {
     deleteShortLink(id, {

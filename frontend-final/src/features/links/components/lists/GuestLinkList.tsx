@@ -13,19 +13,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2, Copy } from "lucide-react";
 import { useClipboard } from "@/hooks/useClipboard";
-import { GuestShortLinkUI } from "@/features/links/types/type";
+import { GuestLinkUI } from "@/features/links/types/type";
 import { GUEST_SHORT_LINK_STRINGS } from "../../constants/strings";
 
-interface GuestShortLinkListProps {
-  links: GuestShortLinkUI[];
+interface GuestLinkListProps {
+  links: GuestLinkUI[];
   onDelete: (id: number) => void;
   onCopy?: (shortUrl: string) => void;
 }
 
-export function GuestShortLinkList({
-  links,
-  onDelete,
-}: GuestShortLinkListProps) {
+export function GuestLinkList({ links, onDelete }: GuestLinkListProps) {
   const { copy } = useClipboard();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);

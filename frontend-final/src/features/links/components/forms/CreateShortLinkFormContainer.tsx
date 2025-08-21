@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ShortLinkPayload } from "../../types/type";
-import { useGuestShortLinks } from "../../hooks/useGuestShortLinks";
+import { useGuestLinks } from "../../hooks/useGuestLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import CreateShortLinkFormUI from "./CreateShortLinkFormUI";
@@ -10,7 +10,7 @@ import CreateShortLinkFormUI from "./CreateShortLinkFormUI";
 export default function CreateShortLinkForm() {
   const [originalUrl, setOriginalUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
-  const { createShortLink } = useGuestShortLinks();
+  const { createShortLink } = useGuestLinks();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { showSuccess, showError } = useToastHandler();
 

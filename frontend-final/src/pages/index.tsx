@@ -2,13 +2,13 @@
 
 import React from "react";
 import CreateLinkForm from "@/features/links/components/forms/CreateShortLinkFormContainer";
-import { useGuestShortLinks } from "@/features/links/hooks/useGuestShortLinks";
+import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
 import { useClipboard } from "@/hooks/useClipboard";
-import { GuestShortLinkList } from "@/features/links/components/lists/GuestShortLinkList";
+import { GuestLinkList } from "@/features/links/components/lists/GuestLinkList";
 import { useDeleteShortLinkToast } from "@/features/links/hooks/toast/useDeleteShortLinkToast";
 
 export default function Home() {
-  const { uiGuestLinks } = useGuestShortLinks();
+  const { uiGuestLinks } = useGuestLinks();
   const { copy } = useClipboard();
   const deleteWithToast = useDeleteShortLinkToast();
 
@@ -39,7 +39,7 @@ export default function Home() {
           <div className="flex-grow border-t-[2px]"></div>
         </div>
 
-        <GuestShortLinkList
+        <GuestLinkList
           links={uiGuestLinks}
           onDelete={deleteWithToast}
           onCopy={(shortUrl) => copy(shortUrl)}

@@ -2,7 +2,6 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
-import { toast } from "sonner";
 import { useToastHandler } from "@/hooks/useToastHandler";
 
 export function useSignOut() {
