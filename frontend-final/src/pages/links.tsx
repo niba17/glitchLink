@@ -28,6 +28,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
@@ -134,24 +135,25 @@ export default function LinksPage() {
         </Table>
       </div>
 
-      {/* Delete confirmation dialog */}
       <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Link</AlertDialogTitle>
+            <AlertDialogTitle>
+              {GUEST_SHORT_LINK_STRINGS.deleteConfirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this short link? undone.
+              {GUEST_SHORT_LINK_STRINGS.deleteConfirmDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex justify-end gap-2 mt-4">
             <AlertDialogCancel onClick={() => setOpenDialog(false)}>
-              Cancel
+              {GUEST_SHORT_LINK_STRINGS.cancel}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {GUEST_SHORT_LINK_STRINGS.delete}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
