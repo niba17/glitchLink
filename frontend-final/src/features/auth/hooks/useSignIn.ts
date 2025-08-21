@@ -1,4 +1,3 @@
-// frontend-final/src/features/auth/hooks/useSignIn.ts
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
@@ -7,6 +6,7 @@ import { SignInPayload } from "../types/auth";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 export function useSignIn() {
   const { setAuth } = useAuthStore();
@@ -15,6 +15,7 @@ export function useSignIn() {
 
   const mutation = useMutation({
     mutationFn: (payload: SignInPayload) => authService.login(payload),
+
     onSuccess: (data) => {
       setAuth({
         isLoggedIn: true,
@@ -22,15 +23,31 @@ export function useSignIn() {
         token: data?.token || "",
       });
 
-      if (data.token) localStorage.setItem("authToken", data.token);
-
       showSuccess(data.message || "User login successfully");
 
       // redirect otomatis ke /links
       router.replace("/links");
     },
+
     onError: (err: any) => {
-      showError(err?.message || "Signed out successfully");
+      let msg = "User login failed";
+
+      if ((err as AxiosError).isAxiosError) {
+        const axiosErr = err as AxiosError<any>;
+        const responseData = axiosErr.response?.data;
+
+        if (responseData) {
+          // ambil pesan pertama yang valid dari errors, kalau kosong pakai message utama
+          const firstError = responseData.errors?.find(
+            (e: any) => e.message && e.message.trim() !== ""
+          )?.message;
+          msg = firstError || responseData.message || msg;
+        }
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
+
+      showError(msg); // toast hanya muncul sekali
     },
   });
 

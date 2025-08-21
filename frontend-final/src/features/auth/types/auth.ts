@@ -1,5 +1,3 @@
-// frontend-final/src/features/auth/types/auth.ts
-
 export interface SignInPayload {
   email: string;
   password: string;
@@ -11,9 +9,15 @@ export interface SignUpPayload {
   name?: string; // optional kalau BE mendukung
 }
 
-export interface AuthResponse {
-  status: string;
+export interface AuthError {
+  path: string;
   message: string;
-  token: string;
-  email?: string; // optional, karena BE tidak kirim tapi kita bisa inject manual
+}
+
+export interface AuthResponse {
+  status: "success" | "error";
+  message: string;
+  token?: string; // token hanya ada kalau sukses
+  email?: string; // optional
+  errors?: AuthError[]; // array error dari BE
 }
