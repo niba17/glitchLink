@@ -33,3 +33,16 @@ export interface GuestLink {
   shortCode?: string | null;
   createdAt?: string | null;
 }
+
+export interface UserLink {
+  id: number;
+  original: string;
+  shortCode: string;
+  customAlias?: string | null;
+  userId: number;
+  clicksCount: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  expiresAt?: string | null;
+  shortUrl: string;
+}

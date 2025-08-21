@@ -7,17 +7,17 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 
 export function useSignUp() {
-  const { setLoggedIn } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const { showSuccess, showError } = useToastHandler();
 
   const mutation = useMutation({
     mutationFn: (payload: SignUpPayload) => authService.register(payload),
     onSuccess: (data: AuthResponse) => {
-      setLoggedIn(true);
-
-      if (data.data?.token) {
-        localStorage.setItem("authToken", data.data.token);
-      }
+      setAuth({
+        isLoggedIn: true,
+        email: data?.email || "",
+        token: data?.token || "",
+      });
 
       showSuccess(data.message || "Signed Up successfully");
     },

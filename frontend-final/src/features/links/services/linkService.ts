@@ -1,17 +1,26 @@
-import { ShortLinkPayload, ShortLinkResponse } from "../types/type";
+// src/features/links/services/linkService.ts
+import axios from "axios";
+import { ShortLinkPayload, ShortLinkResponse, UserLink } from "../types/type";
+
+const api = axios.create({
+  baseURL: "http://localhost:3000/api",
+  headers: {
+    "Cache-Control": "no-store", // cegah caching
+    Pragma: "no-cache",
+    Expires: "0",
+  },
+  withCredentials: true,
+});
 
 export const linkService = {
   async createShortLink(payload: ShortLinkPayload): Promise<ShortLinkResponse> {
-    const res = await fetch("http://localhost:3000/api/links", {
-      method: "POST",
+    const res = await api.post("/links", payload, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
+    const data = res.data;
 
     if (data.status !== "success") {
-      // lempar error dengan message spesifik dari backend
       const message =
         data.errors?.[0]?.message ||
         data.message ||
@@ -20,5 +29,26 @@ export const linkService = {
     }
 
     return data;
+  },
+
+  async getUserLinks(token: string): Promise<UserLink[]> {
+    const res = await api.get("/links", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = res.data;
+
+    if (data.status !== "success") {
+      const message =
+        data.errors?.[0]?.message ||
+        data.message ||
+        "Failed to fetch user links";
+      throw new Error(message);
+    }
+
+    return data.data;
   },
 };

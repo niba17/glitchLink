@@ -26,6 +26,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Hanya non-input yang caret nya hilang */
+*:not(input):not(textarea):not([contenteditable="true"]) {
+  caret-color: transparent !important;
+}
+
+/* Tetap biarkan input fokus normal */
+input:focus,
+textarea:focus,
+[contenteditable="true"]:focus {
+  caret-color: auto; /* atau default */
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -1,3 +1,4 @@
+// frontend-final/src/features/auth/hooks/useSignOut.ts
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
@@ -5,22 +6,20 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 
 export function useSignOut() {
-  const { setLoggedIn } = useAuthStore();
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const { showSuccess, showError } = useToastHandler();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async () => {
-      // simulasi delay logout
-      return new Promise<void>((resolve) => setTimeout(resolve, 300));
+      // kalau ada API logout bisa dipanggil di sini
+      return true;
     },
     onSuccess: () => {
-      setLoggedIn(false);
       showSuccess("Signed out successfully");
+      clearAuth(); // otomatis clear localStorage juga karena persist
     },
     onError: () => {
-      showError("Failed to sign out");
+      showError("Sign out failed");
     },
   });
-
-  return mutation;
 }
