@@ -51,4 +51,26 @@ export const linkService = {
 
     return data.data;
   },
+
+  async deleteUserLink(
+    id: number,
+    token: string
+  ): Promise<{ status: string; message: string }> {
+    const res = await api.delete(`/links/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = res.data;
+
+    if (data.status !== "success") {
+      const message =
+        data.errors?.[0]?.message || data.message || "Failed to delete link";
+      throw new Error(message);
+    }
+
+    return data;
+  },
 };
