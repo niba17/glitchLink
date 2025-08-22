@@ -15,6 +15,7 @@ import { Trash2, Copy } from "lucide-react";
 import { useClipboard } from "@/hooks/useClipboard";
 import { GuestLinkUI } from "@/features/links/types/type";
 import { GUEST_SHORT_LINK_STRINGS } from "../../constants/strings";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 interface GuestLinkListProps {
   links: GuestLinkUI[];
@@ -74,29 +75,15 @@ export function GuestLinkList({ links, onDelete }: GuestLinkListProps) {
         ))}
       </ul>
 
-      <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {GUEST_SHORT_LINK_STRINGS.deleteConfirmTitle}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {GUEST_SHORT_LINK_STRINGS.deleteConfirmDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex justify-end gap-2 mt-4">
-            <AlertDialogCancel onClick={() => setOpenDialog(false)}>
-              {GUEST_SHORT_LINK_STRINGS.cancel}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {GUEST_SHORT_LINK_STRINGS.delete}
-            </AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={openDialog}
+        title={GUEST_SHORT_LINK_STRINGS.deleteConfirmTitle}
+        description={GUEST_SHORT_LINK_STRINGS.deleteConfirmDescription}
+        confirmText={GUEST_SHORT_LINK_STRINGS.delete}
+        cancelText={GUEST_SHORT_LINK_STRINGS.cancel}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setOpenDialog(false)}
+      />
     </>
   );
 }
