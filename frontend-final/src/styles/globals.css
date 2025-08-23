@@ -38,6 +38,18 @@ textarea:focus,
   caret-color: auto; /* atau default */
 }
 
+.calendar-picker-icon::-webkit-calendar-picker-indicator {
+  filter: invert(80%) sepia(5%) saturate(200%) hue-rotate(180deg);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.calendar-picker-icon::-moz-calendar-picker-indicator {
+  filter: invert(80%) sepia(5%) saturate(200%) hue-rotate(180deg);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

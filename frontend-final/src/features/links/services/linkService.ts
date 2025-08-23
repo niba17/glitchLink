@@ -52,6 +52,29 @@ export const linkService = {
     return data.data;
   },
 
+  async updateShortLink(
+    id: number,
+    payload: { customAlias?: string | null; expiresAt?: string | null },
+    token: string
+  ): Promise<{ status: string; message: string }> {
+    const res = await api.put(`/links/${id}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = res.data;
+
+    if (data.status !== "success") {
+      const message =
+        data.errors?.[0]?.message || data.message || "Failed to update link";
+      throw new Error(message);
+    }
+
+    return data;
+  },
+
   async deleteUserLink(
     id: number,
     token: string

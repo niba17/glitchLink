@@ -8,17 +8,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import React from "react";
 
 export type Column<T> =
   | {
       key: keyof T; // kolom data asli
-      header: string;
+      header: string | React.ReactNode;
       className?: string;
       render?: (item: T, index: number) => React.ReactNode;
     }
   | {
       key: string; // kolom dummy (misal "index")
-      header: string;
+      header: string | React.ReactNode;
       className?: string;
       render: (item: T, index: number) => React.ReactNode; // wajib ada render
     };

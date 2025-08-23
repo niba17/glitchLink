@@ -12,6 +12,7 @@ import { DataTable, Column } from "@/components/common/DataTable";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
 import { UserLink } from "@/features/links/types/type";
+import ShortLinkDialog from "@/components/common/ShortLinkDialog";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
@@ -19,6 +20,7 @@ export default function LinksPage() {
   const { copied, copy } = useClipboard();
   const { data: links, isLoading, error } = useUserLinks();
   const { mutate: deleteLink } = useDeleteUserLink();
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -43,17 +45,19 @@ export default function LinksPage() {
   if (isLoading) return <p className="text-white">Loading...</p>;
   if (error) return <p className="text-red-500">{error.message}</p>;
 
-  // ✅ Column<UserLink> saja, key bebas string
   const columns: Column<UserLink>[] = [
     {
-      key: "index", // dummy key, bukan dari UserLink
-      header: "#",
-      render: (_, idx) => <span>{idx + 1}</span>,
+      key: "index",
+      header: "",
+      render: (_, idx) => (
+        <span className="text-xl font-semibold">{idx + 1}</span>
+      ),
       className: "w-[80px]",
     },
     {
       key: "shortUrl",
-      header: "Links",
+      header: <span className="text-xl font-semibold">Links</span>,
+      className: "text-stone-200",
       render: (item) => (
         <div className="flex flex-col">
           <a
@@ -75,13 +79,17 @@ export default function LinksPage() {
             >
               <Copy />
             </Button>
-            {/* <Button
+            <Button
               variant="icon"
               size="sm"
-              onClick={() => handleEditClick(item.id)}
+              onClick={() => {
+                setSelectedId(item.id);
+                setOpenEditDialog(true);
+              }}
             >
               <Edit />
-            </Button> */}
+            </Button>
+
             <Button
               variant="icon"
               size="sm"
@@ -95,13 +103,15 @@ export default function LinksPage() {
     },
     {
       key: "clicksCount",
-      header: "Clicks",
-      className: "text-end",
+      header: <span className="text-xl font-semibold">Clicks</span>,
+      className: "text-end text-stone-200",
     },
     {
       key: "createdAt",
-      header: "Created / Expired At",
-      className: "text-end",
+      header: (
+        <span className="text-xl font-semibold">Created / Expired At</span>
+      ),
+      className: "text-end text-stone-200",
       render: (item) => (
         <div className="flex flex-col text-end">
           <span>{item.createdAt}</span>
@@ -125,6 +135,18 @@ export default function LinksPage() {
           className="text-[15px]"
         />
       </div>
+
+      <ShortLinkDialog
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        linkId={selectedId}
+        currentAlias={
+          links?.find((link) => link.id === selectedId)?.customAlias || ""
+        }
+        currentExpiresAt={
+          links?.find((link) => link.id === selectedId)?.expiresAt || ""
+        }
+      />
 
       <ConfirmDialog
         open={openDialog}
