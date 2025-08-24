@@ -144,6 +144,7 @@ export default function LinksPage() {
         open={openCreateDialog}
         onOpenChange={setOpenCreateDialog}
         mode="create"
+        onClose={() => setOpenCreateDialog(false)}
       />
 
       {/* 🔹 Update dialog */}

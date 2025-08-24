@@ -22,9 +22,15 @@ const api = axios.create({
 });
 
 export const linkService = {
-  async createShortLink(payload: ShortLinkPayload): Promise<ShortLinkResponse> {
+  async createShortLink(
+    payload: ShortLinkPayload,
+    token?: string // optional token
+  ): Promise<ShortLinkResponse> {
     const res = await api.post("/links", payload, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     });
 
     const data = res.data;
@@ -39,7 +45,6 @@ export const linkService = {
 
     return data;
   },
-
   async getUserLinks(token: string): Promise<UserLink[]> {
     const res = await api.get("/links", {
       headers: {

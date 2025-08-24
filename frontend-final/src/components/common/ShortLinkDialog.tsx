@@ -16,18 +16,20 @@ interface ShortLinkDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "create" | "update";
-  linkId?: number | null;
+  linkId?: number;
   currentAlias?: string;
   currentExpiresAt?: string;
+  onClose?: () => void; // tambahkan ini
 }
 
 export default function ShortLinkDialog({
   open,
   onOpenChange,
   mode,
-  linkId = null,
+  linkId,
   currentAlias = "",
   currentExpiresAt = "",
+  onClose, // ✅ tambahkan ini
 }: ShortLinkDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -45,15 +47,15 @@ export default function ShortLinkDialog({
 
         <div className="space-y-4">
           {mode === "create" ? (
-            <CreateShortLinkFormContainer />
-          ) : (
+            <CreateShortLinkFormContainer onClose={onClose} />
+          ) : linkId !== undefined ? (
             <UpdateShortLinkFormContainer
               linkId={linkId}
               currentAlias={currentAlias}
               currentExpiresAt={currentExpiresAt}
               onClose={() => onOpenChange(false)}
             />
-          )}
+          ) : null}
         </div>
 
         {/* <DialogFooter>

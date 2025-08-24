@@ -7,8 +7,13 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import CreateGuestShortLinkFormUI from "./CreateGuestShortLinkFormUI";
 import CreateUserShortLinkFormUI from "./CreateUserShortLinkFormUI";
+import { useCreateUserLink } from "../../hooks/useCreateUserLink";
 
-export default function CreateShortLinkFormContainer() {
+interface Props {
+  onClose?: () => void; // <- tambahkan prop
+}
+
+export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const [originalUrl, setOriginalUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -16,6 +21,7 @@ export default function CreateShortLinkFormContainer() {
   const { createShortLink: createGuestShortLink } = useGuestLinks();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { showSuccess, showError } = useToastHandler();
+  const { mutate: createUserShortLink } = useCreateUserLink();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,34 +33,40 @@ export default function CreateShortLinkFormContainer() {
       expiresAt: null,
     };
 
+    const handleSuccess = (msg: string) => {
+      setOriginalUrl("");
+      setCustomAlias("");
+      showSuccess(msg);
+      if (onClose) onClose(); // <- tutup dialog
+    };
+
+    const handleError = (err: any) => {
+      const apiError = err.response?.data || err.data || err;
+      if (apiError?.errors && Array.isArray(apiError.errors)) {
+        const mapped: Record<string, string> = {};
+        apiError.errors.forEach((e: { path: string; message: string }) => {
+          mapped[e.path] = e.message;
+        });
+        setFieldErrors(mapped);
+      }
+
+      showError(
+        apiError?.message ||
+          apiError?.errors?.[0]?.message ||
+          "Failed to create link"
+      );
+    };
+
     if (!isLoggedIn) {
       createGuestShortLink(payload, {
-        onSuccess: () => {
-          setOriginalUrl("");
-          setCustomAlias("");
-          showSuccess("Guest short link created!");
-        },
-        onError: (err: any) => {
-          // Parsing backend error
-          const apiError = err.response?.data || err.data || err;
-          if (apiError?.errors && Array.isArray(apiError.errors)) {
-            const mapped: Record<string, string> = {};
-            apiError.errors.forEach((e: { path: string; message: string }) => {
-              mapped[e.path] = e.message;
-            });
-            setFieldErrors(mapped);
-          }
-
-          // tampilkan toast
-          showError(
-            apiError?.message ||
-              apiError?.errors?.[0]?.message ||
-              "Failed to create link"
-          );
-        },
+        onSuccess: () => handleSuccess("Guest short link created!"),
+        onError: handleError,
       });
     } else {
-      console.log("User short link created with payload:", payload);
+      createUserShortLink(payload, {
+        onSuccess: () => handleSuccess("User short link created!"),
+        onError: handleError,
+      });
     }
   };
 
