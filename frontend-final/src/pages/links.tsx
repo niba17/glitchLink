@@ -17,12 +17,14 @@ import ShortLinkDialog from "@/components/common/ShortLinkDialog";
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
   const router = useRouter();
-  const { copied, copy } = useClipboard();
+  const { copy } = useClipboard();
   const { data: links, isLoading, error } = useUserLinks();
   const { mutate: deleteLink } = useDeleteUserLink();
-  const [openEditDialog, setOpenEditDialog] = useState(false);
 
+  // state dialog
   const [openDialog, setOpenDialog] = useState(false);
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -89,7 +91,6 @@ export default function LinksPage() {
             >
               <Edit />
             </Button>
-
             <Button
               variant="icon"
               size="sm"
@@ -125,7 +126,9 @@ export default function LinksPage() {
     <section>
       <div className="bg-zinc-950 min-h-screen px-[145px] py-10 space-y-[10px]">
         <div className="grid grid-cols-5 gap-[1vw]">
-          <Button variant="default">New Short Link</Button>
+          <Button onClick={() => setOpenCreateDialog(true)}>
+            Create Short Link
+          </Button>
           <Button variant="default">Sort by</Button>
         </div>
 
@@ -136,18 +139,28 @@ export default function LinksPage() {
         />
       </div>
 
+      {/* 🔹 Create dialog */}
+      <ShortLinkDialog
+        open={openCreateDialog}
+        onOpenChange={setOpenCreateDialog}
+        mode="create"
+      />
+
+      {/* 🔹 Update dialog */}
       <ShortLinkDialog
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
-        linkId={selectedId}
+        mode="update"
+        linkId={selectedId ?? undefined} // ✅ null di-convert ke undefined
         currentAlias={
-          links?.find((link) => link.id === selectedId)?.customAlias || ""
+          links?.find((l) => l.id === selectedId)?.customAlias || ""
         }
         currentExpiresAt={
-          links?.find((link) => link.id === selectedId)?.expiresAt || ""
+          links?.find((l) => l.id === selectedId)?.expiresAt || ""
         }
       />
 
+      {/* 🔹 Confirm delete */}
       <ConfirmDialog
         open={openDialog}
         title={GUEST_SHORT_LINK_STRINGS.deleteConfirmTitle}

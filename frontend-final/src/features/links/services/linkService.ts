@@ -2,6 +2,15 @@
 import axios from "axios";
 import { ShortLinkPayload, ShortLinkResponse, UserLink } from "../types/type";
 
+class ApiError extends Error {
+  data: any;
+  constructor(message: string, data: any) {
+    super(message);
+    this.name = "ApiError";
+    this.data = data;
+  }
+}
+
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
   headers: {
@@ -68,8 +77,8 @@ export const linkService = {
 
     if (data.status !== "success") {
       const message =
-        data.errors?.[0]?.message || data.message || "Failed to update link";
-      throw new Error(message);
+        data.message || data.errors?.[0]?.message || "Failed to update link";
+      throw new ApiError(message, data); // <<<<< simpan full data error
     }
 
     return data;

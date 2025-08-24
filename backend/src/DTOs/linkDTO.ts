@@ -1,21 +1,15 @@
 // src/dtos/link.dto.ts
 import { z } from "zod";
 
-// Helper function untuk menambahkan protokol jika hilang
-const addHttpIfMissing = (url: string) => {
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    return `http://${url}`; // Default ke http jika tidak ada
-  }
-  return url;
-};
+// format datetime hanya sampai menit (contoh: 2025-12-31 23:59)
+const dateTimeWithoutSecondsRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
 
 export const createShortLinkSchema = z.object({
   originalUrl: z
     .string()
     .trim()
     .min(1, { message: "Original URL is required" })
-    .url({ message: "Invalid URL format" })
-    .transform(addHttpIfMissing), // Menambahkan protokol jika hilang
+    .url({ message: "Invalid URL format" }),
 
   customAlias: z
     .string()
@@ -25,15 +19,17 @@ export const createShortLinkSchema = z.object({
       message:
         "Custom alias can only contain lowercase letters, numbers, and hyphens",
     })
-    .optional() // Memungkinkan properti tidak ada
-    .or(z.literal(null)) // Memungkinkan nilai null secara eksplisit
-    .transform((e) => (e === "" ? undefined : e === null ? null : e)), // Ubah string kosong menjadi undefined, pertahankan null
+    .optional()
+    .or(z.literal(null))
+    .transform((e) => (e === "" ? undefined : e === null ? null : e)),
 
   expiresAt: z
     .string()
-    .datetime({ message: "Invalid datetime format" })
-    .optional() // Memungkinkan properti tidak ada
-    .or(z.literal(null)), // Memungkinkan nilai null secara eksplisit
+    .regex(dateTimeWithoutSecondsRegex, {
+      message: "Invalid datetime format (use YYYY-MM-DD HH:mm)",
+    })
+    .optional()
+    .or(z.literal(null)),
 });
 
 export type CreateLinkDto = z.infer<typeof createShortLinkSchema>;
@@ -51,9 +47,11 @@ export const updateLinkSchema = z.object({
 
   expiresAt: z
     .string()
-    .datetime({ message: "Invalid datetime format" })
-    .nullable() // Memungkinkan null untuk menghapus expiry
-    .optional(), // Memungkinkan undefined
+    .regex(dateTimeWithoutSecondsRegex, {
+      message: "Invalid datetime format (use YYYY-MM-DD HH:mm)",
+    })
+    .nullable()
+    .optional(),
 });
 
 export type UpdateLinkDto = z.infer<typeof updateLinkSchema>;

@@ -20,8 +20,8 @@ export default function CreateShortLinkFormUI({
   onSubmit,
 }: CreateShortLinkFormUIProps) {
   return (
-    <form className="flex flex-col space-y-10" onSubmit={onSubmit}>
-      <div className="flex flex-col space-y-6">
+    <form className="flex flex-col space-y-6" onSubmit={onSubmit}>
+      <div className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-2">
           <Label className="text-lg" htmlFor="originalUrl">
             Original Link
@@ -48,7 +48,7 @@ export default function CreateShortLinkFormUI({
         </div>
       </div>
 
-      <Button type="submit" variant="default" className="text-[2vw] h-14 mt-10">
+      <Button type="submit" variant="default" className="text-[20px] h-14">
         Get Short Link
       </Button>
     </form>

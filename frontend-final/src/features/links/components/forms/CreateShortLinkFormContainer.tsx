@@ -1,3 +1,4 @@
+// frontend-final\src\features\links\components\forms\CreateShortLinkFormContainer.tsx
 "use client";
 
 import { useState } from "react";
@@ -5,14 +6,20 @@ import { ShortLinkPayload } from "../../types/type";
 import { useGuestLinks } from "../../hooks/useGuestLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
-import CreateShortLinkFormUI from "./CreateShortLinkFormUI";
+import CreateGuestShortLinkFormUI from "./CreateGuestShortLinkFormUI";
+import CreateUserShortLinkFormUI from "./CreateUserShortLinkFormUI";
+// nanti setelah ada hook user -> import { useUserLinks } from "../../hooks/useUserLinks";
 
-export default function CreateShortLinkForm() {
+export default function CreateShortLinkFormContainer() {
   const [originalUrl, setOriginalUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
-  const { createShortLink } = useGuestLinks();
+
+  const { createShortLink: createGuestShortLink } = useGuestLinks();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { showSuccess, showError } = useToastHandler();
+
+  // TODO: setelah ada hook user
+  // const { createShortLink: createUserShortLink } = useUserLinks();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,28 +31,34 @@ export default function CreateShortLinkForm() {
     };
 
     if (!isLoggedIn) {
-      createShortLink(payload, {
+      createGuestShortLink(payload, {
         onSuccess: () => {
           setOriginalUrl("");
           setCustomAlias("");
-          showSuccess("Short link created!");
+          showSuccess("Guest short link created!");
         },
         onError: (err: any) => {
           showError(err.message);
         },
       });
     } else {
-      // TODO: user yang login
+      // sementara pakai console.log, nanti ganti ke useUserLinks
+      // createUserShortLink(payload, { ... });
+      console.log("User short link created with payload:", payload);
     }
   };
 
-  return (
-    <CreateShortLinkFormUI
-      originalUrl={originalUrl}
-      customAlias={customAlias}
-      onChangeOriginal={setOriginalUrl}
-      onChangeAlias={setCustomAlias}
-      onSubmit={handleSubmit}
-    />
+  const sharedProps = {
+    originalUrl,
+    customAlias,
+    onChangeOriginal: setOriginalUrl,
+    onChangeAlias: setCustomAlias,
+    onSubmit: handleSubmit,
+  };
+
+  return isLoggedIn ? (
+    <CreateUserShortLinkFormUI {...sharedProps} />
+  ) : (
+    <CreateGuestShortLinkFormUI {...sharedProps} />
   );
 }
