@@ -10,6 +10,8 @@ interface CreateShortLinkFormUIProps {
   onChangeOriginal: (val: string) => void;
   onChangeAlias: (val: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  fieldErrors?: Record<string, string>;
+  isPending?: boolean;
 }
 
 export default function CreateShortLinkFormUI({
@@ -18,6 +20,8 @@ export default function CreateShortLinkFormUI({
   onChangeOriginal,
   onChangeAlias,
   onSubmit,
+  fieldErrors,
+  isPending,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-6" onSubmit={onSubmit}>
@@ -32,8 +36,17 @@ export default function CreateShortLinkFormUI({
             type="url"
             value={originalUrl}
             onChange={(e) => onChangeOriginal(e.target.value)}
+            className={
+              fieldErrors?.originalUrl
+                ? "border-red-500 focus:ring-red-500"
+                : ""
+            }
           />
+          {fieldErrors?.originalUrl && (
+            <p className="text-sm text-red-600">{fieldErrors.originalUrl}</p>
+          )}
         </div>
+
         <div className="flex flex-col space-y-2">
           <Label className="text-lg" htmlFor="customAlias">
             Alias (Optional)
@@ -44,12 +57,25 @@ export default function CreateShortLinkFormUI({
             type="text"
             value={customAlias}
             onChange={(e) => onChangeAlias(e.target.value)}
+            className={
+              fieldErrors?.customAlias
+                ? "border-red-500 focus:ring-red-500"
+                : ""
+            }
           />
+          {fieldErrors?.customAlias && (
+            <p className="text-sm text-red-600">{fieldErrors.customAlias}</p>
+          )}
         </div>
       </div>
 
-      <Button type="submit" variant="default" className="text-[20px] h-14">
-        Get Short Link
+      <Button
+        type="submit"
+        variant="default"
+        className="text-[20px] h-14"
+        disabled={isPending}
+      >
+        {isPending ? "Creating..." : "Get Short Link"}
       </Button>
     </form>
   );

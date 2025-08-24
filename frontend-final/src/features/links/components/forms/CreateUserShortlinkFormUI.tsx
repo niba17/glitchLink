@@ -10,6 +10,7 @@ interface CreateShortLinkFormUIProps {
   onChangeOriginal: (val: string) => void;
   onChangeAlias: (val: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  fieldErrors?: Record<string, string>;
 }
 
 export default function CreateShortLinkFormUI({
@@ -18,10 +19,11 @@ export default function CreateShortLinkFormUI({
   onChangeOriginal,
   onChangeAlias,
   onSubmit,
+  fieldErrors,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
-      <div className="flex flex-col space-y-3">
+      <div className="flex flex-col space-y-2">
         <div className="flex flex-col space-y-2">
           <Label className="text-lg" htmlFor="originalUrl">
             Original Link
@@ -32,8 +34,17 @@ export default function CreateShortLinkFormUI({
             type="url"
             value={originalUrl}
             onChange={(e) => onChangeOriginal(e.target.value)}
+            className={
+              fieldErrors?.originalUrl
+                ? "border-red-500 focus:ring-red-500"
+                : ""
+            }
           />
+          {fieldErrors?.originalUrl && (
+            <p className="text-sm text-red-600">{fieldErrors.originalUrl}</p>
+          )}
         </div>
+
         <div className="flex flex-col space-y-2">
           <Label className="text-lg" htmlFor="customAlias">
             Alias (Optional)
@@ -44,7 +55,15 @@ export default function CreateShortLinkFormUI({
             type="text"
             value={customAlias}
             onChange={(e) => onChangeAlias(e.target.value)}
+            className={
+              fieldErrors?.customAlias
+                ? "border-red-500 focus:ring-red-500"
+                : ""
+            }
           />
+          {fieldErrors?.customAlias && (
+            <p className="text-sm text-red-600">{fieldErrors.customAlias}</p>
+          )}
         </div>
       </div>
 
