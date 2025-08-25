@@ -6,16 +6,32 @@ import { useGuestLinks } from "../../hooks/useGuestLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import CreateGuestShortLinkFormUI from "./CreateGuestShortLinkFormUI";
-import CreateUserShortLinkFormUI from "./CreateUserShortLinkFormUI";
+import CreateUserShortLinkFormUI from "./CreateUserShortlinkFormUI";
 import { useCreateUserLink } from "../../hooks/useCreateUserLink";
 
 interface Props {
   onClose?: () => void; // <- tambahkan prop
 }
 
+// FE → BE: hapus detik, ganti T → spasi
+function normalizeExpiresAt(val: string | null): string | null {
+  if (!val) return null;
+  return val.replace("T", " ").replace(/:00$/, "");
+}
+
+// BE → FE: format agar bisa di-input datetime-local
+function formatForInput(val: string | null): string | null {
+  if (!val) return null;
+  return val.replace(" ", "T").slice(0, 16);
+}
+
 export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const [originalUrl, setOriginalUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
+  const [expiresAt, setExpiresAt] = useState<string>(
+    formatForInput(null) ?? "" // jika null → ""
+  );
+
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const { createShortLink: createGuestShortLink } = useGuestLinks();
@@ -30,7 +46,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
     const payload: ShortLinkPayload = {
       originalUrl,
       customAlias: customAlias || null,
-      expiresAt: null,
+      expiresAt: normalizeExpiresAt(expiresAt),
     };
 
     const handleSuccess = (msg: string) => {
@@ -73,15 +89,20 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const sharedProps = {
     originalUrl,
     customAlias,
+    expiresAt,
     onChangeOriginal: setOriginalUrl,
     onChangeAlias: setCustomAlias,
+    onChangeExpiresAt: setExpiresAt,
     onSubmit: handleSubmit,
     fieldErrors,
   };
 
   return isLoggedIn ? (
-    <CreateUserShortLinkFormUI {...sharedProps} />
+    <CreateUserShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />
   ) : (
-    <CreateGuestShortLinkFormUI {...sharedProps} />
+    <CreateGuestShortLinkFormUI
+      {...sharedProps}
+      expiresAt={expiresAt ?? ""} // pastikan selalu string
+    />
   );
 }

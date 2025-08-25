@@ -7,19 +7,25 @@ import { Label } from "@/components/ui/label";
 interface CreateShortLinkFormUIProps {
   originalUrl: string;
   customAlias: string;
+  expiresAt: string; // <- baru
   onChangeOriginal: (val: string) => void;
   onChangeAlias: (val: string) => void;
+  onChangeExpiresAt: (val: string) => void; // <- baru
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   fieldErrors?: Record<string, string>;
+  isPending?: boolean;
 }
 
 export default function CreateShortLinkFormUI({
   originalUrl,
   customAlias,
+  expiresAt, // <- tambahkan
   onChangeOriginal,
   onChangeAlias,
+  onChangeExpiresAt, // <- tambahkan
   onSubmit,
   fieldErrors,
+  isPending,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
@@ -63,6 +69,24 @@ export default function CreateShortLinkFormUI({
           />
           {fieldErrors?.customAlias && (
             <p className="text-sm text-red-600">{fieldErrors.customAlias}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col space-y-2">
+          <Label className="text-lg" htmlFor="expiresAt">
+            Expired At (Optional)
+          </Label>
+          <Input
+            id="expiresAt"
+            type="datetime-local"
+            value={expiresAt || ""}
+            onChange={(e) => onChangeExpiresAt(e.target.value)}
+            className={
+              fieldErrors?.expiresAt ? "border-red-500 focus:ring-red-500" : ""
+            }
+          />
+          {fieldErrors?.expiresAt && (
+            <p className="text-sm text-red-600">{fieldErrors.expiresAt}</p>
           )}
         </div>
       </div>
