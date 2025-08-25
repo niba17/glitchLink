@@ -53,8 +53,6 @@ export default function UpdateShortLinkFormContainer({
       expiresAt: normalizeExpiresAt(expiresAt),
     };
 
-    console.log("🚀 payload final:", payload);
-
     updateShortLink(payload, {
       onSuccess: () => {
         toast.success("Link updated successfully!");

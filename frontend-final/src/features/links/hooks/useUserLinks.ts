@@ -27,7 +27,6 @@ export function useUserLinks() {
       if (!token) throw new Error("Unauthorized");
       const res = await linkService.createShortLink(payload, token);
 
-      console.log("error: " + res);
       return res.data;
     },
     onSuccess: () => {

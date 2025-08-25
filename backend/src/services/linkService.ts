@@ -172,7 +172,7 @@ export class LinkService {
   async getLinkAnalytics(linkId: number, userId: number) {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
     const clicks = await this.linkRepository.getClicksByLinkId(linkId);
-    console.log("ok");
+
     return {
       totalClicks: link.clicksCount,
       clicks: clicks.map((click) => ({
