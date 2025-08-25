@@ -40,7 +40,7 @@ export default function UpdateShortLinkFormUI({
             onChange={(e) => onChangeAlias(e.target.value)}
             className={
               fieldErrors?.customAlias
-                ? "border-red-500 focus:ring-red-500"
+                ? "border border-red-500 focus:ring-red-500"
                 : ""
             }
           />
@@ -61,7 +61,9 @@ export default function UpdateShortLinkFormUI({
             value={expiresAt ?? ""} // <-- fallback
             onChange={(e) => onChangeExpiresAt(e.target.value)}
             className={
-              fieldErrors?.expiresAt ? "border-red-500 focus:ring-red-500" : ""
+              fieldErrors?.expiresAt
+                ? "border border-red-500 focus:ring-red-500"
+                : ""
             }
           />
 

@@ -12,7 +12,7 @@ import { DataTable, Column } from "@/components/common/DataTable";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
 import { UserLink } from "@/features/links/types/type";
-import ShortLinkDialog from "@/components/common/ShortLinkDialog";
+import ShortLinkDialog from "@/features/links/components/dialogs/ShortLinkDialog";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();

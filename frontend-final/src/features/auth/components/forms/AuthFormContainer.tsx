@@ -1,11 +1,14 @@
-// src/features/auth/components/forms/AuthFormContainer.tsx
 "use client";
 
 import { useState } from "react";
 import SignInFormContainer from "./SignInFormContainer";
 import SignUpFormContainer from "./SignUpFormContainer";
 
-export default function AuthFormContainer() {
+interface Props {
+  onClose?: () => void; // agar container bisa menutup dialog
+}
+
+export default function AuthFormContainer({ onClose }: Props) {
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
 
   const toggleMode = () =>
@@ -13,11 +16,15 @@ export default function AuthFormContainer() {
 
   return (
     <div className="flex flex-col space-y-4">
-      {mode === "signIn" ? <SignInFormContainer /> : <SignUpFormContainer />}
+      {mode === "signIn" ? (
+        <SignInFormContainer onClose={onClose} />
+      ) : (
+        <SignUpFormContainer onClose={onClose} />
+      )}
       <div className="text-center text-sm mt-2">
         {mode === "signIn" ? (
           <>
-            Doesn't have any account yet?{" "}
+            Don't have an account?{" "}
             <span
               className="text-[#159976] hover:text-[#159976]/70 hover:cursor-pointer"
               onClick={toggleMode}

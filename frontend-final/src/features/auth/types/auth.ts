@@ -6,6 +6,7 @@ export interface SignInPayload {
 export interface SignUpPayload {
   email: string;
   password: string;
+  confirmPassword: string;
   name?: string; // optional kalau BE mendukung
 }
 

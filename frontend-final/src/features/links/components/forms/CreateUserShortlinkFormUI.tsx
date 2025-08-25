@@ -42,7 +42,7 @@ export default function CreateShortLinkFormUI({
             onChange={(e) => onChangeOriginal(e.target.value)}
             className={
               fieldErrors?.originalUrl
-                ? "border-red-500 focus:ring-red-500"
+                ? "border border-red-500 focus:ring-red-500"
                 : ""
             }
           />
@@ -63,7 +63,7 @@ export default function CreateShortLinkFormUI({
             onChange={(e) => onChangeAlias(e.target.value)}
             className={
               fieldErrors?.customAlias
-                ? "border-red-500 focus:ring-red-500"
+                ? "border border-red-500 focus:ring-red-500"
                 : ""
             }
           />
@@ -82,7 +82,9 @@ export default function CreateShortLinkFormUI({
             value={expiresAt || ""}
             onChange={(e) => onChangeExpiresAt(e.target.value)}
             className={
-              fieldErrors?.expiresAt ? "border-red-500 focus:ring-red-500" : ""
+              fieldErrors?.expiresAt
+                ? "border border-red-500 focus:ring-red-500"
+                : ""
             }
           />
           {fieldErrors?.expiresAt && (

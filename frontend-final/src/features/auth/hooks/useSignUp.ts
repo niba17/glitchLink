@@ -18,12 +18,16 @@ export function useSignUp() {
         email: data?.email || "",
         token: data?.token || "",
       });
-
       showSuccess(data.message || "Signed Up successfully");
     },
     onError: (err: any) => {
-      showError(err?.message || "Failed to Sign Up");
-      throw new Error(err?.message || "Failed to sign up");
+      // tampilkan toast hanya dari message root (data.message) jika ada
+      if (err?.response?.data?.message) {
+        showError(err.response.data.message);
+      } else {
+        showError(err?.message || "Failed to Sign Up");
+      }
+      // jangan lempar error lagi, biar container bisa ambil data.errors & data.message
     },
   });
 
