@@ -33,6 +33,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   );
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [rootError, setRootError] = useState<string | null>(null);
 
   const { createShortLink: createGuestShortLink } = useGuestLinks();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -42,6 +43,9 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
+
+    setFieldErrors({});
+    setRootError(null);
 
     const payload: ShortLinkPayload = {
       originalUrl,
@@ -57,20 +61,24 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
     };
 
     const handleError = (err: any) => {
+      // ambil payload dari AxiosError
       const apiError = err.response?.data || err.data || err;
-      if (apiError?.errors && Array.isArray(apiError.errors)) {
+
+      if (Array.isArray(apiError?.errors)) {
         const mapped: Record<string, string> = {};
         apiError.errors.forEach((e: { path: string; message: string }) => {
           mapped[e.path] = e.message;
         });
         setFieldErrors(mapped);
+        // kalau BE kasih message umum juga, taruh di rootError
+        if (apiError.message) {
+          setRootError(apiError.message);
+        }
+      } else if (apiError?.message) {
+        setRootError(apiError.message);
       }
 
-      showError(
-        apiError?.message ||
-          apiError?.errors?.[0]?.message ||
-          "Failed to create link"
-      );
+      showError(apiError?.message || "Failed to create link");
     };
 
     if (!isLoggedIn) {
@@ -98,7 +106,11 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   };
 
   return isLoggedIn ? (
-    <CreateUserShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />
+    <CreateUserShortLinkFormUI
+      {...sharedProps}
+      expiresAt={expiresAt ?? ""}
+      rootError={rootError ?? undefined}
+    />
   ) : (
     <CreateGuestShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />
   );

@@ -13,6 +13,7 @@ interface UpdateShortLinkFormUIProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isPending: boolean;
   fieldErrors?: Record<string, string>;
+  rootError?: string;
 }
 
 export default function UpdateShortLinkFormUI({
@@ -22,10 +23,12 @@ export default function UpdateShortLinkFormUI({
   onChangeExpiresAt,
   onSubmit,
   isPending,
-  fieldErrors, // <<<< jangan lupa di-destructure
+  fieldErrors,
+  rootError,
 }: UpdateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
+      {rootError && <p className="text-sm text-red-500">{rootError}</p>}
       <div className="flex flex-col space-y-3">
         {/* Custom Alias */}
         <div className="flex flex-col space-y-2">

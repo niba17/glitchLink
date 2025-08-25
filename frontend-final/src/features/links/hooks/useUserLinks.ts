@@ -26,6 +26,8 @@ export function useUserLinks() {
     mutationFn: async (payload: ShortLinkPayload) => {
       if (!token) throw new Error("Unauthorized");
       const res = await linkService.createShortLink(payload, token);
+
+      console.log("error: " + res);
       return res.data;
     },
     onSuccess: () => {
@@ -70,7 +72,8 @@ export function useUserLinks() {
   return {
     ...query,
     userLinks: query.data || [],
-    createShortLink: createMutation.mutate,
+    createShortLink: createMutation.mutate, // mutate versi "callback-style"
+    createShortLinkAsync: createMutation.mutateAsync, // optional kalau butuh promise
     updateShortLink: updateMutation.mutate,
     deleteShortLink: deleteMutation.mutate,
     isCreating: createMutation.isPending,

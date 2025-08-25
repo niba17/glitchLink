@@ -24,7 +24,7 @@ const api = axios.create({
 export const linkService = {
   async createShortLink(
     payload: ShortLinkPayload,
-    token?: string // optional token
+    token?: string
   ): Promise<ShortLinkResponse> {
     const res = await api.post("/links", payload, {
       headers: {
@@ -40,7 +40,8 @@ export const linkService = {
         data.errors?.[0]?.message ||
         data.message ||
         "Failed to create short link";
-      throw new Error(message);
+
+      throw new ApiError(message, data); // <<<< gunakan ApiError biar `err.data` ada
     }
 
     return data;

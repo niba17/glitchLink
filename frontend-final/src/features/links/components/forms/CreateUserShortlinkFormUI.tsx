@@ -14,6 +14,7 @@ interface CreateShortLinkFormUIProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   fieldErrors?: Record<string, string>;
   isPending?: boolean;
+  rootError?: string;
 }
 
 export default function CreateShortLinkFormUI({
@@ -26,9 +27,11 @@ export default function CreateShortLinkFormUI({
   onSubmit,
   fieldErrors,
   isPending,
+  rootError,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
+      {rootError && <p className="text-sm text-red-500">{rootError}</p>}
       <div className="flex flex-col space-y-2">
         <div className="flex flex-col space-y-2">
           <Label className="text-lg" htmlFor="originalUrl">

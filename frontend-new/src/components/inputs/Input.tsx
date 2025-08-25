@@ -28,7 +28,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
           className={cn(
             "bg-zinc-800 rounded-[0.5vw] w-full p-[0.8vw] placeholder:text-stone-400 focus:outline-none focus:ring-[0.1vw] focus:ring-stone-400 border",
-            error ? "border-red-500" : "border-transparent",
+            error ? "border border-red-500" : "border-transparent",
             className
           )}
         />

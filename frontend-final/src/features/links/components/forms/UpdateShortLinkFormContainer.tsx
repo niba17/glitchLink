@@ -35,6 +35,7 @@ export default function UpdateShortLinkFormContainer({
     formatForInput(currentExpiresAt)
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [rootError, setRootError] = useState<string | null>(null);
 
   // updateShortLink sekarang langsung fungsi mutate
   const { updateShortLink, isUpdating } = useUserLinks();
@@ -42,6 +43,9 @@ export default function UpdateShortLinkFormContainer({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
+
+    setFieldErrors({});
+    setRootError(null);
 
     const payload = {
       id: linkId,
@@ -59,18 +63,27 @@ export default function UpdateShortLinkFormContainer({
       onError: (error: any) => {
         try {
           const apiError = error.response?.data || error.data;
-          if (apiError?.message) toast.error(apiError.message);
+          if (apiError?.message) {
+            setRootError(apiError.message);
+            toast.error(apiError.message);
+          }
 
           if (Array.isArray(apiError?.errors)) {
             const mapped: Record<string, string> = {};
+            let allEmpty = true;
             apiError.errors.forEach(
               (err: { path: string; message: string }) => {
                 mapped[err.path] = err.message;
+                if (err.message) allEmpty = false;
               }
             );
             setFieldErrors(mapped);
+            if (allEmpty && apiError.message) {
+              setRootError(apiError.message);
+            }
           }
         } catch {
+          setRootError("Unexpected error occurred");
           toast.error("Unexpected error occurred");
         }
       },
@@ -84,8 +97,9 @@ export default function UpdateShortLinkFormContainer({
       onChangeAlias={setCustomAlias}
       onChangeExpiresAt={setExpiresAt}
       onSubmit={handleSubmit}
-      isPending={isUpdating} // ganti jadi state dari useUserLinks
+      isPending={isUpdating}
       fieldErrors={fieldErrors}
+      rootError={rootError ?? undefined}
     />
   );
 }
