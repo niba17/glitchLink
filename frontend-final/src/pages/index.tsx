@@ -16,11 +16,11 @@ export default function Home() {
     <main className="min-h-screen bg-zinc-950 px-[145px] py-10">
       <section className="grid grid-cols-2 gap-7">
         <div className="flex flex-col space-y-6">
-          <h1 className="text-[55px] leading-[60px] font-semibold">
+          <h1 className="text-[50px] leading-[60px] font-semibold">
             In the grid of data, <br /> your link is <br />a{" "}
             <span className="text-[#159976]">weapon</span>
           </h1>
-          <h2 className="text-3xl">
+          <h2 className="text-2xl">
             Jack into real-time analytics, <br />
             forge custom-alias links, <br /> take the control
           </h2>

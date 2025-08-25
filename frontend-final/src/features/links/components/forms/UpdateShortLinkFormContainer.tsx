@@ -98,6 +98,7 @@ export default function UpdateShortLinkFormContainer({
       isPending={isUpdating}
       fieldErrors={fieldErrors}
       rootError={rootError ?? undefined}
+      onClose={onClose}
     />
   );
 }

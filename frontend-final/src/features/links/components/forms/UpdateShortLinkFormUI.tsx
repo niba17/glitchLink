@@ -15,6 +15,7 @@ interface UpdateShortLinkFormUIProps {
   isPending: boolean;
   fieldErrors?: Record<string, string>;
   rootError?: string;
+  onClose?: () => void;
 }
 
 export default function UpdateShortLinkFormUI({
@@ -26,6 +27,7 @@ export default function UpdateShortLinkFormUI({
   isPending,
   fieldErrors,
   rootError,
+  onClose,
 }: UpdateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
@@ -35,8 +37,8 @@ export default function UpdateShortLinkFormUI({
       <div className="flex flex-col space-y-3">
         {/* Custom Alias */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="customAlias">
-            Alias (Optional)
+          <Label className="text-md" htmlFor="customAlias">
+            Custom Alias (Optional)
           </Label>
           <Input
             id="customAlias"
@@ -57,7 +59,7 @@ export default function UpdateShortLinkFormUI({
 
         {/* Expiration Date */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="expiresAt">
+          <Label className="text-md" htmlFor="expiresAt">
             Expiration Date (Optional)
           </Label>
           <Input
@@ -80,11 +82,14 @@ export default function UpdateShortLinkFormUI({
       </div>
 
       <div className="flex justify-end space-x-2">
-        <DialogClose asChild>
+        {/* <DialogClose asChild>
           <Button type="button" variant="outline">
             Cancel
           </Button>
-        </DialogClose>
+        </DialogClose> */}
+        <Button type="button" variant="outline" onClick={onClose}>
+          Close
+        </Button>
         <Button type="submit" disabled={isPending}>
           {isPending ? "Loading..." : "Get Short Link"}
         </Button>

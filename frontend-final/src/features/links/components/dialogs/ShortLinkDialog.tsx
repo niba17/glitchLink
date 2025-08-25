@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import CreateShortLinkFormContainer from "@/features/links/components/forms/CreateShortLinkFormContainer";
@@ -57,11 +58,10 @@ export default function ShortLinkDialog({
             />
           ) : null}
         </div>
-
         {/* <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
         </DialogFooter> */}
       </DialogContent>
     </Dialog>

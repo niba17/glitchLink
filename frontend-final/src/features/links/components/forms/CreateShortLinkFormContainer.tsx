@@ -110,6 +110,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
       {...sharedProps}
       expiresAt={expiresAt ?? ""}
       rootError={rootError ?? undefined}
+      onClose={onClose}
     />
   ) : (
     <CreateGuestShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />

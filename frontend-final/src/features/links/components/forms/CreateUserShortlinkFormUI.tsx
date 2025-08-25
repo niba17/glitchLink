@@ -16,6 +16,7 @@ interface CreateShortLinkFormUIProps {
   fieldErrors?: Record<string, string>;
   isPending?: boolean;
   rootError?: string;
+  onClose?: () => void;
 }
 
 export default function CreateShortLinkFormUI({
@@ -29,6 +30,7 @@ export default function CreateShortLinkFormUI({
   fieldErrors,
   isPending,
   rootError,
+  onClose,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
@@ -38,7 +40,7 @@ export default function CreateShortLinkFormUI({
 
       <div className="flex flex-col space-y-2">
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="originalUrl">
+          <Label className="text-md" htmlFor="originalUrl">
             Original Link
           </Label>
           <Input
@@ -59,8 +61,8 @@ export default function CreateShortLinkFormUI({
         </div>
 
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="customAlias">
-            Alias (Optional)
+          <Label className="text-md" htmlFor="customAlias">
+            Custom Alias (Optional)
           </Label>
           <Input
             id="customAlias"
@@ -80,7 +82,7 @@ export default function CreateShortLinkFormUI({
         </div>
 
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="expiresAt">
+          <Label className="text-md" htmlFor="expiresAt">
             Expiration Date (Optional)
           </Label>
           <Input
@@ -102,11 +104,14 @@ export default function CreateShortLinkFormUI({
 
       {/* Tombol Cancel + Submit */}
       <div className="flex justify-end space-x-2">
-        <DialogClose asChild>
+        {/* <DialogClose asChild>
           <Button type="button" variant="outline">
             Cancel
           </Button>
-        </DialogClose>
+        </DialogClose> */}
+        <Button type="button" variant="outline" onClick={onClose}>
+          Close
+        </Button>
         <Button type="submit" disabled={isPending}>
           {isPending ? "Loading..." : "Get Short Link"}
         </Button>

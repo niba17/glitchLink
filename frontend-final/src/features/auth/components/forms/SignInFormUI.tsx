@@ -38,7 +38,7 @@ export default function SignInFormUI({
 
       <div className="flex flex-col space-y-2">
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="email">
+          <Label className="text-md" htmlFor="email">
             Email
           </Label>
           <Input
@@ -58,7 +58,7 @@ export default function SignInFormUI({
         </div>
 
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="password">
+          <Label className="text-md" htmlFor="password">
             Password
           </Label>
           <Input

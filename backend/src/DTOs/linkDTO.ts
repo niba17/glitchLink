@@ -38,8 +38,8 @@ export const updateLinkSchema = z.object({
   customAlias: z
     .string()
     .trim()
-    .max(20, { message: "Custom alias cannot exceed 20 characters" })
     .min(1, { message: "Custom Alias is required" })
+    .max(20, { message: "Custom alias cannot exceed 20 characters" })
     .regex(/^[a-z0-9-]+$/, {
       message:
         "Custom alias can only contain lowercase letters, numbers, and hyphens",
