@@ -36,7 +36,7 @@ export default function ConfirmDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex justify-end gap-2">
+        <DialogFooter className="flex justify-end space-x-2">
           <Button variant="outline" onClick={onCancel}>
             {cancelText}
           </Button>

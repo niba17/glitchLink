@@ -32,10 +32,12 @@ export default function SignInFormUI({
 
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
-      {rootError && <p className="text-sm text-red-500">{rootError}</p>}
+      {rootError && (
+        <p className="text-sm font-extrabold text-red-500">{rootError}</p>
+      )}
 
       <div className="flex flex-col space-y-2">
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="email">
             Email
           </Label>
@@ -55,7 +57,7 @@ export default function SignInFormUI({
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="password">
             Password
           </Label>

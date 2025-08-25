@@ -3,14 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DialogClose } from "@/components/ui/dialog";
 
 interface CreateShortLinkFormUIProps {
   originalUrl: string;
   customAlias: string;
-  expiresAt: string; // <- baru
+  expiresAt: string;
   onChangeOriginal: (val: string) => void;
   onChangeAlias: (val: string) => void;
-  onChangeExpiresAt: (val: string) => void; // <- baru
+  onChangeExpiresAt: (val: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   fieldErrors?: Record<string, string>;
   isPending?: boolean;
@@ -20,10 +21,10 @@ interface CreateShortLinkFormUIProps {
 export default function CreateShortLinkFormUI({
   originalUrl,
   customAlias,
-  expiresAt, // <- tambahkan
+  expiresAt,
   onChangeOriginal,
   onChangeAlias,
-  onChangeExpiresAt, // <- tambahkan
+  onChangeExpiresAt,
   onSubmit,
   fieldErrors,
   isPending,
@@ -31,9 +32,12 @@ export default function CreateShortLinkFormUI({
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
-      {rootError && <p className="text-sm text-red-500">{rootError}</p>}
+      {rootError && (
+        <p className="text-sm font-extrabold text-red-500">{rootError}</p>
+      )}
+
       <div className="flex flex-col space-y-2">
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="originalUrl">
             Original Link
           </Label>
@@ -54,7 +58,7 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="customAlias">
             Alias (Optional)
           </Label>
@@ -75,7 +79,7 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="expiresAt">
             Expiration Date (Optional)
           </Label>
@@ -96,9 +100,17 @@ export default function CreateShortLinkFormUI({
         </div>
       </div>
 
-      <Button type="submit" variant="default" className="text-[20px] h-14">
-        Get Short Link
-      </Button>
+      {/* Tombol Cancel + Submit */}
+      <div className="flex justify-end space-x-2">
+        <DialogClose asChild>
+          <Button type="button" variant="outline">
+            Cancel
+          </Button>
+        </DialogClose>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Loading..." : "Get Short Link"}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -28,9 +28,9 @@ export default function CreateShortLinkFormUI({
   isPending,
 }: CreateShortLinkFormUIProps) {
   return (
-    <form className="flex flex-col space-y-6" onSubmit={onSubmit}>
-      <div className="flex flex-col space-y-4">
-        <div className="flex flex-col space-y-2">
+    <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
+      <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="originalUrl">
             Original Link
           </Label>
@@ -51,7 +51,7 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="customAlias">
             Alias (Optional)
           </Label>
@@ -72,7 +72,7 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="expiresAt">
             Expiration Date (Optional)
           </Label>
