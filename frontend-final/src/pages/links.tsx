@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useUserLinks } from "@/features/links/hooks/useUserLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useClipboard } from "@/hooks/useClipboard";
-import { useDeleteUserLink } from "@/features/links/hooks/useDeleteUserLink";
 import { Copy, Edit, Trash2 } from "lucide-react";
 import { DataTable, Column } from "@/components/common/DataTable";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
@@ -18,8 +17,7 @@ export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
   const router = useRouter();
   const { copy } = useClipboard();
-  const { data: links, isLoading, error } = useUserLinks();
-  const { mutate: deleteLink } = useDeleteUserLink();
+  const { data: links, isLoading, error, deleteShortLink } = useUserLinks();
 
   // state dialog
   const [openDialog, setOpenDialog] = useState(false);
@@ -39,7 +37,7 @@ export default function LinksPage() {
   };
 
   const handleConfirmDelete = () => {
-    if (selectedId !== null) deleteLink(selectedId);
+    if (selectedId !== null) deleteShortLink(selectedId);
     setOpenDialog(false);
   };
 
@@ -152,7 +150,7 @@ export default function LinksPage() {
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
         mode="update"
-        linkId={selectedId ?? undefined} // ✅ null di-convert ke undefined
+        linkId={selectedId ?? undefined}
         currentAlias={
           links?.find((l) => l.id === selectedId)?.customAlias || ""
         }

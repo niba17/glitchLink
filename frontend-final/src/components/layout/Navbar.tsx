@@ -1,4 +1,3 @@
-// frontend-final/src/components/layout/Navbar.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,17 +12,18 @@ import {
 } from "../ui/dialog";
 import { useAuthStore } from "@/store/useAuthStore";
 import AuthFormContainer from "@/features/auth/components/forms/AuthFormContainer";
-import { useSignOut } from "@/features/auth/hooks/useSignOut";
 import ConfirmDialog from "../common/ConfirmDialog";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function Navbar() {
   const { isLoggedIn } = useAuthStore();
-  const { mutate: signOut } = useSignOut();
+  const { signOut } = useAuth();
+  const { mutate: doSignOut } = signOut();
 
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
 
   const handleConfirmLogout = () => {
-    signOut();
+    doSignOut();
     setOpenLogoutDialog(false);
   };
 

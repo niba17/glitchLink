@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import SignUpFormUI from "./SignUpFormUI";
-import { useSignUp } from "@/features/auth/hooks/useSignUp";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { SignUpPayload } from "../../types/auth";
 
 interface Props {
@@ -16,7 +16,8 @@ export default function SignUpFormContainer({ onClose }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  const mutation = useSignUp();
+  const { signUp } = useAuth();
+  const mutation = signUp();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,37 +28,34 @@ export default function SignUpFormContainer({ onClose }: Props) {
 
     mutation.mutate(payload, {
       onSuccess: () => {
-        if (onClose) onClose(); // tutup dialog setelah signup sukses
+        if (onClose) onClose();
       },
       onError: (err: any) => {
         let fe: Record<string, string> = {};
-        let re: string | null = "User login failed";
+        let re: string | null = null;
 
-        if (err.isAxiosError) {
-          const axiosErr = err as AxiosError<any>;
-          const data = axiosErr.response?.data;
-          if (data) {
-            if (Array.isArray(data.errors) && data.errors.length) {
-              let allEmpty = true;
-              data.errors.forEach((e: { path: string; message: string }) => {
-                if (e.message) {
-                  fe[e.path] = e.message;
-                  allEmpty = false;
-                }
-              });
-              if (allEmpty) {
-                // force semua field dari errors array mendapat efek merah
-                data.errors.forEach((e: { path: string }) => {
-                  fe[e.path] = "";
-                });
-                re = data.message || re;
+        const data = err?.response?.data;
+
+        if (data) {
+          if (Array.isArray(data.errors) && data.errors.length) {
+            let allEmpty = true;
+            data.errors.forEach((e: { path: string; message: string }) => {
+              if (e.message) {
+                fe[e.path] = e.message;
+                allEmpty = false;
               }
-            } else if (data.message) {
-              re = data.message;
+            });
+            if (allEmpty) {
+              fe = { email: "", password: "", confirmPassword: "" };
             }
           }
-        } else if (err instanceof Error) {
-          re = err.message;
+          if (data.message) {
+            re = data.message;
+          }
+        }
+
+        if (!re) {
+          re = err?.message || "Failed to sign up";
         }
 
         setFieldErrors(fe);

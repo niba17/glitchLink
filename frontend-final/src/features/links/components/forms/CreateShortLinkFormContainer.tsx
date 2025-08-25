@@ -7,10 +7,10 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import CreateGuestShortLinkFormUI from "./CreateGuestShortLinkFormUI";
 import CreateUserShortLinkFormUI from "./CreateUserShortlinkFormUI";
-import { useCreateUserLink } from "../../hooks/useCreateUserLink";
+import { useUserLinks } from "../../hooks/useUserLinks";
 
 interface Props {
-  onClose?: () => void; // <- tambahkan prop
+  onClose?: () => void;
 }
 
 // FE → BE: hapus detik, ganti T → spasi
@@ -29,7 +29,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const [originalUrl, setOriginalUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
   const [expiresAt, setExpiresAt] = useState<string>(
-    formatForInput(null) ?? "" // jika null → ""
+    formatForInput(null) ?? ""
   );
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -37,7 +37,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const { createShortLink: createGuestShortLink } = useGuestLinks();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { showSuccess, showError } = useToastHandler();
-  const { mutate: createUserShortLink } = useCreateUserLink();
+  const { createShortLink: createUserShortLink } = useUserLinks();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,7 +53,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
       setOriginalUrl("");
       setCustomAlias("");
       showSuccess(msg);
-      if (onClose) onClose(); // <- tutup dialog
+      if (onClose) onClose();
     };
 
     const handleError = (err: any) => {
@@ -100,9 +100,6 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   return isLoggedIn ? (
     <CreateUserShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />
   ) : (
-    <CreateGuestShortLinkFormUI
-      {...sharedProps}
-      expiresAt={expiresAt ?? ""} // pastikan selalu string
-    />
+    <CreateGuestShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />
   );
 }

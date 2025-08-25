@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import UpdateShortLinkFormUI from "./UpdateShortLinkFormUI";
-import { useUpdateUserLink } from "../../hooks/useUpdateUserLink";
+import { useUserLinks } from "../../hooks/useUserLinks";
 
 interface UpdateShortLinkFormContainerProps {
   linkId: number;
@@ -15,7 +15,7 @@ interface UpdateShortLinkFormContainerProps {
 // FE → BE
 function normalizeExpiresAt(val: string | null): string | null {
   if (!val) return null;
-  return val.replace("T", " ").replace(/:00$/, ""); // hapus detik
+  return val.replace("T", " ").replace(/:00$/, "");
 }
 
 // BE → FE (buat input datetime-local)
@@ -36,7 +36,8 @@ export default function UpdateShortLinkFormContainer({
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const updateLink = useUpdateUserLink();
+  // updateShortLink sekarang langsung fungsi mutate
+  const { updateShortLink, isUpdating } = useUserLinks();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ export default function UpdateShortLinkFormContainer({
 
     console.log("🚀 payload final:", payload);
 
-    updateLink.mutate(payload, {
+    updateShortLink(payload, {
       onSuccess: () => {
         toast.success("Link updated successfully!");
         onClose();
@@ -83,7 +84,7 @@ export default function UpdateShortLinkFormContainer({
       onChangeAlias={setCustomAlias}
       onChangeExpiresAt={setExpiresAt}
       onSubmit={handleSubmit}
-      isPending={updateLink.isPending}
+      isPending={isUpdating} // ganti jadi state dari useUserLinks
       fieldErrors={fieldErrors}
     />
   );

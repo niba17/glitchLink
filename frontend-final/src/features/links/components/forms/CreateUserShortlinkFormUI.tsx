@@ -74,7 +74,7 @@ export default function CreateShortLinkFormUI({
 
         <div className="flex flex-col space-y-2">
           <Label className="text-lg" htmlFor="expiresAt">
-            Expired At (Optional)
+            Expiration Date (Optional)
           </Label>
           <Input
             id="expiresAt"
