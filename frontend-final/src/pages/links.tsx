@@ -62,17 +62,22 @@ export default function LinksPage() {
         <div className="flex flex-col">
           <a
             href={item.shortUrl}
+            title="Visit short link"
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold underline block break-words"
           >
             {item.shortUrl}
           </a>
-          <span className="text-[14px] text-stone-400 break-words">
+          <span
+            title="Original link"
+            className="text-[14px] text-stone-400 break-words"
+          >
             {item.original}
           </span>
           <div className="flex items-center justify-start gap-2 mt-2">
             <Button
+              title="Copy short link"
               variant="icon"
               size="sm"
               onClick={() => copy(item.shortUrl)}
@@ -80,6 +85,7 @@ export default function LinksPage() {
               <Copy />
             </Button>
             <Button
+              title="Update short link"
               variant="icon"
               size="sm"
               onClick={() => {
@@ -90,6 +96,7 @@ export default function LinksPage() {
               <Edit />
             </Button>
             <Button
+              title="Delete short link"
               variant="icon"
               size="sm"
               onClick={() => handleDeleteClick(item.id)}
@@ -104,7 +111,11 @@ export default function LinksPage() {
       key: "clicksCount",
       header: <span className="text-xl font-semibold">Clicks</span>,
       className: "text-end text-stone-200",
+      render: (item) => (
+        <span title="Short link clicks counted">{item.clicksCount ?? 0}</span>
+      ),
     },
+
     {
       key: "createdAt",
       header: (
@@ -113,8 +124,10 @@ export default function LinksPage() {
       className: "text-end text-stone-200",
       render: (item) => (
         <div className="flex flex-col text-end">
-          <span>{item.createdAt}</span>
-          <span className="text-red-500">{item.expiresAt || "-"}</span>
+          <span title="Short link created">{item.createdAt}</span>
+          <span title="Short link expired" className="text-red-500">
+            {item.expiresAt || "-"}
+          </span>
         </div>
       ),
     },

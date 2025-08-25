@@ -4,24 +4,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import UpdateShortLinkFormUI from "./UpdateShortLinkFormUI";
 import { useUserLinks } from "../../hooks/useUserLinks";
+import { normalizeExpiresAt, formatForInput } from "../../utils/dateFormatters";
 
 interface UpdateShortLinkFormContainerProps {
   linkId: number;
   currentAlias?: string;
   currentExpiresAt?: string | null;
   onClose: () => void;
-}
-
-// FE → BE
-function normalizeExpiresAt(val: string | null): string | null {
-  if (!val) return null;
-  return val.replace("T", " ").replace(/:00$/, "");
-}
-
-// BE → FE (buat input datetime-local)
-function formatForInput(val: string | null): string | null {
-  if (!val) return null;
-  return val.replace(" ", "T").slice(0, 16);
 }
 
 export default function UpdateShortLinkFormContainer({

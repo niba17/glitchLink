@@ -55,15 +55,23 @@ export function GuestLinkList({ links, onDelete }: GuestLinkListProps) {
               >
                 {link.shortUrl}
               </a>
-              <span className="text-gray-400 break-all text-md">
+              <span
+                title="Original link"
+                className="text-gray-400 break-all text-md"
+              >
                 {link.original}
               </span>
 
               <div className="flex items-center justify-start gap-2 mt-2">
-                <Button variant="icon" onClick={() => copy(link.shortUrl)}>
+                <Button
+                  title="Copy short link"
+                  variant="icon"
+                  onClick={() => copy(link.shortUrl)}
+                >
                   <Copy />
                 </Button>
                 <Button
+                  title="Delete short link"
                   variant="icon"
                   onClick={() => handleDeleteClick(link.id)}
                 >

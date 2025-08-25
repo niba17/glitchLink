@@ -8,21 +8,10 @@ import { useToastHandler } from "@/hooks/useToastHandler";
 import CreateGuestShortLinkFormUI from "./CreateGuestShortLinkFormUI";
 import CreateUserShortLinkFormUI from "./CreateUserShortlinkFormUI";
 import { useUserLinks } from "../../hooks/useUserLinks";
+import { normalizeExpiresAt, formatForInput } from "../../utils/dateFormatters";
 
 interface Props {
   onClose?: () => void;
-}
-
-// FE → BE: hapus detik, ganti T → spasi
-function normalizeExpiresAt(val: string | null): string | null {
-  if (!val) return null;
-  return val.replace("T", " ").replace(/:00$/, "");
-}
-
-// BE → FE: format agar bisa di-input datetime-local
-function formatForInput(val: string | null): string | null {
-  if (!val) return null;
-  return val.replace(" ", "T").slice(0, 16);
 }
 
 export default function CreateShortLinkFormContainer({ onClose }: Props) {
