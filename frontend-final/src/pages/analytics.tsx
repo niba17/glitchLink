@@ -1,4 +1,5 @@
 import { ChartLineInteractive } from "@/components/common/testLineChart";
+import DateRangePicker from "@/components/ui/date-range-picker";
 import React from "react";
 
 export default function analyticsPage() {
@@ -55,6 +56,7 @@ export default function analyticsPage() {
 
       {/* <ChartAreaInteractive /> */}
       <ChartLineInteractive />
+      {/* <DateRangePicker /> */}
     </div>
   );
 }
