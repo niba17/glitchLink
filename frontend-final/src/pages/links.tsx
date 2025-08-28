@@ -112,7 +112,9 @@ export default function LinksPage() {
       header: <span className="text-xl font-semibold">Clicks</span>,
       className: "text-end text-stone-200",
       render: (item) => (
-        <span title="Short link clicks counted">{item.clicksCount ?? 0}</span>
+        <span title="Short link clicks counted">
+          {item.clicksCount ?? 0} {item.clicksCount === 1 ? "Click" : "Clicks"}
+        </span>
       ),
     },
 

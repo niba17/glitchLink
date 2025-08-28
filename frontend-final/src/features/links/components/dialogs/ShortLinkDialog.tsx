@@ -58,11 +58,6 @@ export default function ShortLinkDialog({
             />
           ) : null}
         </div>
-        {/* <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
