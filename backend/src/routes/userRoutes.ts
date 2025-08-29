@@ -8,14 +8,10 @@ import { loginUserSchema, registerUserSchema } from "../DTOs/userDTO";
 const router = Router();
 const userController = new UserController();
 
-router.post(
-  "/register",
-  validateRequest(registerUserSchema),
-  userController.register
-);
+router.post("/", validateRequest(registerUserSchema), userController.register);
 router.post("/login", validateRequest(loginUserSchema), userController.login);
 
-router.get("/detail", authMiddleware, userController.detail);
-router.delete("/delete", authMiddleware, userController.delete);
+router.get("/", authMiddleware, userController.detail);
+router.delete("/", authMiddleware, userController.delete);
 
 export default router;

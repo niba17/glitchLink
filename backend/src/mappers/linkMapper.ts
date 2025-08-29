@@ -1,8 +1,5 @@
-// src/mappers/linkMapper.ts
 import type { Link } from "@prisma/client";
 import { buildShortUrl } from "src/utils/buildShortUrl";
-
-const baseUrl = process.env.BASE_URL as string;
 
 export const mapLinkToDto = (link: Link, baseUrl: string) => ({
   id: link.id,

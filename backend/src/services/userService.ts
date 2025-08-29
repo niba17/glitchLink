@@ -1,5 +1,5 @@
+// backend/src/services/userService.ts
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { UserRepository } from "../repositories/userRepository";
 import { RegisterUserDto, LoginUserDto } from "../DTOs/userDTO";
 import type { User } from "@prisma/client";
@@ -8,18 +8,12 @@ import {
   NotFoundError,
   ValidationError,
 } from "../utils/errors";
+import { generateJwt } from "../utils/jwt"; // <--- pakai helper
 
 type UserWithoutPassword = Pick<User, "id" | "email">;
 
 export class UserService {
   private userRepository = new UserRepository();
-  private jwtSecret = process.env.JWT_SECRET;
-
-  constructor() {
-    if (!this.jwtSecret) {
-      throw new Error("JWT_SECRET must be defined in environment variables");
-    }
-  }
 
   async registerUser(userData: RegisterUserDto): Promise<UserWithoutPassword> {
     const { email, password, confirmPassword } = userData;
@@ -68,11 +62,8 @@ export class UserService {
       throw new CredentialError("Invalid credential", ["email", "password"]);
     }
 
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      this.jwtSecret!,
-      { expiresIn: "1h" }
-    );
+    // Gunakan helper generateJwt
+    const token = generateJwt(user);
 
     return { token, user: this.excludePassword(user) };
   }
