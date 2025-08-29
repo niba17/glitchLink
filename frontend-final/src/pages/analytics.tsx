@@ -4,7 +4,7 @@ import React from "react";
 
 export default function analyticsPage() {
   return (
-    <div className="bg-zinc-950 min-h-screen px-[145px] py-10 space-y-[10px]">
+    <div className="bg-zinc-950 min-h-screen px-[50px] py-5 space-y-[10px]">
       <ul className="grid grid-cols-4 gap-3">
         <li className="bg-zinc-800 p-[20px] rounded-sm w-full">
           <div className="flex flex-col space-y-[0.5px]">
@@ -54,9 +54,7 @@ export default function analyticsPage() {
         </li>
       </ul>
 
-      {/* <ChartAreaInteractive /> */}
       <ChartLineInteractive />
-      {/* <DateRangePicker /> */}
     </div>
   );
 }

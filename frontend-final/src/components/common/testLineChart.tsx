@@ -1,122 +1,351 @@
 "use client";
 
 import * as React from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartConfig,
 } from "@/components/ui/chart";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import DateRangePicker from "@/components/ui/date-range-picker";
+import { eachDayOfInterval, format, startOfMonth, endOfMonth } from "date-fns";
 import { type DateRange } from "react-day-picker";
-import { addDays, eachDayOfInterval, format } from "date-fns";
 
-export const description = "An interactive multi-line chart";
+// ---- Type definitions ----
+type DeviceKey = "desktop" | "mobile";
+type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari";
+type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
+type ChartKey = DeviceKey | BrowserKey | OSKey;
 
+interface ChartDataItem {
+  date: string;
+  desktop: number;
+  mobile: number;
+  Chrome: number;
+  Firefox: number;
+  Edge: number;
+  Safari: number;
+  Windows: number;
+  macOS: number;
+  Linux: number;
+  Android: number;
+  iOS: number;
+}
+
+// ---- Chart config ----
 const chartConfig = {
   desktop: { label: "Desktop", color: "#1ee85a" },
   mobile: { label: "Mobile", color: "#e81e54" },
 } satisfies ChartConfig;
 
-// Data sample statis
-const chartDataSample = [
-  { date: "2025-08-01", desktop: 222, mobile: 150 },
-  { date: "2025-08-03", desktop: 167, mobile: 120 },
-  { date: "2025-08-04", desktop: 242, mobile: 0 },
-  { date: "2025-08-05", desktop: 373, mobile: 290 },
-  { date: "2025-08-06", desktop: 97, mobile: 180 },
-  { date: "2025-08-07", desktop: 210, mobile: 130 },
-  { date: "2025-08-08", desktop: 180, mobile: 160 },
+// ---- Sample data ----
+const chartDataSample: ChartDataItem[] = [
+  {
+    date: "2025-08-01",
+    desktop: 222,
+    mobile: 150,
+    Chrome: 180,
+    Firefox: 120,
+    Edge: 50,
+    Safari: 22,
+    Windows: 200,
+    macOS: 120,
+    Linux: 52,
+    Android: 150,
+    iOS: 50,
+  },
+  {
+    date: "2025-08-02",
+    desktop: 190,
+    mobile: 140,
+    Chrome: 160,
+    Firefox: 100,
+    Edge: 40,
+    Safari: 30,
+    Windows: 180,
+    macOS: 110,
+    Linux: 40,
+    Android: 140,
+    iOS: 50,
+  },
+  {
+    date: "2025-08-03",
+    desktop: 167,
+    mobile: 120,
+    Chrome: 130,
+    Firefox: 90,
+    Edge: 30,
+    Safari: 37,
+    Windows: 160,
+    macOS: 80,
+    Linux: 47,
+    Android: 120,
+    iOS: 60,
+  },
+  {
+    date: "2025-08-04",
+    desktop: 242,
+    mobile: 0,
+    Chrome: 200,
+    Firefox: 30,
+    Edge: 12,
+    Safari: 0,
+    Windows: 220,
+    macOS: 12,
+    Linux: 10,
+    Android: 0,
+    iOS: 0,
+  },
+  {
+    date: "2025-08-05",
+    desktop: 373,
+    mobile: 290,
+    Chrome: 300,
+    Firefox: 200,
+    Edge: 50,
+    Safari: 113,
+    Windows: 350,
+    macOS: 180,
+    Linux: 33,
+    Android: 270,
+    iOS: 120,
+  },
+  {
+    date: "2025-08-06",
+    desktop: 97,
+    mobile: 180,
+    Chrome: 90,
+    Firefox: 50,
+    Edge: 20,
+    Safari: 17,
+    Windows: 80,
+    macOS: 60,
+    Linux: 37,
+    Android: 140,
+    iOS: 40,
+  },
+  {
+    date: "2025-08-07",
+    desktop: 210,
+    mobile: 130,
+    Chrome: 170,
+    Firefox: 80,
+    Edge: 30,
+    Safari: 60,
+    Windows: 190,
+    macOS: 100,
+    Linux: 50,
+    Android: 120,
+    iOS: 50,
+  },
+  {
+    date: "2025-08-08",
+    desktop: 180,
+    mobile: 160,
+    Chrome: 150,
+    Firefox: 70,
+    Edge: 20,
+    Safari: 100,
+    Windows: 160,
+    macOS: 120,
+    Linux: 40,
+    Android: 130,
+    iOS: 50,
+  },
 ];
 
-// ... imports sama seperti sebelumnya
-
 export function ChartLineInteractive() {
-  const [activeCharts, setActiveCharts] = React.useState<
-    (keyof typeof chartConfig)[]
-  >(["desktop", "mobile"]);
+  const devices: DeviceKey[] = ["desktop", "mobile"];
+  const browsers: BrowserKey[] = ["Chrome", "Firefox", "Edge", "Safari"];
+  const osList: OSKey[] = ["Windows", "macOS", "Linux", "Android", "iOS"];
+
+  const [activeDevices, setActiveDevices] = React.useState<DeviceKey[]>([
+    ...devices,
+  ]);
+  const [activeBrowsers, setActiveBrowsers] = React.useState<BrowserKey[]>([
+    ...browsers,
+  ]);
+  const [activeOS, setActiveOS] = React.useState<OSKey[]>([...osList]);
+
+  const [renderedDevices, setRenderedDevices] = React.useState<DeviceKey[]>([
+    ...devices,
+  ]);
+  const [renderedBrowsers, setRenderedBrowsers] = React.useState<BrowserKey[]>([
+    ...browsers,
+  ]);
+  const [renderedOS, setRenderedOS] = React.useState<OSKey[]>([...osList]);
+
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: new Date(chartDataSample[0].date),
-    to: new Date(chartDataSample[chartDataSample.length - 1].date),
+    from: startOfMonth(new Date()),
+    to: endOfMonth(new Date()),
   });
 
-  const toggleChart = (key: keyof typeof chartConfig, checked: boolean) => {
-    setActiveCharts((prev) =>
-      checked ? [...prev, key] : prev.filter((k) => k !== key)
-    );
+  const lineColors: Record<ChartKey, string> = {
+    desktop: "#1ee85a",
+    mobile: "#e81e54",
+    Chrome: "#4285F4",
+    Firefox: "#FF7139",
+    Edge: "#0078D7",
+    Safari: "#00A1F1",
+    Windows: "#00BCF2",
+    macOS: "#999999",
+    Linux: "#FCC624",
+    Android: "#3DDC84",
+    iOS: "#A2AAAD",
   };
 
+  // --- chartData calculation ---
   const chartData = React.useMemo(() => {
     if (!dateRange?.from || !dateRange?.to) return chartDataSample;
-
     const allDates = eachDayOfInterval({
       start: dateRange.from,
       end: dateRange.to,
     });
-
     return allDates.map((date) => {
       const dateStr = format(date, "yyyy-MM-dd");
-      const found = chartDataSample.find((d) => d.date === dateStr); // bandingkan string
-      return {
-        date: dateStr,
-        desktop: found?.desktop ?? 0,
-        mobile: found?.mobile ?? 0,
-      };
+      const found = chartDataSample.find((d) => d.date === dateStr);
+      return (
+        ["desktop", "mobile", ...browsers, ...osList] as ChartKey[]
+      ).reduce(
+        (acc, key) => {
+          acc[key] = found ? found[key] : 0;
+          return acc;
+        },
+        { date: dateStr } as ChartDataItem
+      );
     });
   }, [dateRange]);
 
-  const total = React.useMemo(
-    () => ({
-      desktop: chartData.reduce((acc, curr) => acc + curr.desktop, 0),
-      mobile: chartData.reduce((acc, curr) => acc + curr.mobile, 0),
-    }),
-    [chartData]
-  );
+  const total = React.useMemo(() => {
+    return (["desktop", "mobile", ...browsers, ...osList] as ChartKey[]).reduce(
+      (acc, key) => {
+        acc[key] = chartData.reduce((sum, curr) => sum + curr[key], 0);
+        return acc;
+      },
+      {} as Record<ChartKey, number>
+    );
+  }, [chartData]);
+
+  // ---- toggle handlers ----
+  const toggleLine = <T extends ChartKey>(
+    key: T,
+    active: T[],
+    setActive: React.Dispatch<React.SetStateAction<T[]>>,
+    rendered: T[],
+    setRendered: React.Dispatch<React.SetStateAction<T[]>>
+  ) => {
+    if (active.includes(key)) {
+      setActive((prev) => prev.filter((k) => k !== key));
+    } else {
+      setActive((prev) => [...prev, key]);
+      if (!rendered.includes(key)) setRendered((prev) => [...prev, key]);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex space-x-2 items-center">
-        {/* <div>
-          <h2 className="text-lg font-semibold">Line Chart - Interactive</h2>
-          <p className="text-sm text-muted-foreground">
-            Showing total visitors for the selected range
-          </p>
-        </div> */}
-        {/* onChange langsung update state, memicu useMemo chartData */}
-        <DateRangePicker onChange={setDateRange as any} />
+        <DateRangePicker
+          initialRange={dateRange}
+          onChange={setDateRange as any}
+        />
+
         {/* Device Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">Device</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
-            {(["desktop", "mobile"] as const).map((key) => (
+            {devices.map((d) => (
               <DropdownMenuCheckboxItem
-                key={key}
-                checked={activeCharts.includes(key)}
-                onCheckedChange={(checked) =>
-                  toggleChart(key, checked === true)
+                key={d}
+                checked={activeDevices.includes(d)}
+                onCheckedChange={() =>
+                  toggleLine(
+                    d,
+                    activeDevices,
+                    setActiveDevices,
+                    renderedDevices,
+                    setRenderedDevices
+                  )
                 }
                 onSelect={(e) => e.preventDefault()}
                 className="justify-between"
               >
-                <span>{chartConfig[key].label}</span>
-                <span>{total[key].toLocaleString()}</span>
+                <span>{chartConfig[d].label}</span>
+                <span>{total[d].toLocaleString()}</span>
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Browser Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">Browser</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            {browsers.map((b) => (
+              <DropdownMenuCheckboxItem
+                key={b}
+                checked={activeBrowsers.includes(b)}
+                onCheckedChange={() =>
+                  toggleLine(
+                    b,
+                    activeBrowsers,
+                    setActiveBrowsers,
+                    renderedBrowsers,
+                    setRenderedBrowsers
+                  )
+                }
+                onSelect={(e) => e.preventDefault()}
+                className="justify-between"
+              >
+                <span>{b}</span>
+                <span>{total[b].toLocaleString()}</span>
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* OS Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">OS</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            {osList.map((o) => (
+              <DropdownMenuCheckboxItem
+                key={o}
+                checked={activeOS.includes(o)}
+                onCheckedChange={() =>
+                  toggleLine(
+                    o,
+                    activeOS,
+                    setActiveOS,
+                    renderedOS,
+                    setRenderedOS
+                  )
+                }
+                onSelect={(e) => e.preventDefault()}
+                className="justify-between"
+              >
+                <span>{o}</span>
+                <span>{total[o].toLocaleString()}</span>
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Chart */}
       <ChartContainer config={chartConfig} className="h-[300px] w-full">
         <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
           <CartesianGrid vertical={false} />
@@ -125,7 +354,7 @@ export function ChartLineInteractive() {
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            minTickGap={20}
+            ticks={chartData.map((d) => d.date)}
             tickFormatter={(value) =>
               new Date(value).toLocaleDateString("en-US", {
                 month: "short",
@@ -153,17 +382,45 @@ export function ChartLineInteractive() {
               />
             }
           />
-          {(["desktop", "mobile"] as const).map((key) => (
+
+          {/* Render lines hanya jika sudah rendered */}
+          {renderedDevices.map((d) => (
             <Line
-              key={key}
+              key={d}
               type="linear"
-              dataKey={key}
-              stroke={chartConfig[key].color}
+              dataKey={d}
+              stroke={lineColors[d]}
               strokeWidth={2}
               dot={false}
-              hide={!activeCharts.includes(key)}
-              isAnimationActive
-              animationDuration={500}
+              hide={!activeDevices.includes(d)}
+              isAnimationActive={activeDevices.includes(d)}
+              animationDuration={1000}
+            />
+          ))}
+          {renderedBrowsers.map((b) => (
+            <Line
+              key={b}
+              type="linear"
+              dataKey={b}
+              stroke={lineColors[b]}
+              strokeWidth={2}
+              dot={false}
+              hide={!activeBrowsers.includes(b)}
+              isAnimationActive={activeBrowsers.includes(b)}
+              animationDuration={1000}
+            />
+          ))}
+          {renderedOS.map((o) => (
+            <Line
+              key={o}
+              type="linear"
+              dataKey={o}
+              stroke={lineColors[o]}
+              strokeWidth={2}
+              dot={false}
+              hide={!activeOS.includes(o)}
+              isAnimationActive={activeOS.includes(o)}
+              animationDuration={1000}
             />
           ))}
         </LineChart>

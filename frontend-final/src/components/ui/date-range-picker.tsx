@@ -13,20 +13,24 @@ import { CalendarIcon } from "lucide-react";
 import * as React from "react";
 import { type DateRange } from "react-day-picker";
 
+interface DateRangePickerProps {
+  className?: string;
+  onChange?: (range: DateRange | undefined) => void;
+  initialRange?: DateRange;
+}
+
 export default function DateRangePicker({
   className,
   onChange,
-}: React.HTMLAttributes<HTMLDivElement> & {
-  onChange?: (range: DateRange | undefined) => void;
-}) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: addDays(new Date(), -20),
-    to: new Date(),
-  });
+  initialRange,
+}: DateRangePickerProps) {
+  const [date, setDate] = React.useState<DateRange | undefined>(
+    initialRange ?? { from: addDays(new Date(), -20), to: new Date() }
+  );
 
   const handleSelect = (range: DateRange | undefined) => {
     setDate(range);
-    onChange?.(range); // <- kirim ke parent
+    onChange?.(range);
   };
 
   return (
@@ -39,18 +43,14 @@ export default function DateRangePicker({
             className={cn(!date && "text-muted-foreground")}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
-                </>
-              ) : (
-                format(date.from, "LLL dd, y")
-              )
-            ) : (
-              <span>Pick a date</span>
-            )}
+            {date?.from
+              ? date.to
+                ? `${format(date.from, "LLL dd, y")} - ${format(
+                    date.to,
+                    "LLL dd, y"
+                  )}`
+                : format(date.from, "LLL dd, y")
+              : "Pick a date"}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -59,7 +59,7 @@ export default function DateRangePicker({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={handleSelect} // <- pakai handleSelect
+            onSelect={handleSelect}
             numberOfMonths={2}
           />
         </PopoverContent>
