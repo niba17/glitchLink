@@ -11,4 +11,5 @@ export const mapLinkToDto = (link: Link, baseUrl: string) => ({
   expiresAt: link.expiresAt,
   createdAt: link.createdAt,
   updatedAt: link.updatedAt,
+  clicksCount: link.clicksCount, // 👈 tambahin ini
 });

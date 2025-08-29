@@ -151,4 +151,25 @@ export class LinkController {
       next(error);
     }
   };
+
+  // backend\src\controllers\linkController.ts
+
+  getAllLinkAnalytics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const userId = Number(req.user?.id);
+      const analyticsData = await this.linkService.getAllLinkAnalytics(userId);
+
+      res.status(200).json({
+        status: "success",
+        message: "All link analytics retrieved successfully",
+        data: analyticsData,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

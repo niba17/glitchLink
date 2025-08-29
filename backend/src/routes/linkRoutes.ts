@@ -21,6 +21,7 @@ router.get(
   authMiddleware(),
   linkController.getLinkAnalytics
 );
+router.get("/analytics", authMiddleware(), linkController.getAllLinkAnalytics);
 router.delete("/:linkId", authMiddleware(), linkController.deleteLink);
 
 // Endpoint publik redirect tanpa auth

@@ -129,6 +129,20 @@ export class LinkService {
     }
   }
 
+  async getAllLinkAnalytics(userId: number) {
+    const links = await this.linkRepository.getLinksByUserId(userId);
+
+    return Promise.all(
+      links.map(async (link) => {
+        const clicks = await this.linkRepository.getClicksByLinkId(link.id);
+        return {
+          ...mapLinkToDto(link, this.baseUrl),
+          clicks: clicks.map(this.mapClickToDto),
+        };
+      })
+    );
+  }
+
   async updateLink(linkId: number, userId: number, updateData: UpdateLinkDto) {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
     const updateFields: {
@@ -186,7 +200,7 @@ export class LinkService {
     const clicks = await this.linkRepository.getClicksByLinkId(linkId);
 
     return {
-      totalClicks: link.clicksCount,
+      ...mapLinkToDto(link, this.baseUrl),
       clicks: clicks.map(this.mapClickToDto),
     };
   }
