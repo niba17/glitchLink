@@ -162,7 +162,7 @@ const chartDataSample: ChartDataItem[] = [
   },
 ];
 
-export function ChartLineInteractive() {
+export function DateRangeChartLineInteractive() {
   const devices: DeviceKey[] = ["desktop", "mobile"];
   const browsers: BrowserKey[] = ["Chrome", "Firefox", "Edge", "Safari"];
   const osList: OSKey[] = ["Windows", "macOS", "Linux", "Android", "iOS"];
