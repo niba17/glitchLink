@@ -3,9 +3,7 @@
 import { useState } from "react";
 import SignInFormUI from "./SignInFormUI";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useAuthStore } from "@/store/useAuthStore";
-import { SignInPayload, AuthResponse } from "../../types/auth";
-import { AxiosError } from "axios";
+import { SignInPayload } from "../../types/auth";
 
 interface Props {
   onClose?: () => void;
@@ -17,9 +15,7 @@ export default function SignInFormContainer({ onClose }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  const { setAuth } = useAuthStore();
-  const { signIn } = useAuth();
-  const { mutate, isPending } = signIn();
+  const { signIn, signInStatus } = useAuth(); // signIn adalah function mutate
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,22 +24,16 @@ export default function SignInFormContainer({ onClose }: Props) {
 
     const payload: SignInPayload = { email, password };
 
-    mutate(payload, {
-      onSuccess: (data: AuthResponse) => {
-        setAuth({
-          isLoggedIn: true,
-          token: data.token ?? null,
-          email: payload.email,
-        });
+    signIn(payload, {
+      onSuccess: () => {
         if (onClose) onClose(); // menutup dialog
       },
       onError: (err: any) => {
         let fe: Record<string, string> = {};
         let re: string | null = "User login failed";
 
-        if (err.isAxiosError) {
-          const axiosErr = err as AxiosError<any>;
-          const data = axiosErr.response?.data;
+        if (err?.isAxiosError) {
+          const data = err.response?.data;
           if (data) {
             if (Array.isArray(data.errors) && data.errors.length) {
               data.errors.forEach((e: { path: string; message: string }) => {
@@ -71,7 +61,7 @@ export default function SignInFormContainer({ onClose }: Props) {
       setEmail={setEmail}
       setPassword={setPassword}
       onSubmit={handleSubmit}
-      isPending={isPending}
+      isPending={signInStatus === "pending"}
       fieldErrors={fieldErrors}
       rootError={rootError ?? undefined}
     />

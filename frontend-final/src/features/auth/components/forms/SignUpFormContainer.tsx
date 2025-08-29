@@ -16,8 +16,7 @@ export default function SignUpFormContainer({ onClose }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  const { signUp } = useAuth();
-  const mutation = signUp();
+  const { signUp, signUpStatus } = useAuth();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,7 +25,7 @@ export default function SignUpFormContainer({ onClose }: Props) {
 
     const payload: SignUpPayload = { email, password, confirmPassword };
 
-    mutation.mutate(payload, {
+    signUp(payload, {
       onSuccess: () => {
         if (onClose) onClose();
       },
@@ -74,8 +73,8 @@ export default function SignUpFormContainer({ onClose }: Props) {
       setConfirmPassword={setConfirmPassword}
       onSubmit={handleSubmit}
       fieldErrors={fieldErrors}
+      isPending={signUpStatus === "pending"}
       rootError={rootError ?? undefined}
-      isPending={mutation.isPending}
     />
   );
 }
