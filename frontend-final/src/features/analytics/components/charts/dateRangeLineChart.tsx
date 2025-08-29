@@ -41,10 +41,19 @@ interface ChartDataItem {
 }
 
 // ---- Chart config ----
-const chartConfig = {
+const chartConfig: Record<ChartKey, { label: string; color: string }> = {
   desktop: { label: "Desktop", color: "#1ee85a" },
   mobile: { label: "Mobile", color: "#e81e54" },
-} satisfies ChartConfig;
+  Chrome: { label: "Chrome", color: "#4285F4" },
+  Firefox: { label: "Firefox", color: "#FF7139" },
+  Edge: { label: "Edge", color: "#0078D7" },
+  Safari: { label: "Safari", color: "#00A1F1" },
+  Windows: { label: "Windows", color: "#00BCF2" },
+  macOS: { label: "macOS", color: "#999999" },
+  Linux: { label: "Linux", color: "#FCC624" },
+  Android: { label: "Android", color: "#3DDC84" },
+  iOS: { label: "iOS", color: "#A2AAAD" },
+};
 
 // ---- Sample data ----
 const chartDataSample: ChartDataItem[] = [
@@ -280,37 +289,14 @@ export function DateRangeChartLineInteractive() {
                 onSelect={(e) => e.preventDefault()}
                 className="justify-between"
               >
-                <span>{chartConfig[d].label}</span>
+                <span className="flex items-center space-x-2">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: chartConfig[d].color }}
+                  />
+                  <span>{chartConfig[d].label}</span>
+                </span>
                 <span>{total[d].toLocaleString()}</span>
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Browser Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Browser</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            {browsers.map((b) => (
-              <DropdownMenuCheckboxItem
-                key={b}
-                checked={activeBrowsers.includes(b)}
-                onCheckedChange={() =>
-                  toggleLine(
-                    b,
-                    activeBrowsers,
-                    setActiveBrowsers,
-                    renderedBrowsers,
-                    setRenderedBrowsers
-                  )
-                }
-                onSelect={(e) => e.preventDefault()}
-                className="justify-between"
-              >
-                <span>{b}</span>
-                <span>{total[b].toLocaleString()}</span>
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
@@ -338,8 +324,49 @@ export function DateRangeChartLineInteractive() {
                 onSelect={(e) => e.preventDefault()}
                 className="justify-between"
               >
-                <span>{o}</span>
+                <span className="flex items-center space-x-2">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: chartConfig[o].color }}
+                  />
+                  <span>{chartConfig[o].label}</span>
+                </span>
                 <span>{total[o].toLocaleString()}</span>
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Browser Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">Browser</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            {browsers.map((b) => (
+              <DropdownMenuCheckboxItem
+                key={b}
+                checked={activeBrowsers.includes(b)}
+                onCheckedChange={() =>
+                  toggleLine(
+                    b,
+                    activeBrowsers,
+                    setActiveBrowsers,
+                    renderedBrowsers,
+                    setRenderedBrowsers
+                  )
+                }
+                onSelect={(e) => e.preventDefault()}
+                className="justify-between"
+              >
+                <span className="flex items-center space-x-2">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: chartConfig[b].color }}
+                  />
+                  <span>{chartConfig[b].label}</span>
+                </span>
+                <span>{total[b].toLocaleString()}</span>
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
