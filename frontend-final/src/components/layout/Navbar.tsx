@@ -16,7 +16,8 @@ import ConfirmDialog from "../common/ConfirmDialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function Navbar() {
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, rehydrated } = useAuthStore();
+  if (!rehydrated) return null;
   const { signOut } = useAuth();
   const { mutate: doSignOut } = signOut();
 
