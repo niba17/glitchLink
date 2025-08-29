@@ -58,7 +58,7 @@ export default function SignUpFormUI({
             required
           />
           {fieldErrors?.email && (
-            <p className="text-sm text-red-600">{fieldErrors.email}</p>
+            <p className="text-sm text-red-500">{fieldErrors.email}</p>
           )}
         </div>
 
@@ -78,7 +78,7 @@ export default function SignUpFormUI({
             required
           />
           {fieldErrors?.password && (
-            <p className="text-sm text-red-600">{fieldErrors.password}</p>
+            <p className="text-sm text-red-500">{fieldErrors.password}</p>
           )}
         </div>
 
@@ -98,7 +98,7 @@ export default function SignUpFormUI({
             required
           />
           {fieldErrors?.confirmPassword && (
-            <p className="text-sm text-red-600">
+            <p className="text-sm text-red-500">
               {fieldErrors.confirmPassword}
             </p>
           )}

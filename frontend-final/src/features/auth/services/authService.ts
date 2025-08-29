@@ -13,7 +13,7 @@ const api = axios.create({
 
 export const authService = {
   register: async (payload: SignUpPayload): Promise<AuthResponse> => {
-    const res = await api.post<AuthResponse>("/users/register", payload, {
+    const res = await api.post<AuthResponse>("/users", payload, {
       headers: { "Content-Type": "application/json" },
     });
 

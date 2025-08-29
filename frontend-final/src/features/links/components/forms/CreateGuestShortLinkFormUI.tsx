@@ -47,7 +47,7 @@ export default function CreateShortLinkFormUI({
             }
           />
           {fieldErrors?.originalUrl && (
-            <p className="text-sm text-red-600">{fieldErrors.originalUrl}</p>
+            <p className="text-sm text-red-500">{fieldErrors.originalUrl}</p>
           )}
         </div>
 
@@ -68,7 +68,7 @@ export default function CreateShortLinkFormUI({
             }
           />
           {fieldErrors?.customAlias && (
-            <p className="text-sm text-red-600">{fieldErrors.customAlias}</p>
+            <p className="text-sm text-red-500">{fieldErrors.customAlias}</p>
           )}
         </div>
 
@@ -88,7 +88,7 @@ export default function CreateShortLinkFormUI({
             }
           />
           {fieldErrors?.expiresAt && (
-            <p className="text-sm text-red-600">{fieldErrors.expiresAt}</p>
+            <p className="text-sm text-red-500">{fieldErrors.expiresAt}</p>
           )}
         </div>
       </div>

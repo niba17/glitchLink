@@ -13,9 +13,7 @@ import {
   ValidationError,
 } from "../utils/errors";
 import { mapLinkToDto } from "../mappers/linkMapper";
-import type { Link } from "@prisma/client";
-import { formatDateTime } from "../utils/date";
-import { buildShortUrl } from "src/utils/buildShortUrl";
+import type { Link, Click } from "@prisma/client";
 import { getClickDataFromRequest } from "../utils/clickInfo";
 
 export class LinkService {
@@ -29,29 +27,67 @@ export class LinkService {
     this.baseUrl = process.env.BASE_URL as string;
   }
 
+  // ======================
+  // Helper DRY
+  // ======================
+  private async validateCustomAlias(
+    customAlias: string | undefined | null,
+    linkId?: number
+  ) {
+    if (!customAlias) return; // jika null/undefined/empty, langsung return
+
+    const existing = await this.linkRepository.findByCustomAlias(customAlias);
+    if (existing && existing.id !== linkId) {
+      throw new ConflictError("Conflict error", [
+        { path: "customAlias", message: "Alias already in use" },
+      ]);
+    }
+  }
+
+  private mapClickToDto(click: Click) {
+    return {
+      id: click.id,
+      ip: click.ipAddress,
+      country: click.country || null,
+      city: click.city || null,
+      userAgent: click.userAgent || null,
+      browser: click.browser || null,
+      os: click.os || null,
+      device: click.device || null,
+      timestamp: click.clickedAt,
+    };
+  }
+
+  private async generateUniqueShortCode(): Promise<string> {
+    while (true) {
+      const code = nanoid(7);
+      const exists = await this.linkRepository.findByShortCode(code);
+      if (!exists) return code;
+    }
+  }
+
+  private async getOwnedLinkOrThrow(
+    linkId: number,
+    userId: number
+  ): Promise<Link> {
+    const link = await this.linkRepository.findById(linkId);
+    if (!link) throw new NotFoundError("Link");
+    if (link.userId !== userId)
+      throw new ForbiddenError("You do not own this link");
+    return link;
+  }
+
+  // ======================
+  // CRUD & Core Logic
+  // ======================
   async getUserLinks(userId: number) {
     const links = await this.linkRepository.getLinksByUserId(userId);
-    return links.map((link) => ({
-      ...link,
-      shortUrl: buildShortUrl(this.baseUrl, link.shortCode),
-      createdAt: formatDateTime(link.createdAt),
-      updatedAt: formatDateTime(link.updatedAt),
-      expiresAt: link.expiresAt ? formatDateTime(link.expiresAt) : null,
-    }));
+    return links.map((link) => mapLinkToDto(link, this.baseUrl));
   }
 
   async createShortLink(linkData: CreateLinkDto, userId?: number) {
     const { originalUrl, customAlias, expiresAt } = linkData;
     const validationErrors: { path: string; message: string }[] = [];
-
-    if (customAlias) {
-      const existing = await this.linkRepository.findByCustomAlias(customAlias);
-      if (existing) {
-        throw new ConflictError("Conflict error", [
-          { path: "customAlias", message: "Alias already in use" },
-        ]);
-      }
-    }
 
     if (expiresAt) {
       const expiryDate = new Date(expiresAt);
@@ -65,6 +101,8 @@ export class LinkService {
 
     if (validationErrors.length > 0)
       throw new ValidationError(validationErrors);
+
+    await this.validateCustomAlias(customAlias);
 
     const shortCode = customAlias || (await this.generateUniqueShortCode());
 
@@ -99,19 +137,10 @@ export class LinkService {
       expiresAt?: Date | null;
     } = {};
 
-    if (updateData.customAlias && updateData.customAlias !== link.customAlias) {
-      const existing = await this.linkRepository.findByCustomAlias(
-        updateData.customAlias
-      );
-      if (existing && existing.id !== link.id) {
-        throw new ConflictError("Conflict error", [
-          { path: "customAlias", message: "Alias already in use" },
-        ]);
-      }
-      updateFields.customAlias = updateData.customAlias;
-      updateFields.shortCode = updateData.customAlias;
-    } else if (updateData.customAlias === null) {
-      updateFields.customAlias = null;
+    if ("customAlias" in updateData) {
+      await this.validateCustomAlias(updateData.customAlias!, link.id);
+      updateFields.customAlias = updateData.customAlias || null;
+      updateFields.shortCode = updateData.customAlias || undefined;
     }
 
     if ("expiresAt" in updateData) {
@@ -158,29 +187,8 @@ export class LinkService {
 
     return {
       totalClicks: link.clicksCount,
-      clicks: clicks.map((click) => ({
-        id: click.id,
-        ip: click.ipAddress,
-        country: click.country || null,
-        city: click.city || null,
-        userAgent: click.userAgent || null,
-        browser: click.browser || null,
-        os: click.os || null,
-        device: click.device || null,
-        timestamp: click.clickedAt,
-      })),
+      clicks: clicks.map(this.mapClickToDto),
     };
-  }
-
-  private async getOwnedLinkOrThrow(
-    linkId: number,
-    userId: number
-  ): Promise<Link> {
-    const link = await this.linkRepository.findById(linkId);
-    if (!link) throw new NotFoundError("Link");
-    if (link.userId !== userId)
-      throw new ForbiddenError("You do not own this link");
-    return link;
   }
 
   async getOriginalUrl(shortCode: string, req: any): Promise<string> {
@@ -195,25 +203,13 @@ export class LinkService {
     return link.original;
   }
 
-  private async generateUniqueShortCode(): Promise<string> {
-    while (true) {
-      const code = nanoid(7);
-      const exists = await this.linkRepository.findByShortCode(code);
-      if (!exists) return code;
-    }
-  }
-
-  private buildFullShortUrl(shortCode: string): string {
-    return `${this.baseUrl}/${shortCode}`;
-  }
-
   async generateQRCodeForLink(linkId: number, userId: number): Promise<string> {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
     if (link.expiresAt && new Date() > link.expiresAt)
       throw new ExpiredError("Link");
 
     try {
-      return await qrcode.toDataURL(this.buildFullShortUrl(link.shortCode));
+      return await qrcode.toDataURL(mapLinkToDto(link, this.baseUrl).shortUrl);
     } catch (error) {
       throw new InternalServerError();
     }

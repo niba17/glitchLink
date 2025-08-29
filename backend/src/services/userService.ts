@@ -3,40 +3,26 @@ import bcrypt from "bcryptjs";
 import { UserRepository } from "../repositories/userRepository";
 import { RegisterUserDto, LoginUserDto } from "../DTOs/userDTO";
 import type { User } from "@prisma/client";
-import {
-  CredentialError,
-  NotFoundError,
-  ValidationError,
-} from "../utils/errors";
-import { generateJwt } from "../utils/jwt"; // <--- pakai helper
+import { ConflictError, CredentialError, NotFoundError } from "../utils/errors";
+import { generateJwt } from "../utils/jwt";
 
 type UserWithoutPassword = Pick<User, "id" | "email">;
 
 export class UserService {
-  private userRepository = new UserRepository();
+  private userRepository: UserRepository;
+
+  constructor() {
+    this.userRepository = new UserRepository();
+  }
 
   async registerUser(userData: RegisterUserDto): Promise<UserWithoutPassword> {
-    const { email, password, confirmPassword } = userData;
-
-    const validationErrors: { path: string; message: string }[] = [];
-
-    if (password !== confirmPassword) {
-      validationErrors.push({
-        path: "confirmPassword",
-        message: "Passwords do not match",
-      });
-    }
+    const { email, password } = userData;
 
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      validationErrors.push({
-        path: "email",
-        message: "User with this email already exists",
-      });
-    }
-
-    if (validationErrors.length > 0) {
-      throw new ValidationError(validationErrors);
+      throw new ConflictError("Conflict error", [
+        { path: "email", message: "Email already in use" },
+      ]);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -62,7 +48,6 @@ export class UserService {
       throw new CredentialError("Invalid credential", ["email", "password"]);
     }
 
-    // Gunakan helper generateJwt
     const token = generateJwt(user);
 
     return { token, user: this.excludePassword(user) };

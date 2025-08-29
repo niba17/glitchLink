@@ -53,7 +53,7 @@ export default function SignInFormUI({
             required
           />
           {fieldErrors?.email && (
-            <p className="text-sm text-red-600">{fieldErrors.email}</p>
+            <p className="text-sm text-red-500">{fieldErrors.email}</p>
           )}
         </div>
 
@@ -73,7 +73,7 @@ export default function SignInFormUI({
             required
           />
           {fieldErrors?.password && (
-            <p className="text-sm text-red-600">{fieldErrors.password}</p>
+            <p className="text-sm text-red-500">{fieldErrors.password}</p>
           )}
         </div>
       </div>
