@@ -36,7 +36,7 @@ export interface GuestLink {
 
 export interface UserLink {
   id: number;
-  original: string;
+  originalUrl: string;
   shortCode: string;
   customAlias?: string | null;
   userId: number;

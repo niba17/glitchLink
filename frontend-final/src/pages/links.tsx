@@ -73,7 +73,7 @@ export default function LinksPage() {
             title="Original link"
             className="text-[14px] text-stone-400 break-words"
           >
-            {item.original}
+            {item.originalUrl}
           </span>
           <div className="flex items-center justify-start gap-2 mt-2">
             <Button
