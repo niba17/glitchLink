@@ -17,14 +17,13 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function Navbar() {
   const { isLoggedIn, rehydrated } = useAuthStore();
-  if (!rehydrated) return null;
-  const { signOut } = useAuth();
-  const { mutate: doSignOut } = signOut();
-
+  const { signOut } = useAuth(); // panggil di top level
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
 
+  if (!rehydrated) return null;
+
   const handleConfirmLogout = () => {
-    doSignOut();
+    signOut(); // langsung panggil hook mutate
     setOpenLogoutDialog(false);
   };
 
