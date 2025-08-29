@@ -1,7 +1,7 @@
 import { LinkRepository } from "../repositories/linkRepository";
+import { ClickService } from "./clickService";
 import { CreateLinkDto, UpdateLinkDto } from "../DTOs/linkDTO";
 import { nanoid } from "nanoid";
-import * as UAParser from "ua-parser-js";
 import qrcode from "qrcode";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import {
@@ -16,13 +16,16 @@ import { mapLinkToDto } from "../mappers/linkMapper";
 import type { Link } from "@prisma/client";
 import { formatDateTime } from "../utils/date";
 import { buildShortUrl } from "src/utils/buildShortUrl";
+import { getClickDataFromRequest } from "../utils/clickInfo";
 
 export class LinkService {
   private linkRepository: LinkRepository;
+  private clickService: ClickService;
   private baseUrl: string;
 
   constructor() {
     this.linkRepository = new LinkRepository();
+    this.clickService = new ClickService(this.linkRepository);
     this.baseUrl = process.env.BASE_URL as string;
   }
 
@@ -39,17 +42,13 @@ export class LinkService {
 
   async createShortLink(linkData: CreateLinkDto, userId?: number) {
     const { originalUrl, customAlias, expiresAt } = linkData;
-
     const validationErrors: { path: string; message: string }[] = [];
 
     if (customAlias) {
       const existing = await this.linkRepository.findByCustomAlias(customAlias);
       if (existing) {
         throw new ConflictError("Conflict error", [
-          {
-            path: "customAlias",
-            message: "Alias already in use",
-          },
+          { path: "customAlias", message: "Alias already in use" },
         ]);
       }
     }
@@ -64,9 +63,8 @@ export class LinkService {
       }
     }
 
-    if (validationErrors.length > 0) {
+    if (validationErrors.length > 0)
       throw new ValidationError(validationErrors);
-    }
 
     const shortCode = customAlias || (await this.generateUniqueShortCode());
 
@@ -86,10 +84,7 @@ export class LinkService {
         error.code === "P2002"
       ) {
         throw new ConflictError("Conflict error", [
-          {
-            path: "customAlias",
-            message: "Alias already in use",
-          },
+          { path: "customAlias", message: "Alias already in use" },
         ]);
       }
       throw error;
@@ -98,24 +93,19 @@ export class LinkService {
 
   async updateLink(linkId: number, userId: number, updateData: UpdateLinkDto) {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
-
     const updateFields: {
       customAlias?: string | null;
       shortCode?: string;
       expiresAt?: Date | null;
     } = {};
 
-    // Jika customAlias berubah, validasi dan update juga shortCode
     if (updateData.customAlias && updateData.customAlias !== link.customAlias) {
       const existing = await this.linkRepository.findByCustomAlias(
         updateData.customAlias
       );
       if (existing && existing.id !== link.id) {
         throw new ConflictError("Conflict error", [
-          {
-            path: "customAlias",
-            message: "Alias already in use",
-          },
+          { path: "customAlias", message: "Alias already in use" },
         ]);
       }
       updateFields.customAlias = updateData.customAlias;
@@ -124,17 +114,14 @@ export class LinkService {
       updateFields.customAlias = null;
     }
 
-    // Update tanggal expired jika disediakan
     if ("expiresAt" in updateData) {
       updateFields.expiresAt = updateData.expiresAt
         ? new Date(updateData.expiresAt)
         : null;
     }
 
-    // Kalau tidak ada field yang diupdate, kembalikan link lama
-    if (Object.keys(updateFields).length === 0) {
+    if (Object.keys(updateFields).length === 0)
       return mapLinkToDto(link, this.baseUrl);
-    }
 
     try {
       const updated = await this.linkRepository.update(link.id, updateFields);
@@ -143,10 +130,7 @@ export class LinkService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === "P2002")
           throw new ConflictError("Conflict error", [
-            {
-              path: "customAlias",
-              message: "Alias already in use",
-            },
+            { path: "customAlias", message: "Alias already in use" },
           ]);
         if (error.code === "P2025") throw new NotFoundError("Link");
       }
@@ -162,9 +146,8 @@ export class LinkService {
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2025"
-      ) {
+      )
         throw new NotFoundError("Link");
-      }
       throw error;
     }
   }
@@ -183,6 +166,7 @@ export class LinkService {
         userAgent: click.userAgent || null,
         browser: click.browser || null,
         os: click.os || null,
+        device: click.device || null,
         timestamp: click.clickedAt,
       })),
     };
@@ -202,35 +186,11 @@ export class LinkService {
   async getOriginalUrl(shortCode: string, req: any): Promise<string> {
     const link = await this.linkRepository.findByShortCode(shortCode);
     if (!link) throw new ExpiredError("Link");
-    if (link.expiresAt && new Date() > link.expiresAt) {
+    if (link.expiresAt && new Date() > link.expiresAt)
       throw new ExpiredError("Link");
-    }
 
-    try {
-      await this.linkRepository.incrementClicks(link.id);
-    } catch (_) {}
-
-    const userAgent = req.headers["user-agent"];
-    const ip = req.ip;
-
-    let browser: string | null = null;
-    let os: string | null = null;
-
-    if (userAgent) {
-      const parsed = new UAParser.UAParser(userAgent);
-      browser = parsed.getBrowser().name || null;
-      os = parsed.getOS().name || null;
-    }
-
-    try {
-      await this.linkRepository.createClick({
-        linkId: link.id,
-        ip,
-        userAgent,
-        browser,
-        os,
-      });
-    } catch (_) {}
+    const clickData = getClickDataFromRequest(req);
+    await this.clickService.recordClick(link.id, clickData);
 
     return link.original;
   }
@@ -249,9 +209,8 @@ export class LinkService {
 
   async generateQRCodeForLink(linkId: number, userId: number): Promise<string> {
     const link = await this.getOwnedLinkOrThrow(linkId, userId);
-    if (link.expiresAt && new Date() > link.expiresAt) {
+    if (link.expiresAt && new Date() > link.expiresAt)
       throw new ExpiredError("Link");
-    }
 
     try {
       return await qrcode.toDataURL(this.buildFullShortUrl(link.shortCode));

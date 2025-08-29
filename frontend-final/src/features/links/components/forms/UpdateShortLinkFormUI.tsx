@@ -91,7 +91,7 @@ export default function UpdateShortLinkFormUI({
           Close
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Loading..." : "Get Short Link"}
+          {isPending ? "Loading..." : "Update Short Link"}
         </Button>
       </div>
     </form>

@@ -64,6 +64,7 @@ export class LinkRepository {
     userAgent?: string | null;
     browser?: string | null;
     os?: string | null;
+    device?: string | null; // 👈 tambahin ini
     country?: string | null;
     city?: string | null;
   }): Promise<Click> {
@@ -75,6 +76,7 @@ export class LinkRepository {
           userAgent: data.userAgent,
           browser: data.browser,
           os: data.os,
+          device: data.device, // 👈 simpan ke DB
           country: data.country,
           city: data.city,
           clickedAt: new Date(),

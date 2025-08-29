@@ -46,6 +46,7 @@ model Click {
   link       Link     @relation(fields: [linkId], references: [id])
   ipAddress  String   // Pastikan ini `ipAddress` bukan `ip`
   userAgent  String?
+  device     String?
   browser    String?
   os         String?
   country    String?  // Tambahkan jika Anda menyimpannya
