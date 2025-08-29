@@ -369,57 +369,71 @@ export function ChartLineInteractive() {
             tickFormatter={(value) => value.toLocaleString()}
           />
           <ChartTooltip
-            content={
-              <ChartTooltipContent
-                className="w-[150px]"
-                labelFormatter={(value) =>
-                  new Date(value).toLocaleDateString("en-US", {
+            content={({ payload, label }) => (
+              <div className="w-[150px] bg-zinc-900/80 p-2 text-stone-200">
+                <div className="text-sm mb-1">
+                  {new Date(label).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                     year: "numeric",
-                  })
-                }
-              />
-            }
+                  })}
+                </div>
+                {payload?.map((entry) => (
+                  <div
+                    key={entry.dataKey}
+                    className="flex justify-between items-center"
+                  >
+                    <span className="flex items-center space-x-1">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: entry.color }}
+                      />
+                      <span>{entry.dataKey}</span>
+                    </span>
+                    <span>{entry.value?.toLocaleString() ?? "0"}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           />
 
-          {/* Render lines hanya jika sudah rendered */}
+          {/* Render lines dengan key dinamis supaya animasi muncul */}
           {renderedDevices.map((d) => (
             <Line
-              key={d}
+              key={`${d}-${activeDevices.includes(d) ? 1 : 0}`}
               type="linear"
               dataKey={d}
               stroke={lineColors[d]}
               strokeWidth={2}
               dot={false}
               hide={!activeDevices.includes(d)}
-              isAnimationActive={activeDevices.includes(d)}
+              isAnimationActive={true}
               animationDuration={1000}
             />
           ))}
           {renderedBrowsers.map((b) => (
             <Line
-              key={b}
+              key={`${b}-${activeBrowsers.includes(b) ? 1 : 0}`}
               type="linear"
               dataKey={b}
               stroke={lineColors[b]}
               strokeWidth={2}
               dot={false}
               hide={!activeBrowsers.includes(b)}
-              isAnimationActive={activeBrowsers.includes(b)}
+              isAnimationActive={true}
               animationDuration={1000}
             />
           ))}
           {renderedOS.map((o) => (
             <Line
-              key={o}
+              key={`${o}-${activeOS.includes(o) ? 1 : 0}`}
               type="linear"
               dataKey={o}
               stroke={lineColors[o]}
               strokeWidth={2}
               dot={false}
               hide={!activeOS.includes(o)}
-              isAnimationActive={activeOS.includes(o)}
+              isAnimationActive={true}
               animationDuration={1000}
             />
           ))}
