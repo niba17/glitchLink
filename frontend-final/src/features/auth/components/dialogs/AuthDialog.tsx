@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import AuthFormContainer from "@/features/auth/components/forms/AuthFormContainer";
+import AuthFormContainer from "@/features/auth/components/containers/AuthFormContainer";
 
 interface AuthDialogProps {
   open: boolean;

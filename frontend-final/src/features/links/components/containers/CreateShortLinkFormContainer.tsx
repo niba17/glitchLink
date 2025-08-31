@@ -5,8 +5,8 @@ import { ShortLinkPayload } from "../../types/type";
 import { useGuestLinks } from "../../hooks/useGuestLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
-import CreateGuestShortLinkFormUI from "./CreateGuestShortLinkFormUI";
-import CreateUserShortLinkFormUI from "./CreateUserShortlinkFormUI";
+import CreateGuestShortLinkFormUI from "../forms/CreateGuestShortLinkFormUI";
+import CreateUserShortLinkFormUI from "../forms/CreateUserShortlinkFormUI";
 import { useUserLinks } from "../../hooks/useUserLinks";
 import { normalizeExpiresAt, formatForInput } from "../../utils/dateFormatters";
 

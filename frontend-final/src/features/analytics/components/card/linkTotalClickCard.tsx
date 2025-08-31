@@ -28,13 +28,15 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Separator } from "@/components/ui/separator";
+import { ChartPieDonutText } from "../charts/pieChart";
 
 export const description = "A bar chart with a label";
 
 const chartData = [
-  { month: "Desktop", desktop: 186 },
-  { month: "Tablet", desktop: 305 },
-  { month: "Mobile", desktop: 237 },
+  { month: "Chrome", desktop: 186 },
+  { month: "Firefox", desktop: 305 },
+  { month: "Edge", desktop: 237 },
+  { month: "Safari", desktop: 237 },
 ];
 const chartConfig = {
   desktop: {
@@ -46,15 +48,18 @@ const chartConfig = {
 export default function LinkTotalClickCardWithBackground() {
   return (
     <Card className="bg-zinc-950 shadow-none">
-      <CardHeader className="pb-0">
-        <div className="flex justify-between">
-          <CardTitle className="text-stone-200">Total 32 Clicks</CardTitle>
-        </div>
-        <CardDescription>
+      {/* <CardHeader className="pb-0"> */}
+      {/* <div className="flex justify-between"> */}
+      {/* <CardTitle className="text-stone-200">
+            Last clicks about 5 min ago
+          </CardTitle> */}
+      {/* </div> */}
+      {/* <CardDescription>
           Showing total clicks for the last 6 months
-        </CardDescription>
-      </CardHeader>
+        </CardDescription> */}
+      {/* </CardHeader> */}
       <CardContent className="mt-5 flex">
+        <ChartPieDonutText />
         <ChartContainer className="h-[200px] w-full" config={chartConfig}>
           <BarChart
             accessibilityLayer

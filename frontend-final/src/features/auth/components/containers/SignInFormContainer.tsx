@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SignInFormUI from "./SignInFormUI";
+import SignInFormUI from "../UI/SignInFormUI";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { SignInPayload } from "../../types/auth";
 

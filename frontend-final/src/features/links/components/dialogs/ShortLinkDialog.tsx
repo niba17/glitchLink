@@ -10,8 +10,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import CreateShortLinkFormContainer from "@/features/links/components/forms/CreateShortLinkFormContainer";
-import UpdateShortLinkFormContainer from "@/features/links/components/forms/UpdateShortLinkFormContainer";
+import CreateShortLinkFormContainer from "@/features/links/components/containers/CreateShortLinkFormContainer";
+import UpdateShortLinkFormContainer from "@/features/links/components/containers/UpdateShortLinkFormContainer";
 
 interface ShortLinkDialogProps {
   open: boolean;

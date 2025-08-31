@@ -11,7 +11,7 @@ import {
   DialogDescription,
 } from "../ui/dialog";
 import { useAuthStore } from "@/store/useAuthStore";
-import AuthFormContainer from "@/features/auth/components/forms/AuthFormContainer";
+import AuthFormContainer from "@/features/auth/components/containers/AuthFormContainer";
 import ConfirmDialog from "../common/ConfirmDialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 

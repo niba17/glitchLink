@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import CreateLinkForm from "@/features/links/components/forms/CreateShortLinkFormContainer";
+import CreateLinkForm from "@/features/links/components/containers/CreateShortLinkFormContainer";
 import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
 import { useClipboard } from "@/hooks/useClipboard";
 import { GuestLinkList } from "@/features/links/components/lists/GuestLinkList";

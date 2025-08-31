@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import UpdateShortLinkFormUI from "./UpdateShortLinkFormUI";
+import UpdateShortLinkFormUI from "../forms/UpdateShortLinkFormUI";
 import { useUserLinks } from "../../hooks/useUserLinks";
 import { normalizeExpiresAt, formatForInput } from "../../utils/dateFormatters";
 
