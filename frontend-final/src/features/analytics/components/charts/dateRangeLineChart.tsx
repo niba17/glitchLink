@@ -20,7 +20,7 @@ import { eachDayOfInterval, format, startOfMonth, endOfMonth } from "date-fns";
 import { type DateRange } from "react-day-picker";
 
 // ---- Type definitions ----
-type DeviceKey = "desktop" | "mobile";
+type DeviceKey = "desktop" | "mobile" | "tablet";
 type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari";
 type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
 type ChartKey = DeviceKey | BrowserKey | OSKey;
@@ -29,6 +29,7 @@ interface ChartDataItem {
   date: string;
   desktop: number;
   mobile: number;
+  tablet: number;
   Chrome: number;
   Firefox: number;
   Edge: number;
@@ -44,6 +45,7 @@ interface ChartDataItem {
 const chartConfig: Record<ChartKey, { label: string; color: string }> = {
   desktop: { label: "Desktop", color: "#1ee85a" },
   mobile: { label: "Mobile", color: "#e81e54" },
+  tablet: { label: "Tablet", color: "#9D4EDD" }, // 🟣 new
   Chrome: { label: "Chrome", color: "#4285F4" },
   Firefox: { label: "Firefox", color: "#FF7139" },
   Edge: { label: "Edge", color: "#0078D7" },
@@ -58,9 +60,10 @@ const chartConfig: Record<ChartKey, { label: string; color: string }> = {
 // ---- Sample data ----
 const chartDataSample: ChartDataItem[] = [
   {
-    date: "2025-08-01",
+    date: "2025-09-01",
     desktop: 222,
     mobile: 150,
+    tablet: 75,
     Chrome: 180,
     Firefox: 120,
     Edge: 50,
@@ -72,9 +75,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 50,
   },
   {
-    date: "2025-08-02",
+    date: "2025-09-02",
     desktop: 190,
     mobile: 140,
+    tablet: 60,
     Chrome: 160,
     Firefox: 100,
     Edge: 40,
@@ -86,9 +90,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 50,
   },
   {
-    date: "2025-08-03",
+    date: "2025-09-03",
     desktop: 167,
     mobile: 120,
+    tablet: 55,
     Chrome: 130,
     Firefox: 90,
     Edge: 30,
@@ -100,9 +105,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 60,
   },
   {
-    date: "2025-08-04",
+    date: "2025-09-04",
     desktop: 242,
     mobile: 0,
+    tablet: 30,
     Chrome: 200,
     Firefox: 30,
     Edge: 12,
@@ -114,9 +120,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 0,
   },
   {
-    date: "2025-08-05",
+    date: "2025-09-05",
     desktop: 373,
     mobile: 290,
+    tablet: 120,
     Chrome: 300,
     Firefox: 200,
     Edge: 50,
@@ -128,9 +135,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 120,
   },
   {
-    date: "2025-08-06",
+    date: "2025-09-06",
     desktop: 97,
     mobile: 180,
+    tablet: 65,
     Chrome: 90,
     Firefox: 50,
     Edge: 20,
@@ -142,9 +150,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 40,
   },
   {
-    date: "2025-08-07",
+    date: "2025-09-07",
     desktop: 210,
     mobile: 130,
+    tablet: 75,
     Chrome: 170,
     Firefox: 80,
     Edge: 30,
@@ -156,9 +165,10 @@ const chartDataSample: ChartDataItem[] = [
     iOS: 50,
   },
   {
-    date: "2025-08-08",
+    date: "2025-09-08",
     desktop: 180,
     mobile: 160,
+    tablet: 70,
     Chrome: 150,
     Firefox: 70,
     Edge: 20,
@@ -172,7 +182,7 @@ const chartDataSample: ChartDataItem[] = [
 ];
 
 export function DateRangeChartLineInteractive() {
-  const devices: DeviceKey[] = ["desktop", "mobile"];
+  const devices: DeviceKey[] = ["desktop", "mobile", "tablet"]; // ✅ add tablet
   const browsers: BrowserKey[] = ["Chrome", "Firefox", "Edge", "Safari"];
   const osList: OSKey[] = ["Windows", "macOS", "Linux", "Android", "iOS"];
 
@@ -197,19 +207,9 @@ export function DateRangeChartLineInteractive() {
     to: endOfMonth(new Date()),
   });
 
-  const lineColors: Record<ChartKey, string> = {
-    desktop: "#1ee85a",
-    mobile: "#e81e54",
-    Chrome: "#4285F4",
-    Firefox: "#FF7139",
-    Edge: "#0078D7",
-    Safari: "#00A1F1",
-    Windows: "#00BCF2",
-    macOS: "#999999",
-    Linux: "#FCC624",
-    Android: "#3DDC84",
-    iOS: "#A2AAAD",
-  };
+  const lineColors: Record<ChartKey, string> = Object.fromEntries(
+    Object.entries(chartConfig).map(([k, v]) => [k, v.color])
+  ) as Record<ChartKey, string>;
 
   // --- chartData calculation ---
   const chartData = React.useMemo(() => {
@@ -222,7 +222,7 @@ export function DateRangeChartLineInteractive() {
       const dateStr = format(date, "yyyy-MM-dd");
       const found = chartDataSample.find((d) => d.date === dateStr);
       return (
-        ["desktop", "mobile", ...browsers, ...osList] as ChartKey[]
+        ["desktop", "mobile", "tablet", ...browsers, ...osList] as ChartKey[]
       ).reduce(
         (acc, key) => {
           acc[key] = found ? found[key] : 0;
@@ -234,13 +234,12 @@ export function DateRangeChartLineInteractive() {
   }, [dateRange]);
 
   const total = React.useMemo(() => {
-    return (["desktop", "mobile", ...browsers, ...osList] as ChartKey[]).reduce(
-      (acc, key) => {
-        acc[key] = chartData.reduce((sum, curr) => sum + curr[key], 0);
-        return acc;
-      },
-      {} as Record<ChartKey, number>
-    );
+    return (
+      ["desktop", "mobile", "tablet", ...browsers, ...osList] as ChartKey[]
+    ).reduce((acc, key) => {
+      acc[key] = chartData.reduce((sum, curr) => sum + curr[key], 0);
+      return acc;
+    }, {} as Record<ChartKey, number>);
   }, [chartData]);
 
   // ---- toggle handlers ----
@@ -424,7 +423,7 @@ export function DateRangeChartLineInteractive() {
             )}
           />
 
-          {/* Render lines dengan key dinamis supaya animasi muncul */}
+          {/* Render lines */}
           {renderedDevices.map((d) => (
             <Line
               key={`${d}-${activeDevices.includes(d) ? 1 : 0}`}
