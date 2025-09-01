@@ -43,7 +43,7 @@ export default function LinkTotalClickCardWithBackground() {
           Last clicks about 5 min ago
         </CardTitle>
         <CardDescription>
-          All clicks around 03 Jan 2024 - 17 Jun 2024.
+          All clicks of shortlink lifetime 03 Jan 2024 - 17 Jun 2024
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-5 flex space-x-2">

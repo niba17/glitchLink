@@ -30,7 +30,7 @@ export function BrowserDonutPieChart() {
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-lg font-semibold text-stone-200 mb-4">Browser</h2>
+      <h2 className="text-lg font-semibold text-stone-200">Browser</h2>
 
       <ChartContainer config={chartConfig} className="mx-auto h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -68,8 +68,31 @@ export function BrowserDonutPieChart() {
               data={chartData}
               dataKey="clicks"
               nameKey="key"
-              innerRadius={60}
-              strokeWidth={5}
+              innerRadius={50}
+              strokeWidth={1}
+              labelLine={false} // garis dihilangkan
+              label={({ index, value, cx, cy, midAngle, outerRadius }) => {
+                const entry = chartData[index];
+                const name = entry.key as BrowserKey;
+
+                const RADIAN = Math.PI / 180;
+                const radius = outerRadius! + 10; // jarak sedikit di luar
+                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    textAnchor={x > cx ? "start" : "end"}
+                    dominantBaseline="central"
+                    style={{ fill: chartConfig[name]?.color }} // ikut warna slice
+                    className="text-[10px]"
+                  >
+                    {`${chartConfig[name]?.label ?? name}: ${value}`}
+                  </text>
+                );
+              }}
             >
               {chartData.map((entry) => (
                 <Cell
@@ -100,7 +123,7 @@ export function BrowserDonutPieChart() {
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
-                          className="fill-stone-400"
+                          className="fill-muted-foreground"
                         >
                           Clicks
                         </tspan>
@@ -114,8 +137,8 @@ export function BrowserDonutPieChart() {
         </ResponsiveContainer>
       </ChartContainer>
 
-      <p className="text-sm text-stone-400 mt-4">
-        Showing Click by browser for the last 6 months
+      <p className="text-sm text-muted-foreground">
+        Click by browser for the last 6 months
       </p>
     </div>
   );

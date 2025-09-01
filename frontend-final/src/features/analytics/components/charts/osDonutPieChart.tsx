@@ -8,11 +8,11 @@ import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 export const description = "A donut chart showing OS distribution";
 
 const chartData = [
-  { os: "Windows", visitors: 320 },
-  { os: "macOS", visitors: 210 },
-  { os: "Linux", visitors: 150 },
-  { os: "Android", visitors: 280 },
-  { os: "iOS", visitors: 190 },
+  { key: "Windows", clicks: 320 },
+  { key: "macOS", clicks: 210 },
+  { key: "Linux", clicks: 150 },
+  { key: "Android", clicks: 280 },
+  { key: "iOS", clicks: 190 },
 ];
 
 type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
@@ -27,14 +27,12 @@ const chartConfig: Record<OSKey, { label: string; color: string }> = {
 
 export function OSDonutPieChart() {
   const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
+    return chartData.reduce((acc, curr) => acc + curr.clicks, 0);
   }, []);
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-lg font-semibold text-stone-200 mb-4">
-        Operating System
-      </h2>
+      <h2 className="text-lg font-semibold text-stone-200">Operating System</h2>
 
       {/* Penting: tinggi tetap agar chart muncul */}
       <ChartContainer config={chartConfig} className="mx-auto h-[200px]">
@@ -71,16 +69,39 @@ export function OSDonutPieChart() {
 
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="os"
-              innerRadius={60}
-              strokeWidth={5}
+              dataKey="clicks"
+              nameKey="key"
+              innerRadius={50}
+              strokeWidth={1}
+              labelLine={false} // garis dihilangkan
+              label={({ index, value, cx, cy, midAngle, outerRadius }) => {
+                const entry = chartData[index];
+                const name = entry.key as OSKey;
+
+                const RADIAN = Math.PI / 180;
+                const radius = outerRadius! + 10; // jarak sedikit di luar
+                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    textAnchor={x > cx ? "start" : "end"}
+                    dominantBaseline="central"
+                    style={{ fill: chartConfig[name]?.color }} // ikut warna slice
+                    className="text-[10px]"
+                  >
+                    {`${chartConfig[name]?.label ?? name}: ${value}`}
+                  </text>
+                );
+              }}
             >
               {chartData.map((entry) => (
                 <Cell
-                  key={entry.os}
+                  key={entry.key}
                   fill={
-                    chartConfig[entry.os as OSKey]?.color ?? "rgb(231 229 228)"
+                    chartConfig[entry.key as OSKey]?.color ?? "rgb(231 229 228)"
                   }
                 />
               ))}
@@ -104,7 +125,7 @@ export function OSDonutPieChart() {
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
-                          className="fill-stone-400"
+                          className="fill-muted-foreground"
                         >
                           Clicks
                         </tspan>
@@ -118,8 +139,8 @@ export function OSDonutPieChart() {
         </ResponsiveContainer>
       </ChartContainer>
 
-      <p className="text-sm text-stone-400 mt-4">
-        Showing Clicks by OS for the last 6 months
+      <p className="text-sm text-muted-foreground">
+        Clicks by OS for the last 6 months
       </p>
     </div>
   );
