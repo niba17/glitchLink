@@ -137,9 +137,9 @@ export function BrowserDonutPieChart() {
         </ResponsiveContainer>
       </ChartContainer>
 
-      <p className="text-sm text-muted-foreground">
+      {/* <p className="text-sm text-muted-foreground">
         Click by browser for the last 6 months
-      </p>
+      </p> */}
     </div>
   );
 }

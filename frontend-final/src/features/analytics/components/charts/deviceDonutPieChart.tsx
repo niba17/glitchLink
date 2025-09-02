@@ -143,9 +143,9 @@ export function DeviceDonutPieChart() {
         </ResponsiveContainer>
       </ChartContainer>
 
-      <p className="text-sm text-muted-foreground">
+      {/* <p className="text-sm text-muted-foreground">
         Click by device for the last 6 months
-      </p>
+      </p> */}
     </div>
   );
 }

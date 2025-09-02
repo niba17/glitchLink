@@ -35,7 +35,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function LinkTotalClickCardWithBackground() {
+export default function DonutPieChartCard() {
   return (
     <Card className="bg-zinc-950 shadow-none">
       <CardHeader className="pb-0">

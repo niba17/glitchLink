@@ -139,9 +139,9 @@ export function OSDonutPieChart() {
         </ResponsiveContainer>
       </ChartContainer>
 
-      <p className="text-sm text-muted-foreground">
+      {/* <p className="text-sm text-muted-foreground">
         Clicks by OS for the last 6 months
-      </p>
+      </p> */}
     </div>
   );
 }
