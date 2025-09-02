@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import DateRangePicker from "@/components/ui/date-range-picker";
 import { eachDayOfInterval, format, startOfMonth, endOfMonth } from "date-fns";
 import { type DateRange } from "react-day-picker";
+import { Card, CardContent } from "@/components/ui/card";
 
 // ---- Type definitions ----
 type DeviceKey = "desktop" | "mobile" | "tablet";
@@ -259,212 +260,214 @@ export function DateRangeChartLineInteractive() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex space-x-2 items-center">
-        <DateRangePicker
-          initialRange={dateRange}
-          onChange={setDateRange as any}
-        />
-
-        {/* Device Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Device</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            {devices.map((d) => (
-              <DropdownMenuCheckboxItem
-                key={d}
-                checked={activeDevices.includes(d)}
-                onCheckedChange={() =>
-                  toggleLine(
-                    d,
-                    activeDevices,
-                    setActiveDevices,
-                    renderedDevices,
-                    setRenderedDevices
-                  )
-                }
-                onSelect={(e) => e.preventDefault()}
-                className="justify-between"
-              >
-                <span className="flex items-center space-x-2">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: chartConfig[d].color }}
-                  />
-                  <span>{chartConfig[d].label}</span>
-                </span>
-                <span>{total[d].toLocaleString()}</span>
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* OS Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">OS</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            {osList.map((o) => (
-              <DropdownMenuCheckboxItem
-                key={o}
-                checked={activeOS.includes(o)}
-                onCheckedChange={() =>
-                  toggleLine(
-                    o,
-                    activeOS,
-                    setActiveOS,
-                    renderedOS,
-                    setRenderedOS
-                  )
-                }
-                onSelect={(e) => e.preventDefault()}
-                className="justify-between"
-              >
-                <span className="flex items-center space-x-2">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: chartConfig[o].color }}
-                  />
-                  <span>{chartConfig[o].label}</span>
-                </span>
-                <span>{total[o].toLocaleString()}</span>
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Browser Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Browser</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            {browsers.map((b) => (
-              <DropdownMenuCheckboxItem
-                key={b}
-                checked={activeBrowsers.includes(b)}
-                onCheckedChange={() =>
-                  toggleLine(
-                    b,
-                    activeBrowsers,
-                    setActiveBrowsers,
-                    renderedBrowsers,
-                    setRenderedBrowsers
-                  )
-                }
-                onSelect={(e) => e.preventDefault()}
-                className="justify-between"
-              >
-                <span className="flex items-center space-x-2">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: chartConfig[b].color }}
-                  />
-                  <span>{chartConfig[b].label}</span>
-                </span>
-                <span>{total[b].toLocaleString()}</span>
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <ChartContainer config={chartConfig} className="h-[300px] w-full">
-        <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
-          <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="date"
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            ticks={chartData.map((d) => d.date)}
-            tickFormatter={(value) =>
-              new Date(value).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })
-            }
+    <Card className="bg-transparent">
+      <CardContent className="mt-3 py-0">
+        <div className="flex space-x-2">
+          <DateRangePicker
+            initialRange={dateRange}
+            onChange={setDateRange as any}
           />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            tickFormatter={(value) => value.toLocaleString()}
-          />
-          <ChartTooltip
-            content={({ payload, label }) => (
-              <div className="w-[150px] bg-zinc-900/80 p-2 text-stone-200">
-                <div className="text-sm mb-1">
-                  {new Date(label).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </div>
-                {payload?.map((entry) => (
-                  <div
-                    key={entry.dataKey}
-                    className="flex justify-between items-center"
-                  >
-                    <span className="flex items-center space-x-1">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: entry.color }}
-                      />
-                      <span>{entry.dataKey}</span>
-                    </span>
-                    <span>{entry.value?.toLocaleString() ?? "0"}</span>
+
+          {/* Device Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Device</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {devices.map((d) => (
+                <DropdownMenuCheckboxItem
+                  key={d}
+                  checked={activeDevices.includes(d)}
+                  onCheckedChange={() =>
+                    toggleLine(
+                      d,
+                      activeDevices,
+                      setActiveDevices,
+                      renderedDevices,
+                      setRenderedDevices
+                    )
+                  }
+                  onSelect={(e) => e.preventDefault()}
+                  className="justify-between"
+                >
+                  <span className="flex items-center space-x-2">
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: chartConfig[d].color }}
+                    />
+                    <span>{chartConfig[d].label}</span>
+                  </span>
+                  <span>{total[d].toLocaleString()}</span>
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* OS Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">OS</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {osList.map((o) => (
+                <DropdownMenuCheckboxItem
+                  key={o}
+                  checked={activeOS.includes(o)}
+                  onCheckedChange={() =>
+                    toggleLine(
+                      o,
+                      activeOS,
+                      setActiveOS,
+                      renderedOS,
+                      setRenderedOS
+                    )
+                  }
+                  onSelect={(e) => e.preventDefault()}
+                  className="justify-between"
+                >
+                  <span className="flex items-center space-x-2">
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: chartConfig[o].color }}
+                    />
+                    <span>{chartConfig[o].label}</span>
+                  </span>
+                  <span>{total[o].toLocaleString()}</span>
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Browser Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Browser</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {browsers.map((b) => (
+                <DropdownMenuCheckboxItem
+                  key={b}
+                  checked={activeBrowsers.includes(b)}
+                  onCheckedChange={() =>
+                    toggleLine(
+                      b,
+                      activeBrowsers,
+                      setActiveBrowsers,
+                      renderedBrowsers,
+                      setRenderedBrowsers
+                    )
+                  }
+                  onSelect={(e) => e.preventDefault()}
+                  className="justify-between"
+                >
+                  <span className="flex items-center space-x-2">
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: chartConfig[b].color }}
+                    />
+                    <span>{chartConfig[b].label}</span>
+                  </span>
+                  <span>{total[b].toLocaleString()}</span>
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              ticks={chartData.map((d) => d.date)}
+              tickFormatter={(value) =>
+                new Date(value).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })
+              }
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value.toLocaleString()}
+            />
+            <ChartTooltip
+              content={({ payload, label }) => (
+                <div className="w-[150px] bg-zinc-900/80 p-2 text-stone-200">
+                  <div className="text-sm mb-1">
+                    {new Date(label).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </div>
-                ))}
-              </div>
-            )}
-          />
+                  {payload?.map((entry) => (
+                    <div
+                      key={entry.dataKey}
+                      className="flex justify-between items-center"
+                    >
+                      <span className="flex items-center space-x-1">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span>{entry.dataKey}</span>
+                      </span>
+                      <span>{entry.value?.toLocaleString() ?? "0"}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            />
 
-          {/* Render lines */}
-          {renderedDevices.map((d) => (
-            <Line
-              key={`${d}-${activeDevices.includes(d) ? 1 : 0}`}
-              type="linear"
-              dataKey={d}
-              stroke={lineColors[d]}
-              strokeWidth={2}
-              dot={false}
-              hide={!activeDevices.includes(d)}
-              isAnimationActive={true}
-              animationDuration={1000}
-            />
-          ))}
-          {renderedBrowsers.map((b) => (
-            <Line
-              key={`${b}-${activeBrowsers.includes(b) ? 1 : 0}`}
-              type="linear"
-              dataKey={b}
-              stroke={lineColors[b]}
-              strokeWidth={2}
-              dot={false}
-              hide={!activeBrowsers.includes(b)}
-              isAnimationActive={true}
-              animationDuration={1000}
-            />
-          ))}
-          {renderedOS.map((o) => (
-            <Line
-              key={`${o}-${activeOS.includes(o) ? 1 : 0}`}
-              type="linear"
-              dataKey={o}
-              stroke={lineColors[o]}
-              strokeWidth={2}
-              dot={false}
-              hide={!activeOS.includes(o)}
-              isAnimationActive={true}
-              animationDuration={1000}
-            />
-          ))}
-        </LineChart>
-      </ChartContainer>
-    </div>
+            {/* Render lines */}
+            {renderedDevices.map((d) => (
+              <Line
+                key={`${d}-${activeDevices.includes(d) ? 1 : 0}`}
+                type="linear"
+                dataKey={d}
+                stroke={lineColors[d]}
+                strokeWidth={2}
+                dot={false}
+                hide={!activeDevices.includes(d)}
+                isAnimationActive={true}
+                animationDuration={1000}
+              />
+            ))}
+            {renderedBrowsers.map((b) => (
+              <Line
+                key={`${b}-${activeBrowsers.includes(b) ? 1 : 0}`}
+                type="linear"
+                dataKey={b}
+                stroke={lineColors[b]}
+                strokeWidth={2}
+                dot={false}
+                hide={!activeBrowsers.includes(b)}
+                isAnimationActive={true}
+                animationDuration={1000}
+              />
+            ))}
+            {renderedOS.map((o) => (
+              <Line
+                key={`${o}-${activeOS.includes(o) ? 1 : 0}`}
+                type="linear"
+                dataKey={o}
+                stroke={lineColors[o]}
+                strokeWidth={2}
+                dot={false}
+                hide={!activeOS.includes(o)}
+                isAnimationActive={true}
+                animationDuration={1000}
+              />
+            ))}
+          </LineChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 }

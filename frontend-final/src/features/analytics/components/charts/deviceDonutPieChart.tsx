@@ -1,26 +1,15 @@
 // frontend-final/src/features/analytics/components/charts/DeviceDonutPieChart.tsx
 "use client";
-
 import * as React from "react";
-import {
-  Pie,
-  PieChart,
-  Cell,
-  Label,
-  ResponsiveContainer,
-  LabelList,
-} from "recharts";
+import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 
-export const description = "A donut chart with text";
-
-const chartData = [
-  { key: "desktop", clicks: 400 },
-  { key: "mobile", clicks: 250 },
-  { key: "tablet", clicks: 150 },
-];
-
 type DeviceKey = "desktop" | "mobile" | "tablet";
+
+interface Props {
+  chartData: { key: DeviceKey; clicks: number }[];
+  activeKeys: DeviceKey[];
+}
 
 const chartConfig: Record<DeviceKey, { label: string; color: string }> = {
   desktop: { label: "Desktop", color: "#1ee85a" },
@@ -28,16 +17,17 @@ const chartConfig: Record<DeviceKey, { label: string; color: string }> = {
   tablet: { label: "Tablet", color: "#4285F4" },
 };
 
-export function DeviceDonutPieChart() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.clicks, 0);
-  }, []);
+export function DeviceDonutPieChart({ chartData, activeKeys }: Props) {
+  const total = React.useMemo(() => {
+    return chartData.reduce((acc, item) => {
+      if (activeKeys.includes(item.key)) acc[item.key] = item.clicks;
+      return acc;
+    }, {} as Record<DeviceKey, number>);
+  }, [chartData, activeKeys]);
 
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-lg font-semibold text-stone-200">Device</h2>
-
-      {/* Penting: tambahkan tinggi tetap */}
       <ChartContainer config={chartConfig} className="mx-auto h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -54,8 +44,7 @@ export function DeviceDonutPieChart() {
                           className="w-2 h-2 rounded-full"
                           style={{
                             backgroundColor:
-                              chartConfig[entry.name as DeviceKey]?.color ??
-                              "rgb(231 229 228)",
+                              chartConfig[entry.name as DeviceKey]?.color,
                           }}
                         />
                         <span>
@@ -63,89 +52,76 @@ export function DeviceDonutPieChart() {
                             entry.name}
                         </span>
                       </span>
-                      <span>{entry.value?.toLocaleString() ?? "0"}</span>
+                      <span>{entry.value?.toLocaleString() ?? 0}</span>
                     </div>
                   ))}
                 </div>
               )}
             />
-
             <Pie
-              data={chartData}
+              data={activeKeys.map((key) => ({ key, clicks: total[key] || 0 }))}
               dataKey="clicks"
               nameKey="key"
               innerRadius={50}
               strokeWidth={1}
-              labelLine={false} // garis dihilangkan
+              labelLine={false}
               label={({ index, value, cx, cy, midAngle, outerRadius }) => {
-                const entry = chartData[index];
-                const name = entry.key as DeviceKey;
-
+                const entry = activeKeys[index];
                 const RADIAN = Math.PI / 180;
-                const radius = outerRadius! + 10; // jarak sedikit di luar
+                const radius = outerRadius! + 10;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
                 return (
                   <text
                     x={x}
                     y={y}
                     textAnchor={x > cx ? "start" : "end"}
                     dominantBaseline="central"
-                    style={{ fill: chartConfig[name]?.color }} // ikut warna slice
+                    style={{ fill: chartConfig[entry]?.color }}
                     className="text-[10px]"
                   >
-                    {`${chartConfig[name]?.label ?? name}: ${value}`}
+                    {`${chartConfig[entry]?.label ?? entry}: ${value}`}
                   </text>
                 );
               }}
             >
-              {chartData.map((entry) => (
-                <Cell
-                  key={entry.key}
-                  fill={
-                    chartConfig[entry.key as DeviceKey]?.color ??
-                    "rgb(231 229 228)"
-                  }
-                />
+              {activeKeys.map((key) => (
+                <Cell key={key} fill={chartConfig[key]?.color} />
               ))}
               <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
+                content={({ viewBox }) =>
+                  viewBox && "cx" in viewBox && "cy" in viewBox ? (
+                    <text
+                      x={viewBox.cx}
+                      y={viewBox.cy}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      <tspan
                         x={viewBox.cx}
                         y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
+                        className="fill-stone-200 text-3xl font-bold"
                       >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-stone-200 text-3xl font-bold"
-                        >
-                          {totalVisitors.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Clicks
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
+                        {Object.values(total).reduce((a, b) => a + b, 0)}
+                      </tspan>
+                      <tspan
+                        x={viewBox.cx}
+                        y={(viewBox.cy || 0) + 24}
+                        className="fill-muted-foreground"
+                      >
+                        Clicks
+                      </tspan>
+                    </text>
+                  ) : null
+                }
               />
             </Pie>
           </PieChart>
         </ResponsiveContainer>
       </ChartContainer>
-
-      {/* <p className="text-sm text-muted-foreground">
-        Click by device for the last 6 months
-      </p> */}
+      <p className="text-sm text-muted-foreground">
+        Last click about 5 mins ago
+      </p>
     </div>
   );
 }
