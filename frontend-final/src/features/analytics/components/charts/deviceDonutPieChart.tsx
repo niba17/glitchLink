@@ -4,20 +4,16 @@
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-
-type DeviceKey = "desktop" | "mobile" | "tablet";
+import {
+  DeviceKey,
+  chartConfig,
+} from "@/features/analytics/config/chartConfig";
 
 interface Props {
   chartData: { key: DeviceKey; clicks: number }[];
   activeKeys: DeviceKey[];
   onToggleKey: (key: DeviceKey) => void;
 }
-
-const chartConfig: Record<DeviceKey, { label: string; color: string }> = {
-  desktop: { label: "Desktop", color: "#1ee85a" },
-  mobile: { label: "Mobile", color: "#e81e54" },
-  tablet: { label: "Tablet", color: "#4285F4" },
-};
 
 export function DeviceDonutPieChart({
   chartData,

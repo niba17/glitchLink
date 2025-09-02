@@ -4,22 +4,16 @@
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-
-type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari" | "Opera";
+import {
+  BrowserKey,
+  chartConfig,
+} from "@/features/analytics/config/chartConfig";
 
 interface Props {
   chartData: { key: BrowserKey; clicks: number }[];
   activeKeys: BrowserKey[];
   onToggleKey: (key: BrowserKey) => void;
 }
-
-const chartConfig: Record<BrowserKey, { label: string; color: string }> = {
-  Chrome: { label: "Chrome", color: "#4285F4" },
-  Firefox: { label: "Firefox", color: "#FF7139" },
-  Edge: { label: "Edge", color: "#0c9dff" },
-  Safari: { label: "Safari", color: "#1ec8e8" },
-  Opera: { label: "Opera", color: "#cc0f16" },
-};
 
 export function BrowserDonutPieChart({
   chartData,

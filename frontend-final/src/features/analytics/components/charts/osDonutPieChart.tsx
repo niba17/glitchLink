@@ -4,22 +4,13 @@
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-
-type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
+import { OSKey, chartConfig } from "@/features/analytics/config/chartConfig";
 
 interface Props {
   chartData: { key: OSKey; clicks: number }[];
   activeKeys: OSKey[];
   onToggleKey: (key: OSKey) => void;
 }
-
-const chartConfig: Record<OSKey, { label: string; color: string }> = {
-  Windows: { label: "Windows", color: "#00BCF2" },
-  macOS: { label: "macOS", color: "#999999" },
-  Linux: { label: "Linux", color: "#FCC624" },
-  Android: { label: "Android", color: "#3DDC84" },
-  iOS: { label: "iOS", color: "#A2AAAD" },
-};
 
 export function OSDonutPieChart({ chartData, activeKeys, onToggleKey }: Props) {
   const total = React.useMemo(() => {

@@ -4,16 +4,17 @@
 import * as React from "react";
 import { DateRange } from "react-day-picker";
 import { DonutPieChartUI } from "../cards/donutPieChartUI";
-
-type DeviceKey = "desktop" | "mobile" | "tablet";
-type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
-type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari" | "Opera";
+import {
+  DeviceKey,
+  OSKey,
+  BrowserKey,
+} from "@/features/analytics/config/chartConfig";
 
 // Dummy data
 const initialDeviceData: { key: DeviceKey; clicks: number }[] = [
-  { key: "desktop", clicks: 400 },
-  { key: "mobile", clicks: 250 },
-  { key: "tablet", clicks: 150 },
+  { key: "Desktop", clicks: 400 },
+  { key: "Mobile", clicks: 250 },
+  { key: "Tablet", clicks: 150 },
 ];
 const initialOSData: { key: OSKey; clicks: number }[] = [
   { key: "Windows", clicks: 320 },
@@ -37,9 +38,9 @@ export default function DonutPieChartCardContainer() {
   });
 
   const [activeDevices, setActiveDevices] = React.useState<DeviceKey[]>([
-    "desktop",
-    "mobile",
-    "tablet",
+    "Desktop",
+    "Mobile",
+    "Tablet",
   ]);
   const [activeOS, setActiveOS] = React.useState<OSKey[]>([
     "Windows",

@@ -15,10 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { DateRange } from "react-day-picker";
-
-type DeviceKey = "desktop" | "mobile" | "tablet";
-type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
-type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari" | "Opera";
+import {
+  DeviceKey,
+  OSKey,
+  BrowserKey,
+  chartConfig,
+} from "@/features/analytics/config/chartConfig";
 
 interface DonutPieChartUIProps {
   dateRange: DateRange | undefined;
@@ -33,25 +35,6 @@ interface DonutPieChartUIProps {
   onToggleOS: (key: OSKey) => void;
   onToggleBrowser: (key: BrowserKey) => void;
 }
-
-const chartConfig: Record<
-  DeviceKey | OSKey | BrowserKey,
-  { label: string; color: string }
-> = {
-  desktop: { label: "Desktop", color: "#1ee85a" },
-  mobile: { label: "Mobile", color: "#e81e54" },
-  tablet: { label: "Tablet", color: "#9D4EDD" },
-  Chrome: { label: "Chrome", color: "#4285F4" },
-  Firefox: { label: "Firefox", color: "#FF7139" },
-  Edge: { label: "Edge", color: "#0078D7" },
-  Safari: { label: "Safari", color: "#00A1F1" },
-  Opera: { label: "Opera", color: "#cc0f16" },
-  Windows: { label: "Windows", color: "#00BCF2" },
-  macOS: { label: "macOS", color: "#999999" },
-  Linux: { label: "Linux", color: "#FCC624" },
-  Android: { label: "Android", color: "#3DDC84" },
-  iOS: { label: "iOS", color: "#A2AAAD" },
-};
 
 export function DonutPieChartUI({
   dateRange,
