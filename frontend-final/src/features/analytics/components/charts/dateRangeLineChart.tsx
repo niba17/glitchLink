@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import DateRangePicker from "@/components/ui/date-range-picker";
 import { eachDayOfInterval, format, startOfMonth, endOfMonth } from "date-fns";
 import { type DateRange } from "react-day-picker";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 // ---- Type definitions ----
 type DeviceKey = "desktop" | "mobile" | "tablet";
@@ -260,8 +260,8 @@ export function DateRangeChartLineInteractive() {
   };
 
   return (
-    <Card className="bg-transparent">
-      <CardContent className="mt-3 py-0">
+    <Card className="bg-transparent p-5 space-y-7">
+      <CardHeader className="p-0">
         <div className="flex space-x-2">
           <DateRangePicker
             initialRange={dateRange}
@@ -373,7 +373,8 @@ export function DateRangeChartLineInteractive() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
+      </CardHeader>
+      <CardContent className="p-0">
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />

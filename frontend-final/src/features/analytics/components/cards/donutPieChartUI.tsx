@@ -1,13 +1,8 @@
+// frontend-final/src/features/analytics/components/cards/donutPieChartUI.tsx
 "use client";
 
 import * as React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DeviceDonutPieChart } from "../charts/deviceDonutPieChart";
 import { OSDonutPieChart } from "../charts/osDonutPieChart";
 import { BrowserDonutPieChart } from "../charts/browserDonutPieChart";
@@ -23,9 +18,22 @@ import { DateRange } from "react-day-picker";
 
 type DeviceKey = "desktop" | "mobile" | "tablet";
 type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
-type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari";
+type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari" | "Opera";
 
-// Tambahkan chartConfig import atau definisi sama seperti di dateRangeLineChart.tsx
+interface DonutPieChartUIProps {
+  dateRange: DateRange | undefined;
+  onDateRangeChange: (range: DateRange | undefined) => void;
+  deviceData: { key: DeviceKey; clicks: number }[];
+  osData: { key: OSKey; clicks: number }[];
+  browserData: { key: BrowserKey; clicks: number }[];
+  activeDevices: DeviceKey[];
+  activeOS: OSKey[];
+  activeBrowsers: BrowserKey[];
+  onToggleDevice: (key: DeviceKey) => void;
+  onToggleOS: (key: OSKey) => void;
+  onToggleBrowser: (key: BrowserKey) => void;
+}
+
 const chartConfig: Record<
   DeviceKey | OSKey | BrowserKey,
   { label: string; color: string }
@@ -37,6 +45,7 @@ const chartConfig: Record<
   Firefox: { label: "Firefox", color: "#FF7139" },
   Edge: { label: "Edge", color: "#0078D7" },
   Safari: { label: "Safari", color: "#00A1F1" },
+  Opera: { label: "Opera", color: "#cc0f16" },
   Windows: { label: "Windows", color: "#00BCF2" },
   macOS: { label: "macOS", color: "#999999" },
   Linux: { label: "Linux", color: "#FCC624" },
@@ -44,72 +53,27 @@ const chartConfig: Record<
   iOS: { label: "iOS", color: "#A2AAAD" },
 };
 
-const initialDeviceData: { key: DeviceKey; clicks: number }[] = [
-  { key: "desktop", clicks: 400 },
-  { key: "mobile", clicks: 250 },
-  { key: "tablet", clicks: 150 },
-];
-const initialOSData: { key: OSKey; clicks: number }[] = [
-  { key: "Windows", clicks: 320 },
-  { key: "macOS", clicks: 210 },
-  { key: "Linux", clicks: 150 },
-  { key: "Android", clicks: 280 },
-  { key: "iOS", clicks: 190 },
-];
-const initialBrowserData: { key: BrowserKey; clicks: number }[] = [
-  { key: "Chrome", clicks: 500 },
-  { key: "Firefox", clicks: 300 },
-  { key: "Edge", clicks: 200 },
-  { key: "Safari", clicks: 150 },
-];
-
-export default function DonutPieChartCard() {
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-
-  const [activeDevices, setActiveDevices] = React.useState<DeviceKey[]>([
-    "desktop",
-    "mobile",
-    "tablet",
-  ]);
-  const [activeOS, setActiveOS] = React.useState<OSKey[]>([
-    "Windows",
-    "macOS",
-    "Linux",
-    "Android",
-    "iOS",
-  ]);
-  const [activeBrowsers, setActiveBrowsers] = React.useState<BrowserKey[]>([
-    "Chrome",
-    "Firefox",
-    "Edge",
-    "Safari",
-  ]);
-
-  const toggleLine = <T extends string>(
-    key: T,
-    active: T[],
-    setActive: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
-    if (active.includes(key)) {
-      setActive(active.filter((k) => k !== key));
-    } else {
-      setActive([...active, key]);
-    }
-  };
-
-  const deviceData = initialDeviceData;
-  const osData = initialOSData;
-  const browserData = initialBrowserData;
-
+export function DonutPieChartUI({
+  dateRange,
+  onDateRangeChange,
+  deviceData,
+  osData,
+  browserData,
+  activeDevices,
+  activeOS,
+  activeBrowsers,
+  onToggleDevice,
+  onToggleOS,
+  onToggleBrowser,
+}: DonutPieChartUIProps) {
   return (
     <Card className="bg-transparent">
       <CardHeader className="pb-0">
         <div className="flex space-x-2">
-          <DateRangePicker initialRange={dateRange} onChange={setDateRange} />
-          {/* Device */}
+          <DateRangePicker
+            initialRange={dateRange}
+            onChange={onDateRangeChange}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Device</Button>
@@ -119,9 +83,7 @@ export default function DonutPieChartCard() {
                 <DropdownMenuCheckboxItem
                   key={d.key}
                   checked={activeDevices.includes(d.key)}
-                  onCheckedChange={() =>
-                    toggleLine(d.key, activeDevices, setActiveDevices)
-                  }
+                  onCheckedChange={() => onToggleDevice(d.key)}
                   onSelect={(e) => e.preventDefault()}
                   className="justify-between"
                 >
@@ -130,7 +92,6 @@ export default function DonutPieChartCard() {
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: chartConfig[d.key].color }}
                     />
-
                     <span>{d.key}</span>
                   </span>
                   <span>{d.clicks}</span>
@@ -139,7 +100,6 @@ export default function DonutPieChartCard() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* OS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">OS</Button>
@@ -149,9 +109,7 @@ export default function DonutPieChartCard() {
                 <DropdownMenuCheckboxItem
                   key={o.key}
                   checked={activeOS.includes(o.key)}
-                  onCheckedChange={() =>
-                    toggleLine(o.key, activeOS, setActiveOS)
-                  }
+                  onCheckedChange={() => onToggleOS(o.key)}
                   onSelect={(e) => e.preventDefault()}
                   className="justify-between"
                 >
@@ -160,7 +118,6 @@ export default function DonutPieChartCard() {
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: chartConfig[o.key].color }}
                     />
-
                     <span>{o.key}</span>
                   </span>
                   <span>{o.clicks}</span>
@@ -169,7 +126,6 @@ export default function DonutPieChartCard() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Browser */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Browser</Button>
@@ -179,9 +135,7 @@ export default function DonutPieChartCard() {
                 <DropdownMenuCheckboxItem
                   key={b.key}
                   checked={activeBrowsers.includes(b.key)}
-                  onCheckedChange={() =>
-                    toggleLine(b.key, activeBrowsers, setActiveBrowsers)
-                  }
+                  onCheckedChange={() => onToggleBrowser(b.key)}
                   onSelect={(e) => e.preventDefault()}
                   className="justify-between"
                 >
@@ -190,7 +144,6 @@ export default function DonutPieChartCard() {
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: chartConfig[b.key].color }}
                     />
-
                     <span>{b.key}</span>
                   </span>
                   <span>{b.clicks}</span>
@@ -199,28 +152,25 @@ export default function DonutPieChartCard() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {/* <div>
-            <CardTitle className="text-stone-200">
-              Last clicks about 5 min ago
-            </CardTitle>
-            <CardDescription>
-              All clicks of shortlink lifetime
-              {dateRange?.from && dateRange?.to
-                ? `${dateRange.from.toLocaleDateString()} - ${dateRange.to.toLocaleDateString()}`
-                : "Select date range"}
-            </CardDescription>
-          </div> */}
       </CardHeader>
-
       <CardContent className="mt-5 flex space-x-2">
         <DeviceDonutPieChart
+          key="device-chart"
           chartData={deviceData}
           activeKeys={activeDevices}
+          onToggleKey={onToggleDevice}
         />
-        <OSDonutPieChart chartData={osData} activeKeys={activeOS} />
+        <OSDonutPieChart
+          key="os-chart"
+          chartData={osData}
+          activeKeys={activeOS}
+          onToggleKey={onToggleOS}
+        />
         <BrowserDonutPieChart
+          key="browser-chart"
           chartData={browserData}
           activeKeys={activeBrowsers}
+          onToggleKey={onToggleBrowser}
         />
       </CardContent>
     </Card>

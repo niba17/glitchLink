@@ -1,5 +1,6 @@
 // frontend-final/src/features/analytics/components/charts/OSDonutPieChart.tsx
 "use client";
+
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
@@ -9,6 +10,7 @@ type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
 interface Props {
   chartData: { key: OSKey; clicks: number }[];
   activeKeys: OSKey[];
+  onToggleKey: (key: OSKey) => void;
 }
 
 const chartConfig: Record<OSKey, { label: string; color: string }> = {
@@ -19,12 +21,15 @@ const chartConfig: Record<OSKey, { label: string; color: string }> = {
   iOS: { label: "iOS", color: "#A2AAAD" },
 };
 
-export function OSDonutPieChart({ chartData, activeKeys }: Props) {
+export function OSDonutPieChart({ chartData, activeKeys, onToggleKey }: Props) {
   const total = React.useMemo(() => {
-    return chartData.reduce((acc, item) => {
-      if (activeKeys.includes(item.key)) acc[item.key] = item.clicks;
-      return acc;
-    }, {} as Record<OSKey, number>);
+    return chartData
+      .filter((item) => activeKeys.includes(item.key))
+      .reduce((acc, item) => acc + item.clicks, 0);
+  }, [chartData, activeKeys]);
+
+  const filteredData = React.useMemo(() => {
+    return chartData.filter((item) => activeKeys.includes(item.key));
   }, [chartData, activeKeys]);
 
   return (
@@ -61,14 +66,14 @@ export function OSDonutPieChart({ chartData, activeKeys }: Props) {
               )}
             />
             <Pie
-              data={activeKeys.map((key) => ({ key, clicks: total[key] || 0 }))}
+              data={filteredData}
               dataKey="clicks"
               nameKey="key"
               innerRadius={50}
               strokeWidth={1}
               labelLine={false}
               label={({ index, value, cx, cy, midAngle, outerRadius }) => {
-                const entry = activeKeys[index];
+                const entry = filteredData[index];
                 const RADIAN = Math.PI / 180;
                 const radius = outerRadius! + 10;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -79,16 +84,21 @@ export function OSDonutPieChart({ chartData, activeKeys }: Props) {
                     y={y}
                     textAnchor={x > cx ? "start" : "end"}
                     dominantBaseline="central"
-                    style={{ fill: chartConfig[entry]?.color }}
+                    style={{ fill: chartConfig[entry.key]?.color }}
                     className="text-[10px]"
                   >
-                    {`${chartConfig[entry]?.label ?? entry}: ${value}`}
+                    {`${chartConfig[entry.key]?.label ?? entry.key}: ${value}`}
                   </text>
                 );
               }}
             >
-              {activeKeys.map((key) => (
-                <Cell key={key} fill={chartConfig[key]?.color} />
+              {filteredData.map((item) => (
+                <Cell
+                  key={item.key}
+                  fill={chartConfig[item.key]?.color}
+                  onClick={() => onToggleKey(item.key)}
+                  className="cursor-pointer"
+                />
               ))}
               <Label
                 content={({ viewBox }) =>
@@ -104,7 +114,7 @@ export function OSDonutPieChart({ chartData, activeKeys }: Props) {
                         y={viewBox.cy}
                         className="fill-stone-200 text-3xl font-bold"
                       >
-                        {Object.values(total).reduce((a, b) => a + b, 0)}
+                        {total}
                       </tspan>
                       <tspan
                         x={viewBox.cx}
