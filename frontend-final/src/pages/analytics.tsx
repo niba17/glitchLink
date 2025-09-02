@@ -3,7 +3,7 @@ import { DateRangeChartLineInteractive } from "@/features/analytics/components/c
 import DateRangePicker from "@/components/ui/date-range-picker";
 import React from "react";
 // Perbaiki kapitalisasi import di sini
-import DonutPieChartCardContainer from "@/features/analytics/components/containers/donutPieChartCardContainer";
+import { DonutPieChartCardContainer } from "@/features/analytics/components/containers/donutPieChartCardContainer";
 
 export default function analyticsPage() {
   return (

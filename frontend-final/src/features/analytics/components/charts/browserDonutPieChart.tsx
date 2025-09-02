@@ -1,4 +1,4 @@
-// frontend-final/src/features/analytics/components/charts/BrowserDonutPieChart.tsx
+// frontend-final/src/features/analytics/components/charts/browserDonutPieChart.tsx
 "use client";
 
 import * as React from "react";
@@ -13,19 +13,15 @@ interface Props {
   chartData: { key: BrowserKey; clicks: number }[];
   activeKeys: BrowserKey[];
   onToggleKey: (key: BrowserKey) => void;
+  totalClicks: number;
 }
 
 export const BrowserDonutPieChart = React.memo(function BrowserDonutPieChart({
   chartData,
   activeKeys,
   onToggleKey,
+  totalClicks,
 }: Props) {
-  const total = React.useMemo(() => {
-    return chartData
-      .filter((item) => activeKeys.includes(item.key))
-      .reduce((acc, item) => acc + item.clicks, 0);
-  }, [chartData, activeKeys]);
-
   const filteredData = React.useMemo(() => {
     return chartData.filter((item) => activeKeys.includes(item.key));
   }, [chartData, activeKeys]);
@@ -64,14 +60,14 @@ export const BrowserDonutPieChart = React.memo(function BrowserDonutPieChart({
               )}
             />
             <Pie
-              data={filteredData}
+              data={filteredData} // Gunakan filteredData
               dataKey="clicks"
               nameKey="key"
               innerRadius={50}
               strokeWidth={1}
               labelLine={false}
               label={({ index, value, cx, cy, midAngle, outerRadius }) => {
-                const entry = filteredData[index];
+                const entry = filteredData[index]; // Gunakan filteredData
                 const RADIAN = Math.PI / 180;
                 const radius = outerRadius! + 10;
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -90,14 +86,18 @@ export const BrowserDonutPieChart = React.memo(function BrowserDonutPieChart({
                 );
               }}
             >
-              {filteredData.map((item) => (
-                <Cell
-                  key={item.key}
-                  fill={chartConfig[item.key]?.color}
-                  onClick={() => onToggleKey(item.key)}
-                  className="cursor-pointer"
-                />
-              ))}
+              {filteredData.map(
+                (
+                  item // Gunakan filteredData
+                ) => (
+                  <Cell
+                    key={item.key}
+                    fill={chartConfig[item.key]?.color}
+                    onClick={() => onToggleKey(item.key)}
+                    className="cursor-pointer"
+                  />
+                )
+              )}
               <Label
                 content={({ viewBox }) =>
                   viewBox && "cx" in viewBox && "cy" in viewBox ? (
@@ -112,7 +112,7 @@ export const BrowserDonutPieChart = React.memo(function BrowserDonutPieChart({
                         y={viewBox.cy}
                         className="fill-stone-200 text-3xl font-bold"
                       >
-                        {total}
+                        {totalClicks}
                       </tspan>
                       <tspan
                         x={viewBox.cx}

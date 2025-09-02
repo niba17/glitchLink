@@ -1,4 +1,3 @@
-// frontend-final/src/features/analytics/components/charts/OSDonutPieChart.tsx
 "use client";
 
 import * as React from "react";
@@ -10,19 +9,15 @@ interface Props {
   chartData: { key: OSKey; clicks: number }[];
   activeKeys: OSKey[];
   onToggleKey: (key: OSKey) => void;
+  totalClicks: number;
 }
 
 export const OSDonutPieChart = React.memo(function OSDonutPieChart({
   chartData,
   activeKeys,
   onToggleKey,
+  totalClicks,
 }: Props) {
-  const total = React.useMemo(() => {
-    return chartData
-      .filter((item) => activeKeys.includes(item.key))
-      .reduce((acc, item) => acc + item.clicks, 0);
-  }, [chartData, activeKeys]);
-
   const filteredData = React.useMemo(() => {
     return chartData.filter((item) => activeKeys.includes(item.key));
   }, [chartData, activeKeys]);
@@ -109,7 +104,7 @@ export const OSDonutPieChart = React.memo(function OSDonutPieChart({
                         y={viewBox.cy}
                         className="fill-stone-200 text-3xl font-bold"
                       >
-                        {total}
+                        {totalClicks}
                       </tspan>
                       <tspan
                         x={viewBox.cx}

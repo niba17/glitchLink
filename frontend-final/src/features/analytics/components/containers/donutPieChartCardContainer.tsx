@@ -1,41 +1,34 @@
-// frontend-final/src/features/analytics/components/containers/donutPieChartCardContainer.tsx
 "use client";
 
 import * as React from "react";
+import { DonutPieCardUI } from "../cards/donutPieCardUI";
 import { DateRange } from "react-day-picker";
-import { DonutPieChartUI } from "../cards/donutPieChartUI";
+import { isWithinInterval, parseISO } from "date-fns";
 import {
   DeviceKey,
   OSKey,
   BrowserKey,
 } from "@/features/analytics/config/chartConfig";
+import { chartDataSample } from "@/features/analytics/samples/dataSamples";
 
-// Dummy data
-const initialDeviceData: { key: DeviceKey; clicks: number }[] = [
-  { key: "Desktop", clicks: 400 },
-  { key: "Mobile", clicks: 250 },
-  { key: "Tablet", clicks: 150 },
-];
-const initialOSData: { key: OSKey; clicks: number }[] = [
-  { key: "Windows", clicks: 320 },
-  { key: "macOS", clicks: 210 },
-  { key: "Linux", clicks: 150 },
-  { key: "Android", clicks: 280 },
-  { key: "iOS", clicks: 190 },
-];
-const initialBrowserData: { key: BrowserKey; clicks: number }[] = [
-  { key: "Chrome", clicks: 500 },
-  { key: "Firefox", clicks: 300 },
-  { key: "Edge", clicks: 200 },
-  { key: "Safari", clicks: 150 },
-  { key: "Opera", clicks: 100 },
-];
+export function DonutPieChartCardContainer() {
+  // Mengagregasi data untuk mendapatkan tanggal awal dan akhir
+  const initialDateRange = React.useMemo(() => {
+    if (chartDataSample.length === 0) {
+      return { from: new Date(), to: new Date() };
+    }
+    const dates = chartDataSample
+      .map((day) => parseISO(day.date))
+      .sort((a, b) => a.getTime() - b.getTime());
+    return {
+      from: dates[0],
+      to: dates[dates.length - 1],
+    };
+  }, []);
 
-export default function DonutPieChartCardContainer() {
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    initialDateRange
+  );
 
   const [activeDevices, setActiveDevices] = React.useState<DeviceKey[]>([
     "Desktop",
@@ -57,46 +50,112 @@ export default function DonutPieChartCardContainer() {
     "Opera",
   ]);
 
-  const toggleHandler = <T extends string>(
-    key: T,
-    active: T[],
-    setActive: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
-    if (active.includes(key)) {
-      setActive(active.filter((k) => k !== key));
-    } else {
-      setActive([...active, key]);
-    }
-  };
+  // Menggunakan useMemo untuk memfilter dan mengagregasi data berdasarkan dateRange
+  const data = React.useMemo(() => {
+    // Memfilter data berdasarkan rentang tanggal
+    const filteredData = chartDataSample.filter((day) => {
+      if (!dateRange || !dateRange.from || !dateRange.to) {
+        return false;
+      }
+      const date = parseISO(day.date);
+      return isWithinInterval(date, {
+        start: dateRange.from,
+        end: dateRange.to,
+      });
+    });
 
-  const memoizedToggleDevice = React.useCallback(
-    (key: DeviceKey) => toggleHandler(key, activeDevices, setActiveDevices),
-    [activeDevices]
-  );
+    const deviceData = [
+      { key: "Desktop" as DeviceKey, clicks: 0 },
+      { key: "Mobile" as DeviceKey, clicks: 0 },
+      { key: "Tablet" as DeviceKey, clicks: 0 },
+    ];
+    const osData = [
+      { key: "Windows" as OSKey, clicks: 0 },
+      { key: "macOS" as OSKey, clicks: 0 },
+      { key: "Linux" as OSKey, clicks: 0 },
+      { key: "Android" as OSKey, clicks: 0 },
+      { key: "iOS" as OSKey, clicks: 0 },
+    ];
+    const browserData = [
+      { key: "Chrome" as BrowserKey, clicks: 0 },
+      { key: "Firefox" as BrowserKey, clicks: 0 },
+      { key: "Edge" as BrowserKey, clicks: 0 },
+      { key: "Safari" as BrowserKey, clicks: 0 },
+      { key: "Opera" as BrowserKey, clicks: 0 },
+    ];
 
-  const memoizedToggleOS = React.useCallback(
-    (key: OSKey) => toggleHandler(key, activeOS, setActiveOS),
-    [activeOS]
-  );
+    // Mengagregasi data yang sudah difilter
+    filteredData.forEach((day) => {
+      Object.keys(day).forEach((key) => {
+        if (key !== "date") {
+          const value = day[key];
+          const deviceItem = deviceData.find((d) => d.key === key);
+          if (deviceItem) {
+            deviceItem.clicks += typeof value === "number" ? value : 0;
+          }
+          const osItem = osData.find((o) => o.key === key);
+          if (osItem) {
+            osItem.clicks += typeof value === "number" ? value : 0;
+          }
+          const browserItem = browserData.find((b) => b.key === key);
+          if (browserItem) {
+            browserItem.clicks += typeof value === "number" ? value : 0;
+          }
+        }
+      });
+    });
 
-  const memoizedToggleBrowser = React.useCallback(
-    (key: BrowserKey) => toggleHandler(key, activeBrowsers, setActiveBrowsers),
-    [activeBrowsers]
+    return {
+      deviceData,
+      osData,
+      browserData,
+    };
+  }, [dateRange]);
+
+  const onToggleDevice = React.useCallback((key: DeviceKey) => {
+    setActiveDevices((prevActiveKeys) =>
+      prevActiveKeys.includes(key)
+        ? prevActiveKeys.filter((k) => k !== key)
+        : [...prevActiveKeys, key]
+    );
+  }, []);
+
+  const onToggleOS = React.useCallback((key: OSKey) => {
+    setActiveOS((prevActiveKeys) =>
+      prevActiveKeys.includes(key)
+        ? prevActiveKeys.filter((k) => k !== key)
+        : [...prevActiveKeys, key]
+    );
+  }, []);
+
+  const onToggleBrowser = React.useCallback((key: BrowserKey) => {
+    setActiveBrowsers((prevActiveKeys) =>
+      prevActiveKeys.includes(key)
+        ? prevActiveKeys.filter((k) => k !== key)
+        : [...prevActiveKeys, key]
+    );
+  }, []);
+
+  const onDateRangeChange = React.useCallback(
+    (range: DateRange | undefined) => {
+      setDateRange(range);
+    },
+    []
   );
 
   return (
-    <DonutPieChartUI
+    <DonutPieCardUI
       dateRange={dateRange}
-      onDateRangeChange={setDateRange}
-      deviceData={initialDeviceData}
-      osData={initialOSData}
-      browserData={initialBrowserData}
+      onDateRangeChange={onDateRangeChange}
+      deviceData={data.deviceData}
+      osData={data.osData}
+      browserData={data.browserData}
       activeDevices={activeDevices}
       activeOS={activeOS}
       activeBrowsers={activeBrowsers}
-      onToggleDevice={memoizedToggleDevice}
-      onToggleOS={memoizedToggleOS}
-      onToggleBrowser={memoizedToggleBrowser}
+      onToggleDevice={onToggleDevice}
+      onToggleOS={onToggleOS}
+      onToggleBrowser={onToggleBrowser}
     />
   );
 }

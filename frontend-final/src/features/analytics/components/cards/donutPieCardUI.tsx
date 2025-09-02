@@ -1,4 +1,3 @@
-// frontend-final/src/features/analytics/components/cards/donutPieChartUI.tsx
 "use client";
 
 import * as React from "react";
@@ -22,7 +21,7 @@ import {
   chartConfig,
 } from "@/features/analytics/config/chartConfig";
 
-interface DonutPieChartUIProps {
+interface DonutPieCardUIProps {
   dateRange: DateRange | undefined;
   onDateRangeChange: (range: DateRange | undefined) => void;
   deviceData: { key: DeviceKey; clicks: number }[];
@@ -36,7 +35,7 @@ interface DonutPieChartUIProps {
   onToggleBrowser: (key: BrowserKey) => void;
 }
 
-export function DonutPieChartUI({
+export function DonutPieCardUI({
   dateRange,
   onDateRangeChange,
   deviceData,
@@ -48,15 +47,35 @@ export function DonutPieChartUI({
   onToggleDevice,
   onToggleOS,
   onToggleBrowser,
-}: DonutPieChartUIProps) {
+}: DonutPieCardUIProps) {
+  // Konsistensi: hitung total clicks sebagai variabel, bukan inline
+  const totalDeviceClicks = React.useMemo(() => {
+    return deviceData
+      .filter((item) => activeDevices.includes(item.key))
+      .reduce((acc, item) => acc + item.clicks, 0);
+  }, [deviceData, activeDevices]);
+
+  const totalOSClicks = React.useMemo(() => {
+    return osData
+      .filter((item) => activeOS.includes(item.key))
+      .reduce((acc, item) => acc + item.clicks, 0);
+  }, [osData, activeOS]);
+
+  const totalBrowserClicks = React.useMemo(() => {
+    return browserData
+      .filter((item) => activeBrowsers.includes(item.key))
+      .reduce((acc, item) => acc + item.clicks, 0);
+  }, [browserData, activeBrowsers]);
+
   return (
-    <Card className="bg-transparent">
+    <Card className="bg-transparent p-0">
       <CardHeader className="pb-0">
         <div className="flex space-x-2">
           <DateRangePicker
             initialRange={dateRange}
             onChange={onDateRangeChange}
           />
+          {/* DropdownMenu untuk Device */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Device</Button>
@@ -83,6 +102,7 @@ export function DonutPieChartUI({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* DropdownMenu untuk OS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">OS</Button>
@@ -109,6 +129,7 @@ export function DonutPieChartUI({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* DropdownMenu untuk Browser */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Browser</Button>
@@ -142,18 +163,21 @@ export function DonutPieChartUI({
           chartData={deviceData}
           activeKeys={activeDevices}
           onToggleKey={onToggleDevice}
+          totalClicks={totalDeviceClicks}
         />
         <OSDonutPieChart
           key="os-chart"
           chartData={osData}
           activeKeys={activeOS}
           onToggleKey={onToggleOS}
+          totalClicks={totalOSClicks}
         />
         <BrowserDonutPieChart
           key="browser-chart"
           chartData={browserData}
           activeKeys={activeBrowsers}
           onToggleKey={onToggleBrowser}
+          totalClicks={totalBrowserClicks}
         />
       </CardContent>
     </Card>
