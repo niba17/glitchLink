@@ -15,7 +15,7 @@ interface Props {
   onToggleKey: (key: BrowserKey) => void;
 }
 
-export function BrowserDonutPieChart({
+export const BrowserDonutPieChart = React.memo(function BrowserDonutPieChart({
   chartData,
   activeKeys,
   onToggleKey,
@@ -134,4 +134,4 @@ export function BrowserDonutPieChart({
       </p>
     </div>
   );
-}
+});

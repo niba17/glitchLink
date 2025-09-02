@@ -15,7 +15,7 @@ interface Props {
   onToggleKey: (key: DeviceKey) => void;
 }
 
-export function DeviceDonutPieChart({
+export const DeviceDonutPieChart = React.memo(function DeviceDonutPieChart({
   chartData,
   activeKeys,
   onToggleKey,
@@ -136,4 +136,4 @@ export function DeviceDonutPieChart({
       </p>
     </div>
   );
-}
+});

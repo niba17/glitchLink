@@ -12,7 +12,11 @@ interface Props {
   onToggleKey: (key: OSKey) => void;
 }
 
-export function OSDonutPieChart({ chartData, activeKeys, onToggleKey }: Props) {
+export const OSDonutPieChart = React.memo(function OSDonutPieChart({
+  chartData,
+  activeKeys,
+  onToggleKey,
+}: Props) {
   const total = React.useMemo(() => {
     return chartData
       .filter((item) => activeKeys.includes(item.key))
@@ -127,4 +131,4 @@ export function OSDonutPieChart({ chartData, activeKeys, onToggleKey }: Props) {
       </p>
     </div>
   );
-}
+});
