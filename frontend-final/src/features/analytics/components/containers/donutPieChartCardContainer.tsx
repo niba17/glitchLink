@@ -50,9 +50,8 @@ export function DonutPieChartCardContainer() {
     "Opera",
   ]);
 
-  // Menggunakan useMemo untuk memfilter dan mengagregasi data berdasarkan dateRange
+  // useMemo untuk data chart
   const data = React.useMemo(() => {
-    // Memfilter data berdasarkan rentang tanggal
     const filteredData = chartDataSample.filter((day) => {
       if (!dateRange || !dateRange.from || !dateRange.to) {
         return false;
@@ -84,7 +83,6 @@ export function DonutPieChartCardContainer() {
       { key: "Opera" as BrowserKey, clicks: 0 },
     ];
 
-    // Mengagregasi data yang sudah difilter
     filteredData.forEach((day) => {
       Object.keys(day).forEach((key) => {
         if (key !== "date") {
@@ -112,6 +110,7 @@ export function DonutPieChartCardContainer() {
     };
   }, [dateRange]);
 
+  // Handler toggle memoized
   const onToggleDevice = React.useCallback((key: DeviceKey) => {
     setActiveDevices((prevActiveKeys) =>
       prevActiveKeys.includes(key)

@@ -1,18 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { BrowserDonutPieChartUI } from "../charts/browserDonutPieChartUI";
-import { BrowserKey } from "@/features/analytics/config/chartConfig";
+import { OSDonutPieChartUI } from "../charts/osDonutPieChartUI";
+import { OSKey } from "@/features/analytics/config/chartConfig";
 
-interface BrowserDonutPieChartContainerProps {
-  chartData: { key: BrowserKey; clicks: number }[];
-  activeKeys: BrowserKey[];
-  onToggleKey: (key: BrowserKey) => void;
+interface OSDonutPieChartContainerProps {
+  chartData: { key: OSKey; clicks: number }[];
+  activeKeys: OSKey[];
+  onToggleKey: (key: OSKey) => void;
 }
 
 function areEqual(
-  prev: BrowserDonutPieChartContainerProps,
-  next: BrowserDonutPieChartContainerProps
+  prev: OSDonutPieChartContainerProps,
+  next: OSDonutPieChartContainerProps
 ) {
   if (prev.chartData.length !== next.chartData.length) return false;
   for (let i = 0; i < prev.chartData.length; i++) {
@@ -30,18 +30,18 @@ function areEqual(
   return true;
 }
 
-export const BrowserDonutPieChartContainer = React.memo(
-  function BrowserDonutPieChartContainer({
+export const OSDonutPieChartContainer = React.memo(
+  function OSDonutPieChartContainer({
     chartData,
     activeKeys,
     onToggleKey,
-  }: BrowserDonutPieChartContainerProps) {
+  }: OSDonutPieChartContainerProps) {
     const totalClicks = React.useMemo(
       () => chartData.reduce((acc, item) => acc + item.clicks, 0),
       [chartData]
     );
     return (
-      <BrowserDonutPieChartUI
+      <OSDonutPieChartUI
         chartData={chartData}
         activeKeys={activeKeys}
         onToggleKey={onToggleKey}

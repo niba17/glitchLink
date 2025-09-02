@@ -3,16 +3,19 @@
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { OSKey, chartConfig } from "@/features/analytics/config/chartConfig";
+import {
+  DeviceKey,
+  chartConfig,
+} from "@/features/analytics/config/chartConfig";
 
 interface Props {
-  chartData: { key: OSKey; clicks: number }[];
-  activeKeys: OSKey[];
-  onToggleKey: (key: OSKey) => void;
+  chartData: { key: DeviceKey; clicks: number }[];
+  activeKeys: DeviceKey[];
+  onToggleKey: (key: DeviceKey) => void;
   totalClicks: number;
 }
 
-export const OSDonutPieChart = React.memo(function OSDonutPieChart({
+export const DeviceDonutPieChartUI = React.memo(function DeviceDonutPieChartUI({
   chartData,
   activeKeys,
   onToggleKey,
@@ -24,7 +27,7 @@ export const OSDonutPieChart = React.memo(function OSDonutPieChart({
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-lg font-semibold text-stone-200">Operating System</h2>
+      <h2 className="text-lg font-semibold text-stone-200">Device</h2>
       <ChartContainer config={chartConfig} className="mx-auto h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -41,11 +44,11 @@ export const OSDonutPieChart = React.memo(function OSDonutPieChart({
                           className="w-2 h-2 rounded-full"
                           style={{
                             backgroundColor:
-                              chartConfig[entry.name as OSKey]?.color,
+                              chartConfig[entry.name as DeviceKey]?.color,
                           }}
                         />
                         <span>
-                          {chartConfig[entry.name as OSKey]?.label ??
+                          {chartConfig[entry.name as DeviceKey]?.label ??
                             entry.name}
                         </span>
                       </span>

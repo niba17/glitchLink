@@ -1,84 +1,53 @@
 "use client";
 
 import * as React from "react";
-import { DeviceDonutPieChart } from "../charts/deviceDonutPieChart";
-import {
-  DeviceKey,
-  chartConfig,
-} from "@/features/analytics/config/chartConfig";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { DeviceDonutPieChartUI } from "../charts/deviceDonutPieChartUI";
+import { DeviceKey } from "@/features/analytics/config/chartConfig";
 
 interface DeviceDonutPieChartContainerProps {
   chartData: { key: DeviceKey; clicks: number }[];
+  activeKeys: DeviceKey[];
+  onToggleKey: (key: DeviceKey) => void;
 }
 
-export function DeviceDonutPieChartContainer({
-  chartData,
-}: DeviceDonutPieChartContainerProps) {
-  const [activeKeys, setActiveKeys] = React.useState<DeviceKey[]>([
-    "Desktop",
-    "Mobile",
-    "Tablet",
-  ]);
+function areEqual(
+  prev: DeviceDonutPieChartContainerProps,
+  next: DeviceDonutPieChartContainerProps
+) {
+  if (prev.chartData.length !== next.chartData.length) return false;
+  for (let i = 0; i < prev.chartData.length; i++) {
+    if (
+      prev.chartData[i].key !== next.chartData[i].key ||
+      prev.chartData[i].clicks !== next.chartData[i].clicks
+    )
+      return false;
+  }
+  if (prev.activeKeys.length !== next.activeKeys.length) return false;
+  for (let i = 0; i < prev.activeKeys.length; i++) {
+    if (prev.activeKeys[i] !== next.activeKeys[i]) return false;
+  }
+  if (prev.onToggleKey !== next.onToggleKey) return false;
+  return true;
+}
 
-  const onToggleKey = React.useCallback((key: DeviceKey) => {
-    setActiveKeys((prevActiveKeys) =>
-      prevActiveKeys.includes(key)
-        ? prevActiveKeys.filter((k) => k !== key)
-        : [...prevActiveKeys, key]
+export const DeviceDonutPieChartContainer = React.memo(
+  function DeviceDonutPieChartContainer({
+    chartData,
+    activeKeys,
+    onToggleKey,
+  }: DeviceDonutPieChartContainerProps) {
+    const totalClicks = React.useMemo(
+      () => chartData.reduce((acc, item) => acc + item.clicks, 0),
+      [chartData]
     );
-  }, []);
-
-  const total = React.useMemo(() => {
-    return chartData
-      .filter((item) => activeKeys.includes(item.key))
-      .reduce((acc, item) => acc + item.clicks, 0);
-  }, [chartData, activeKeys]);
-
-  const filteredData = React.useMemo(() => {
-    return chartData.filter((item) => activeKeys.includes(item.key));
-  }, [chartData, activeKeys]);
-
-  return (
-    <div className="flex flex-col items-center">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline">Device</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          {chartData.map((d) => (
-            <DropdownMenuCheckboxItem
-              key={d.key}
-              checked={activeKeys.includes(d.key)}
-              onCheckedChange={() => onToggleKey(d.key)}
-              onSelect={(e) => e.preventDefault()}
-              className="justify-between"
-            >
-              <span className="flex items-center space-x-2">
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: chartConfig[d.key].color }}
-                />
-                <span>{d.key}</span>
-              </span>
-              <span>{d.clicks}</span>
-            </DropdownMenuCheckboxItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <DeviceDonutPieChart
-        chartData={filteredData}
+    return (
+      <DeviceDonutPieChartUI
+        chartData={chartData}
         activeKeys={activeKeys}
         onToggleKey={onToggleKey}
-        totalClicks={total}
+        totalClicks={totalClicks}
       />
-    </div>
-  );
-}
+    );
+  },
+  areEqual
+);

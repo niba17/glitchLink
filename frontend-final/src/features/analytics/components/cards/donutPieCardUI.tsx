@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { DeviceDonutPieChart } from "../charts/deviceDonutPieChart";
-import { OSDonutPieChart } from "../charts/osDonutPieChart";
-import { BrowserDonutPieChart } from "../charts/browserDonutPieChart";
+import { DeviceDonutPieChartContainer } from "../containers/deviceDonutPieChartContainer";
+import { OSDonutPieChartContainer } from "../containers/osDonutPieChartContainer";
+import { BrowserDonutPieChartContainer } from "../containers/browserDonutPieChartContainer";
 import DateRangePicker from "@/components/ui/date-range-picker";
 import {
   DropdownMenu,
@@ -48,24 +48,19 @@ export function DonutPieCardUI({
   onToggleOS,
   onToggleBrowser,
 }: DonutPieCardUIProps) {
-  // Konsistensi: hitung total clicks sebagai variabel, bukan inline
-  const totalDeviceClicks = React.useMemo(() => {
-    return deviceData
-      .filter((item) => activeDevices.includes(item.key))
-      .reduce((acc, item) => acc + item.clicks, 0);
-  }, [deviceData, activeDevices]);
-
-  const totalOSClicks = React.useMemo(() => {
-    return osData
-      .filter((item) => activeOS.includes(item.key))
-      .reduce((acc, item) => acc + item.clicks, 0);
-  }, [osData, activeOS]);
-
-  const totalBrowserClicks = React.useMemo(() => {
-    return browserData
-      .filter((item) => activeBrowsers.includes(item.key))
-      .reduce((acc, item) => acc + item.clicks, 0);
-  }, [browserData, activeBrowsers]);
+  // Memo filtered data per chart
+  const filteredDeviceData = React.useMemo(
+    () => deviceData.filter((item) => activeDevices.includes(item.key)),
+    [deviceData, activeDevices]
+  );
+  const filteredOSData = React.useMemo(
+    () => osData.filter((item) => activeOS.includes(item.key)),
+    [osData, activeOS]
+  );
+  const filteredBrowserData = React.useMemo(
+    () => browserData.filter((item) => activeBrowsers.includes(item.key)),
+    [browserData, activeBrowsers]
+  );
 
   return (
     <Card className="bg-transparent p-0">
@@ -75,6 +70,7 @@ export function DonutPieCardUI({
             initialRange={dateRange}
             onChange={onDateRangeChange}
           />
+
           {/* DropdownMenu untuk Device */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -158,26 +154,20 @@ export function DonutPieCardUI({
         </div>
       </CardHeader>
       <CardContent className="mt-5 flex space-x-2">
-        <DeviceDonutPieChart
-          key="device-chart"
-          chartData={deviceData}
+        <DeviceDonutPieChartContainer
+          chartData={filteredDeviceData}
           activeKeys={activeDevices}
           onToggleKey={onToggleDevice}
-          totalClicks={totalDeviceClicks}
         />
-        <OSDonutPieChart
-          key="os-chart"
-          chartData={osData}
+        <OSDonutPieChartContainer
+          chartData={filteredOSData}
           activeKeys={activeOS}
           onToggleKey={onToggleOS}
-          totalClicks={totalOSClicks}
         />
-        <BrowserDonutPieChart
-          key="browser-chart"
-          chartData={browserData}
+        <BrowserDonutPieChartContainer
+          chartData={filteredBrowserData}
           activeKeys={activeBrowsers}
           onToggleKey={onToggleBrowser}
-          totalClicks={totalBrowserClicks}
         />
       </CardContent>
     </Card>
