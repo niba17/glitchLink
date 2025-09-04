@@ -1,18 +1,16 @@
 // frontend-final/src/pages/analytics.tsx
-import { DateRangeChartLineInteractive } from "@/features/analytics/components/charts/dateRangeLineChart";
-import DateRangePicker from "@/components/ui/date-range-picker";
 import React from "react";
-// Perbaiki kapitalisasi import di sini
-import { DonutPieChartCardContainer } from "@/features/analytics/components/containers/donutPieChartCardContainer";
+import { DonutPieCardContainer } from "@/features/analytics/components/containers/donutPieCardContainer";
+import { AllLineChartContainer } from "@/features/analytics/components/containers/allLineChartContainer";
 
-export default function analyticsPage() {
+export default function AnalyticsPage() {
   return (
     <div className="bg-zinc-950 min-h-screen px-[50px] py-5 space-y-[10px]">
       <section>
-        <DonutPieChartCardContainer />
+        <DonutPieCardContainer />
       </section>
       <section>
-        <DateRangeChartLineInteractive />
+        <AllLineChartContainer />
       </section>
     </div>
   );

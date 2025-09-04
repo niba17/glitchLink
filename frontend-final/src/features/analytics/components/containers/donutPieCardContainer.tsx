@@ -11,7 +11,7 @@ import {
 } from "@/features/analytics/config/chartConfig";
 import { chartDataSample } from "@/features/analytics/samples/dataSamples";
 
-export function DonutPieChartCardContainer() {
+export function DonutPieCardContainer() {
   // Mengagregasi data untuk mendapatkan tanggal awal dan akhir
   const initialDateRange = React.useMemo(() => {
     if (chartDataSample.length === 0) {
