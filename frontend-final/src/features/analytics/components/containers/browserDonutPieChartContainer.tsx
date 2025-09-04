@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { BrowserDonutPieChartUI } from "../charts/browserDonutPieChartUI";
-import { BrowserKey } from "@/features/analytics/config/chartConfig";
-
+import { BrowserKey } from "@/features/analytics/types/type";
 interface BrowserDonutPieChartContainerProps {
   chartData: { key: BrowserKey; clicks: number }[];
   activeKeys: BrowserKey[];

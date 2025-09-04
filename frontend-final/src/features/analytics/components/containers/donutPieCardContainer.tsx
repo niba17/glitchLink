@@ -4,11 +4,7 @@ import * as React from "react";
 import { DonutPieCardUI } from "../cards/donutPieCardUI";
 import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
-import {
-  DeviceKey,
-  OSKey,
-  BrowserKey,
-} from "@/features/analytics/config/chartConfig";
+import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 import { chartDataSample } from "@/features/analytics/samples/dataSamples";
 
 export function DonutPieCardContainer() {

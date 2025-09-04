@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { DeviceDonutPieChartUI } from "../charts/deviceDonutPieChartUI";
-import { DeviceKey } from "@/features/analytics/config/chartConfig";
-
+import { DeviceKey } from "@/features/analytics/types/type";
 interface DeviceDonutPieChartContainerProps {
   chartData: { key: DeviceKey; clicks: number }[];
   activeKeys: DeviceKey[];

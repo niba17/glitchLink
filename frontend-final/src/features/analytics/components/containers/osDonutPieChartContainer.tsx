@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { OSDonutPieChartUI } from "../charts/osDonutPieChartUI";
-import { OSKey } from "@/features/analytics/config/chartConfig";
+import { OSKey } from "@/features/analytics/types/type";
 
 interface OSDonutPieChartContainerProps {
   chartData: { key: OSKey; clicks: number }[];

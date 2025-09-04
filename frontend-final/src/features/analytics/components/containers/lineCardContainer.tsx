@@ -11,20 +11,17 @@ import {
   ChartDataItem,
 } from "@/features/analytics/samples/dataSamples";
 import { chartConfig } from "@/features/analytics/config/chartConfig";
+import { calculateTotal } from "@/features/analytics/utils/chartHelpers";
+import {
+  devices,
+  browsers,
+  osList,
+} from "@/features/analytics/constants/analyticsKeys";
+import { mapDropdown } from "@/features/analytics/utils/analyticsHelpers";
 
 type ChartKey = DeviceKey | BrowserKey | OSKey;
 
 export function LineCardContainer() {
-  const devices: DeviceKey[] = ["Desktop", "Mobile", "Tablet"];
-  const browsers: BrowserKey[] = [
-    "Chrome",
-    "Firefox",
-    "Edge",
-    "Safari",
-    "Opera",
-  ];
-  const osList: OSKey[] = ["Windows", "macOS", "Linux", "Android", "iOS"];
-
   const [activeDevices, setActiveDevices] = React.useState<DeviceKey[]>([
     ...devices,
   ]);
@@ -50,37 +47,40 @@ export function LineCardContainer() {
     to: maxDate,
   });
 
+  const allKeys = [...devices, ...browsers, ...osList] as ChartKey[];
+
   const chartData = React.useMemo(() => {
     if (!dateRange?.from || !dateRange?.to) return chartDataSample;
+
+    // Map data sample untuk lookup cepat
+    const sampleMap = new Map(
+      chartDataSample.map((d) => [d.date, d] as [string, ChartDataItem])
+    );
+
     const allDates = eachDayOfInterval({
       start: dateRange.from,
       end: dateRange.to,
     });
+
     return allDates.map((date) => {
       const dateStr = format(date, "yyyy-MM-dd");
-      const found = chartDataSample.find((d) => d.date === dateStr);
-      return ([...devices, ...browsers, ...osList] as ChartKey[]).reduce(
-        (acc, key) => {
-          acc[key] = found && typeof found[key] === "number" ? found[key] : 0;
-          return acc;
-        },
-        { date: dateStr } as ChartDataItem
-      );
-    });
-  }, [dateRange]);
+      const found = sampleMap.get(dateStr);
 
-  const total = React.useMemo(() => {
-    return ([...devices, ...browsers, ...osList] as ChartKey[]).reduce(
-      (acc, key) => {
-        acc[key] = chartData.reduce(
-          (sum, curr) => sum + (typeof curr[key] === "number" ? curr[key] : 0),
-          0
-        );
-        return acc;
-      },
-      {} as Record<ChartKey, number>
-    );
-  }, [chartData]);
+      // Semua keys selalu ada
+      const item: ChartDataItem = { date: dateStr } as ChartDataItem;
+
+      allKeys.forEach((key) => {
+        item[key] = found && typeof found[key] === "number" ? found[key] : 0;
+      });
+
+      return item;
+    });
+  }, [dateRange, allKeys]);
+
+  const total = React.useMemo(
+    () => calculateTotal(chartData, allKeys),
+    [chartData]
+  );
 
   const toggleLine = <T extends ChartKey>(
     key: T,
@@ -97,46 +97,47 @@ export function LineCardContainer() {
     }
   };
 
+  // -----------------------
+  // Helper untuk mapping dropdown
+  // -----------------------
+  const mapDropdown = <T extends ChartKey>(
+    keys: T[],
+    active: T[],
+    setActive: React.Dispatch<React.SetStateAction<T[]>>,
+    rendered: T[],
+    setRendered: React.Dispatch<React.SetStateAction<T[]>>
+  ) =>
+    keys.map((key) => ({
+      key,
+      label: chartConfig[key].label,
+      color: chartConfig[key].color,
+      value: total[key] || 0,
+      checked: active.includes(key),
+      onToggle: () => toggleLine(key, active, setActive, rendered, setRendered),
+    }));
+
   const dropdowns = {
-    devices: devices.map((key) => ({
-      key,
-      label: chartConfig[key].label,
-      color: chartConfig[key].color,
-      value: total[key] || 0,
-      checked: activeDevices.includes(key),
-      onToggle: () =>
-        toggleLine(
-          key,
-          activeDevices,
-          setActiveDevices,
-          renderedDevices,
-          setRenderedDevices
-        ),
-    })),
-    osList: osList.map((key) => ({
-      key,
-      label: chartConfig[key].label,
-      color: chartConfig[key].color,
-      value: total[key] || 0,
-      checked: activeOS.includes(key),
-      onToggle: () =>
-        toggleLine(key, activeOS, setActiveOS, renderedOS, setRenderedOS),
-    })),
-    browsers: browsers.map((key) => ({
-      key,
-      label: chartConfig[key].label,
-      color: chartConfig[key].color,
-      value: total[key] || 0,
-      checked: activeBrowsers.includes(key),
-      onToggle: () =>
-        toggleLine(
-          key,
-          activeBrowsers,
-          setActiveBrowsers,
-          renderedBrowsers,
-          setRenderedBrowsers
-        ),
-    })),
+    devices: mapDropdown(
+      devices,
+      activeDevices,
+      setActiveDevices,
+      renderedDevices,
+      setRenderedDevices
+    ),
+    osList: mapDropdown(
+      osList,
+      activeOS,
+      setActiveOS,
+      renderedOS,
+      setRenderedOS
+    ),
+    browsers: mapDropdown(
+      browsers,
+      activeBrowsers,
+      setActiveBrowsers,
+      renderedBrowsers,
+      setRenderedBrowsers
+    ),
   };
 
   return (
