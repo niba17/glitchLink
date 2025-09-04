@@ -1,7 +1,7 @@
 // frontend-final/src/pages/analytics.tsx
 import React from "react";
 import { DonutPieCardContainer } from "@/features/analytics/components/containers/donutPieCardContainer";
-import { AllLineChartContainer } from "@/features/analytics/components/containers/allLineChartContainer";
+import { AllLineCardContainer } from "@/features/analytics/components/containers/allLineCardContainer";
 
 export default function AnalyticsPage() {
   return (
@@ -10,7 +10,7 @@ export default function AnalyticsPage() {
         <DonutPieCardContainer />
       </section>
       <section>
-        <AllLineChartContainer />
+        <AllLineCardContainer />
       </section>
     </div>
   );
