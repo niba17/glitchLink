@@ -85,9 +85,7 @@ export function LineCardUI({
         </div>
       </CardHeader>
 
-      <CardContent className="p-0">
-        {children} {/* <--- chart container dipasang di sini */}
-      </CardContent>
+      <CardContent className="p-0">{children}</CardContent>
     </Card>
   );
 }

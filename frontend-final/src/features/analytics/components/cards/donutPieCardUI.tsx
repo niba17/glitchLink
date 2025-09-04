@@ -14,12 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { DateRange } from "react-day-picker";
-import {
-  DeviceKey,
-  OSKey,
-  BrowserKey,
-  chartConfig,
-} from "@/features/analytics/config/chartConfig";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
+import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 
 interface DonutPieCardUIProps {
   dateRange: DateRange | undefined;

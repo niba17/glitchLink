@@ -1,9 +1,4 @@
 // src/utils/dataSamples.ts
-import {
-  DeviceKey,
-  OSKey,
-  BrowserKey,
-} from "@/features/analytics/config/chartConfig";
 
 // Definisi tipe data untuk item chart
 export type ChartDataItem = {
