@@ -2,22 +2,10 @@
 "use client";
 
 import * as React from "react";
-import { AllLineCardUI } from "../cards/allLineCardUI";
-import { eachDayOfInterval, format } from "date-fns";
-import { type DateRange } from "react-day-picker";
-import {
-  DeviceKey,
-  OSKey,
-  BrowserKey,
-  chartConfig,
-} from "@/features/analytics/config/chartConfig";
-import {
-  chartDataSample,
-  ChartDataItem,
-} from "@/features/analytics/samples/dataSamples";
-import { AllLineChartUI } from "../charts/allLineChartUI";
+import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 
-type ChartKey = DeviceKey | BrowserKey | OSKey;
+import { ChartDataItem } from "@/features/analytics/samples/dataSamples";
+import { AllLineChartUI } from "../charts/allLineChartUI";
 
 interface AllLineChartContainerProps {
   chartData: ChartDataItem[];

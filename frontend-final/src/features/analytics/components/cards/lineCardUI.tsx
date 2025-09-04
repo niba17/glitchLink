@@ -11,13 +11,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { type DateRange } from "react-day-picker";
-import { ChartDataItem } from "@/features/analytics/samples/dataSamples";
-import { AllLineChartUI } from "@/features/analytics/components/charts/allLineChartUI";
-import {
-  DeviceKey,
-  OSKey,
-  BrowserKey,
-} from "@/features/analytics/config/chartConfig";
+import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 
 type ChartKey = DeviceKey | BrowserKey | OSKey;
 
@@ -30,7 +24,7 @@ interface DropdownOption {
   onToggle: () => void;
 }
 
-interface AllLineCardUIProps {
+interface LineCardUIProps {
   dateRange: DateRange | undefined;
   setDateRange: (range: DateRange | undefined) => void;
 
@@ -43,12 +37,12 @@ interface AllLineCardUIProps {
   children: React.ReactNode; // <--- tambahkan
 }
 
-export function AllLineCardUI({
+export function LineCardUI({
   dateRange,
   setDateRange,
   dropdowns,
   children, // <--- ambil children
-}: AllLineCardUIProps) {
+}: LineCardUIProps) {
   const renderDropdown = (label: string, options: DropdownOption[]) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

@@ -3,15 +3,9 @@
 import * as React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import {
-  chartConfig,
-  DeviceKey,
-  OSKey,
-  BrowserKey,
-} from "@/features/analytics/config/chartConfig";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
+import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 import { ChartDataItem } from "@/features/analytics/samples/dataSamples";
-
-type ChartKey = DeviceKey | BrowserKey | OSKey;
 
 interface AllLineChartUIProps {
   chartData: ChartDataItem[];

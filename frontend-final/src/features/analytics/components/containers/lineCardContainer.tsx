@@ -1,24 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { AllLineCardUI } from "@/features/analytics/components/cards/allLineCardUI";
+import { LineCardUI } from "@/features/analytics/components/cards/lineCardUI";
 import { AllLineChartContainer } from "@/features/analytics/components/containers/allLineChartContainer";
-import {
-  chartConfig,
-  DeviceKey,
-  BrowserKey,
-  OSKey,
-} from "@/features/analytics/config/chartConfig";
+import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 import { eachDayOfInterval, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import {
   chartDataSample,
   ChartDataItem,
 } from "@/features/analytics/samples/dataSamples";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
 
 type ChartKey = DeviceKey | BrowserKey | OSKey;
 
-export function AllLineCardContainer() {
+export function LineCardContainer() {
   const devices: DeviceKey[] = ["Desktop", "Mobile", "Tablet"];
   const browsers: BrowserKey[] = [
     "Chrome",
@@ -144,7 +140,7 @@ export function AllLineCardContainer() {
   };
 
   return (
-    <AllLineCardUI
+    <LineCardUI
       dateRange={dateRange}
       setDateRange={setDateRange}
       dropdowns={dropdowns}
@@ -158,6 +154,6 @@ export function AllLineCardContainer() {
         renderedBrowsers={renderedBrowsers}
         renderedOS={renderedOS}
       />
-    </AllLineCardUI>
+    </LineCardUI>
   );
 }
