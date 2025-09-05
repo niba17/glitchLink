@@ -3,10 +3,8 @@
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import {
-  DeviceKey,
-  chartConfig,
-} from "@/features/analytics/config/chartConfig";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
+import { DeviceKey } from "@/features/analytics/types/type";
 
 interface Props {
   chartData: { key: DeviceKey; clicks: number }[];

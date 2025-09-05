@@ -3,10 +3,8 @@
 import * as React from "react";
 import { Pie, PieChart, Cell, Label, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import {
-  BrowserKey,
-  chartConfig,
-} from "@/features/analytics/config/chartConfig";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
+import { BrowserKey } from "@/features/analytics/types/type"; // Jalur impor yang diperbaiki
 
 interface Props {
   chartData: { key: BrowserKey; clicks: number }[];
