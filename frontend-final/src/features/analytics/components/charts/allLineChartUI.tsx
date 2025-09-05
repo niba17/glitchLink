@@ -1,31 +1,37 @@
+// frontend-final/src/features/analytics/components/charts/allLineChartUI.tsx
+
 "use client";
 
 import * as React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { chartConfig } from "@/features/analytics/config/chartConfig";
-import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 import { ChartDataItem } from "@/features/analytics/samples/dataSamples";
+import { ChartKey } from "@/features/analytics/types/type";
 
 interface AllLineChartUIProps {
   chartData: ChartDataItem[];
-  activeDevices: DeviceKey[];
-  activeBrowsers: BrowserKey[];
-  activeOS: OSKey[];
-  renderedDevices: DeviceKey[];
-  renderedBrowsers: BrowserKey[];
-  renderedOS: OSKey[];
+  active: Record<"devices" | "browsers" | "osList", ChartKey[]>;
+  rendered: Record<"devices" | "browsers" | "osList", ChartKey[]>;
 }
 
 export function AllLineChartUI({
   chartData,
-  activeDevices,
-  activeBrowsers,
-  activeOS,
-  renderedDevices,
-  renderedBrowsers,
-  renderedOS,
+  active,
+  rendered,
 }: AllLineChartUIProps) {
+  const allRenderedKeys = {
+    devices: rendered.devices,
+    browsers: rendered.browsers,
+    osList: rendered.osList,
+  };
+
+  const allActiveKeys = {
+    devices: active.devices,
+    browsers: active.browsers,
+    osList: active.osList,
+  };
+
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
       <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
@@ -78,40 +84,28 @@ export function AllLineChartUI({
           )}
         />
 
-        {/* Render lines */}
-        {renderedDevices.map((d) => (
-          <Line
-            key={`${d}-${activeDevices.includes(d) ? 1 : 0}`}
-            type="linear"
-            dataKey={d}
-            stroke={chartConfig[d].color}
-            strokeWidth={2}
-            dot={false}
-            hide={!activeDevices.includes(d)}
-          />
-        ))}
-        {renderedBrowsers.map((b) => (
-          <Line
-            key={`${b}-${activeBrowsers.includes(b) ? 1 : 0}`}
-            type="linear"
-            dataKey={b}
-            stroke={chartConfig[b].color}
-            strokeWidth={2}
-            dot={false}
-            hide={!activeBrowsers.includes(b)}
-          />
-        ))}
-        {renderedOS.map((o) => (
-          <Line
-            key={`${o}-${activeOS.includes(o) ? 1 : 0}`}
-            type="linear"
-            dataKey={o}
-            stroke={chartConfig[o].color}
-            strokeWidth={2}
-            dot={false}
-            hide={!activeOS.includes(o)}
-          />
-        ))}
+        {Object.keys(allRenderedKeys).map((type) => {
+          return allRenderedKeys[type as keyof typeof allRenderedKeys].map(
+            (key) => {
+              const isActive =
+                allActiveKeys[type as keyof typeof allActiveKeys].includes(key);
+              return (
+                <Line
+                  key={key} // ✨ Perbaikan di sini: kunci hanya berdasarkan dataKey
+                  type="linear"
+                  dataKey={key}
+                  stroke={chartConfig[key].color}
+                  strokeWidth={2}
+                  dot={false}
+                  hide={!isActive}
+                  // ✨ Tambahan: Menghilangkan animasi jika tidak aktif
+                  isAnimationActive={isActive}
+                  animationDuration={300} // Anda bisa sesuaikan durasi animasi
+                />
+              );
+            }
+          );
+        })}
       </LineChart>
     </ChartContainer>
   );

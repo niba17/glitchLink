@@ -1,3 +1,5 @@
+// frontend-final/src/features/analytics/components/cards/lineCardUI.tsx
+
 "use client";
 
 import * as React from "react";
@@ -11,10 +13,9 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { type DateRange } from "react-day-picker";
-import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
+import { ChartKey } from "@/features/analytics/types/type"; // ✨ Mengimpor ChartKey saja
 
-type ChartKey = DeviceKey | BrowserKey | OSKey;
-
+// ✨ Gunakan kembali interface dari custom hook (atau buat yang baru jika belum ada)
 interface DropdownOption {
   key: ChartKey;
   label: string;
@@ -34,14 +35,14 @@ interface LineCardUIProps {
     browsers: DropdownOption[];
   };
 
-  children: React.ReactNode; // <--- tambahkan
+  children: React.ReactNode;
 }
 
 export function LineCardUI({
   dateRange,
   setDateRange,
   dropdowns,
-  children, // <--- ambil children
+  children,
 }: LineCardUIProps) {
   const renderDropdown = (label: string, options: DropdownOption[]) => (
     <DropdownMenu>
@@ -77,7 +78,7 @@ export function LineCardUI({
         <div className="flex space-x-2">
           <DateRangePicker
             initialRange={dateRange}
-            onChange={setDateRange as any}
+            onChange={setDateRange} // ✨ Menghapus as any
           />
           {renderDropdown("Device", dropdowns.devices)}
           {renderDropdown("OS", dropdowns.osList)}
