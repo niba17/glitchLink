@@ -6,8 +6,16 @@ import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
 import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
 import { chartDataSample } from "@/features/analytics/samples/dataSamples";
+import { useActiveKeys } from "@/features/analytics/hooks/useActiveKeys";
+import {
+  devices,
+  browsers,
+  osList,
+} from "@/features/analytics/constants/analyticsKeys";
 
 export function DonutPieCardContainer() {
+  const { active, onToggle } = useActiveKeys();
+
   // Mengagregasi data untuk mendapatkan tanggal awal dan akhir
   const initialDateRange = React.useMemo(() => {
     if (chartDataSample.length === 0) {
@@ -26,26 +34,6 @@ export function DonutPieCardContainer() {
     initialDateRange
   );
 
-  const [activeDevices, setActiveDevices] = React.useState<DeviceKey[]>([
-    "Desktop",
-    "Mobile",
-    "Tablet",
-  ]);
-  const [activeOS, setActiveOS] = React.useState<OSKey[]>([
-    "Windows",
-    "macOS",
-    "Linux",
-    "Android",
-    "iOS",
-  ]);
-  const [activeBrowsers, setActiveBrowsers] = React.useState<BrowserKey[]>([
-    "Chrome",
-    "Firefox",
-    "Edge",
-    "Safari",
-    "Opera",
-  ]);
-
   // useMemo untuk data chart
   const data = React.useMemo(() => {
     const filteredData = chartDataSample.filter((day) => {
@@ -59,30 +47,14 @@ export function DonutPieCardContainer() {
       });
     });
 
-    const deviceData = [
-      { key: "Desktop" as DeviceKey, clicks: 0 },
-      { key: "Mobile" as DeviceKey, clicks: 0 },
-      { key: "Tablet" as DeviceKey, clicks: 0 },
-    ];
-    const osData = [
-      { key: "Windows" as OSKey, clicks: 0 },
-      { key: "macOS" as OSKey, clicks: 0 },
-      { key: "Linux" as OSKey, clicks: 0 },
-      { key: "Android" as OSKey, clicks: 0 },
-      { key: "iOS" as OSKey, clicks: 0 },
-    ];
-    const browserData = [
-      { key: "Chrome" as BrowserKey, clicks: 0 },
-      { key: "Firefox" as BrowserKey, clicks: 0 },
-      { key: "Edge" as BrowserKey, clicks: 0 },
-      { key: "Safari" as BrowserKey, clicks: 0 },
-      { key: "Opera" as BrowserKey, clicks: 0 },
-    ];
+    const deviceData = [...devices.map((key) => ({ key, clicks: 0 }))];
+    const osData = [...osList.map((key) => ({ key, clicks: 0 }))];
+    const browserData = [...browsers.map((key) => ({ key, clicks: 0 }))];
 
     filteredData.forEach((day) => {
       Object.keys(day).forEach((key) => {
         if (key !== "date") {
-          const value = day[key];
+          const value = day[key as keyof typeof day];
           const deviceItem = deviceData.find((d) => d.key === key);
           if (deviceItem) {
             deviceItem.clicks += typeof value === "number" ? value : 0;
@@ -106,36 +78,25 @@ export function DonutPieCardContainer() {
     };
   }, [dateRange]);
 
-  // Handler toggle memoized
-  const onToggleDevice = React.useCallback((key: DeviceKey) => {
-    setActiveDevices((prevActiveKeys) =>
-      prevActiveKeys.includes(key)
-        ? prevActiveKeys.filter((k) => k !== key)
-        : [...prevActiveKeys, key]
-    );
-  }, []);
-
-  const onToggleOS = React.useCallback((key: OSKey) => {
-    setActiveOS((prevActiveKeys) =>
-      prevActiveKeys.includes(key)
-        ? prevActiveKeys.filter((k) => k !== key)
-        : [...prevActiveKeys, key]
-    );
-  }, []);
-
-  const onToggleBrowser = React.useCallback((key: BrowserKey) => {
-    setActiveBrowsers((prevActiveKeys) =>
-      prevActiveKeys.includes(key)
-        ? prevActiveKeys.filter((k) => k !== key)
-        : [...prevActiveKeys, key]
-    );
-  }, []);
-
   const onDateRangeChange = React.useCallback(
     (range: DateRange | undefined) => {
       setDateRange(range);
     },
     []
+  );
+
+  // Perbaikan: Gunakan useCallback untuk memoize fungsi onToggle
+  const onToggleDevice = React.useCallback(
+    (key: DeviceKey) => onToggle("devices")(key),
+    [onToggle]
+  );
+  const onToggleOS = React.useCallback(
+    (key: OSKey) => onToggle("osList")(key),
+    [onToggle]
+  );
+  const onToggleBrowser = React.useCallback(
+    (key: BrowserKey) => onToggle("browsers")(key),
+    [onToggle]
   );
 
   return (
@@ -145,9 +106,9 @@ export function DonutPieCardContainer() {
       deviceData={data.deviceData}
       osData={data.osData}
       browserData={data.browserData}
-      activeDevices={activeDevices}
-      activeOS={activeOS}
-      activeBrowsers={activeBrowsers}
+      activeDevices={active.devices as DeviceKey[]}
+      activeOS={active.osList as OSKey[]}
+      activeBrowsers={active.browsers as BrowserKey[]}
       onToggleDevice={onToggleDevice}
       onToggleOS={onToggleOS}
       onToggleBrowser={onToggleBrowser}

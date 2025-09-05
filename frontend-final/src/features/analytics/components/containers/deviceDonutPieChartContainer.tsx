@@ -3,6 +3,7 @@
 import * as React from "react";
 import { DeviceDonutPieChartUI } from "../charts/deviceDonutPieChartUI";
 import { DeviceKey } from "@/features/analytics/types/type";
+import { calculateTotalClick } from "../../utils/donutPieChartHelpers";
 interface DeviceDonutPieChartContainerProps {
   chartData: { key: DeviceKey; clicks: number }[];
   activeKeys: DeviceKey[];
@@ -36,7 +37,7 @@ export const DeviceDonutPieChartContainer = React.memo(
     onToggleKey,
   }: DeviceDonutPieChartContainerProps) {
     const totalClicks = React.useMemo(
-      () => chartData.reduce((acc, item) => acc + item.clicks, 0),
+      () => calculateTotalClick(chartData),
       [chartData]
     );
     return (

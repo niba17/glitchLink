@@ -60,6 +60,7 @@ export const BrowserDonutPieChartUI = React.memo(
                 innerRadius={50}
                 strokeWidth={1}
                 labelLine={false}
+                animationDuration={200}
                 label={({ index, value, cx, cy, midAngle, outerRadius }) => {
                   const entry = chartData[index];
                   const RADIAN = Math.PI / 180;

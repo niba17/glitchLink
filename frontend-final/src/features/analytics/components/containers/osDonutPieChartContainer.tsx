@@ -3,6 +3,7 @@
 import * as React from "react";
 import { OSDonutPieChartUI } from "../charts/osDonutPieChartUI";
 import { OSKey } from "@/features/analytics/types/type";
+import { calculateTotalClick } from "../../utils/donutPieChartHelpers";
 
 interface OSDonutPieChartContainerProps {
   chartData: { key: OSKey; clicks: number }[];
@@ -37,7 +38,7 @@ export const OSDonutPieChartContainer = React.memo(
     onToggleKey,
   }: OSDonutPieChartContainerProps) {
     const totalClicks = React.useMemo(
-      () => chartData.reduce((acc, item) => acc + item.clicks, 0),
+      () => calculateTotalClick(chartData),
       [chartData]
     );
     return (

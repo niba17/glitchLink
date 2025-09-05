@@ -3,6 +3,8 @@
 import * as React from "react";
 import { BrowserDonutPieChartUI } from "../charts/browserDonutPieChartUI";
 import { BrowserKey } from "@/features/analytics/types/type";
+import { calculateTotalClick } from "@/features/analytics/utils/donutPieChartHelpers"; // Mengimpor fungsi pembantu baru
+
 interface BrowserDonutPieChartContainerProps {
   chartData: { key: BrowserKey; clicks: number }[];
   activeKeys: BrowserKey[];
@@ -35,8 +37,9 @@ export const BrowserDonutPieChartContainer = React.memo(
     activeKeys,
     onToggleKey,
   }: BrowserDonutPieChartContainerProps) {
+    // Menggunakan fungsi pembantu baru untuk menghitung total
     const totalClicks = React.useMemo(
-      () => chartData.reduce((acc, item) => acc + item.clicks, 0),
+      () => calculateTotalClick(chartData),
       [chartData]
     );
     return (

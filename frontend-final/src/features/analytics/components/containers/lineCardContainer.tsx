@@ -17,7 +17,7 @@ import {
   browsers,
   osList,
 } from "@/features/analytics/constants/analyticsKeys";
-import { calculateTotal } from "@/features/analytics/utils/chartHelpers";
+import { calculateTotalClick } from "@/features/analytics/utils/lineChartHelpers";
 import { useDropdownOptions } from "@/features/analytics/hooks/useDropdownOptions";
 import { useActiveKeys } from "@/features/analytics/hooks/useActiveKeys";
 
@@ -69,7 +69,7 @@ export function LineCardContainer() {
   }, [dateRange, allKeys]);
 
   const total = React.useMemo(
-    () => calculateTotal(chartData, allKeys),
+    () => calculateTotalClick(chartData, allKeys),
     [chartData]
   );
 
