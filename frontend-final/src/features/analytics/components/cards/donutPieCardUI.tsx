@@ -59,7 +59,7 @@ export function DonutPieCardUI({
   );
 
   return (
-    <Card className="bg-transparent p-0">
+    <Card className="bg-foreground p-0">
       <CardHeader className="pb-0">
         <div className="flex space-x-2">
           <DateRangePicker

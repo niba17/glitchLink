@@ -57,7 +57,7 @@ export function AllLineChartUI({
         />
         <ChartTooltip
           content={({ payload, label }) => (
-            <div className="w-[150px] bg-zinc-900/80 p-2 text-stone-200">
+            <div className="w-[150px] bg-foreground p-2 text-accent">
               <div className="text-sm mb-1">
                 {new Date(label).toLocaleDateString("en-US", {
                   month: "short",

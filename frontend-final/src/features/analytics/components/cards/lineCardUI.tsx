@@ -73,7 +73,7 @@ export function LineCardUI({
   );
 
   return (
-    <Card className="bg-transparent p-5 space-y-7">
+    <Card className="bg-foreground p-5 space-y-7">
       <CardHeader className="p-0">
         <div className="flex space-x-2">
           <DateRangePicker

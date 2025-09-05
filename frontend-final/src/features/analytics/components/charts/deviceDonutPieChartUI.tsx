@@ -25,13 +25,13 @@ export const DeviceDonutPieChartUI = React.memo(function DeviceDonutPieChartUI({
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-lg font-semibold text-stone-200">Device</h2>
+      <h2 className="text-lg font-semibold text-accent">Device</h2>
       <ChartContainer config={chartConfig} className="mx-auto h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <ChartTooltip
               content={({ payload }) => (
-                <div className="w-[150px] bg-zinc-900/80 p-2 text-stone-200">
+                <div className="w-[150px] bg-foreground p-2 text-accent">
                   {payload?.map((entry) => (
                     <div
                       key={entry.name}
@@ -104,7 +104,7 @@ export const DeviceDonutPieChartUI = React.memo(function DeviceDonutPieChartUI({
                       <tspan
                         x={viewBox.cx}
                         y={viewBox.cy}
-                        className="fill-stone-200 text-3xl font-bold"
+                        className="fill-accent text-3xl font-bold"
                       >
                         {totalClicks}
                       </tspan>
