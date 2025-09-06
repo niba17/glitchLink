@@ -1,19 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { BrowserDonutPieChartUI } from "../charts/browserDonutPieChartUI";
-import { BrowserKey } from "@/features/analytics/types/type";
-import { calculateTotalClick } from "@/features/analytics/utils/donutPieChartHelpers"; // Mengimpor fungsi pembantu baru
-
-interface BrowserDonutPieChartContainerProps {
-  chartData: { key: BrowserKey; clicks: number }[];
-  activeKeys: BrowserKey[];
-  onToggleKey: (key: BrowserKey) => void;
+import { DeviceDonutPieChartUI } from "../ui/deviceDonutPieChartUI";
+import { DeviceKey } from "@/features/analytics/types/type";
+import { calculateTotalClick } from "../../../utils/donutPieChartHelpers";
+interface DeviceDonutPieChartContainerProps {
+  chartData: { key: DeviceKey; clicks: number }[];
+  activeKeys: DeviceKey[];
+  onToggleKey: (key: DeviceKey) => void;
 }
 
 function areEqual(
-  prev: BrowserDonutPieChartContainerProps,
-  next: BrowserDonutPieChartContainerProps
+  prev: DeviceDonutPieChartContainerProps,
+  next: DeviceDonutPieChartContainerProps
 ) {
   if (prev.chartData.length !== next.chartData.length) return false;
   for (let i = 0; i < prev.chartData.length; i++) {
@@ -31,19 +30,18 @@ function areEqual(
   return true;
 }
 
-export const BrowserDonutPieChartContainer = React.memo(
-  function BrowserDonutPieChartContainer({
+export const DeviceDonutPieChartContainer = React.memo(
+  function DeviceDonutPieChartContainer({
     chartData,
     activeKeys,
     onToggleKey,
-  }: BrowserDonutPieChartContainerProps) {
-    // Menggunakan fungsi pembantu baru untuk menghitung total
+  }: DeviceDonutPieChartContainerProps) {
     const totalClicks = React.useMemo(
       () => calculateTotalClick(chartData),
       [chartData]
     );
     return (
-      <BrowserDonutPieChartUI
+      <DeviceDonutPieChartUI
         chartData={chartData}
         activeKeys={activeKeys}
         onToggleKey={onToggleKey}

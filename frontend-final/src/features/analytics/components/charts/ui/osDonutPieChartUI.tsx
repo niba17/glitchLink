@@ -31,7 +31,7 @@ export const OSDonutPieChartUI = React.memo(function OSDonutPieChartUI({
           <PieChart>
             <ChartTooltip
               content={({ payload }) => (
-                <div className="w-[150px] bg-foreground p-2 text-accent">
+                <div className="w-[150px] bg-zinc-800 bg-opacity-70 p-2 text-accent">
                   {payload?.map((entry) => (
                     <div
                       key={entry.name}

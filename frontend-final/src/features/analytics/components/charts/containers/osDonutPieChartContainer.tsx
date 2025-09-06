@@ -1,18 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { DeviceDonutPieChartUI } from "../charts/deviceDonutPieChartUI";
-import { DeviceKey } from "@/features/analytics/types/type";
-import { calculateTotalClick } from "../../utils/donutPieChartHelpers";
-interface DeviceDonutPieChartContainerProps {
-  chartData: { key: DeviceKey; clicks: number }[];
-  activeKeys: DeviceKey[];
-  onToggleKey: (key: DeviceKey) => void;
+import { OSDonutPieChartUI } from "../ui/osDonutPieChartUI";
+import { OSKey } from "@/features/analytics/types/type";
+import { calculateTotalClick } from "../../../utils/donutPieChartHelpers";
+
+interface OSDonutPieChartContainerProps {
+  chartData: { key: OSKey; clicks: number }[];
+  activeKeys: OSKey[];
+  onToggleKey: (key: OSKey) => void;
 }
 
 function areEqual(
-  prev: DeviceDonutPieChartContainerProps,
-  next: DeviceDonutPieChartContainerProps
+  prev: OSDonutPieChartContainerProps,
+  next: OSDonutPieChartContainerProps
 ) {
   if (prev.chartData.length !== next.chartData.length) return false;
   for (let i = 0; i < prev.chartData.length; i++) {
@@ -30,18 +31,18 @@ function areEqual(
   return true;
 }
 
-export const DeviceDonutPieChartContainer = React.memo(
-  function DeviceDonutPieChartContainer({
+export const OSDonutPieChartContainer = React.memo(
+  function OSDonutPieChartContainer({
     chartData,
     activeKeys,
     onToggleKey,
-  }: DeviceDonutPieChartContainerProps) {
+  }: OSDonutPieChartContainerProps) {
     const totalClicks = React.useMemo(
       () => calculateTotalClick(chartData),
       [chartData]
     );
     return (
-      <DeviceDonutPieChartUI
+      <OSDonutPieChartUI
         chartData={chartData}
         activeKeys={activeKeys}
         onToggleKey={onToggleKey}

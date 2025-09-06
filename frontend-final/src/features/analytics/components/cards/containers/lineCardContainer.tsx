@@ -3,8 +3,8 @@
 "use client";
 
 import * as React from "react";
-import { LineCardUI } from "@/features/analytics/components/cards/lineCardUI";
-import { AllLineChartContainer } from "@/features/analytics/components/containers/allLineChartContainer";
+import { LineCardUI } from "@/features/analytics/components/cards/ui/lineCardUI";
+import { AllLineChartContainer } from "@/features/analytics/components/charts/containers/allLineChartContainer";
 import { ChartKey } from "@/features/analytics/types/type";
 import { eachDayOfInterval, format } from "date-fns";
 import { DateRange } from "react-day-picker";

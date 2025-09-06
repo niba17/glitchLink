@@ -4,7 +4,7 @@
 import * as React from "react";
 import { ChartKey } from "@/features/analytics/types/type";
 import { ChartDataItem } from "@/features/analytics/samples/dataSamples";
-import { AllLineChartUI } from "../charts/allLineChartUI";
+import { AllLineChartUI } from "../ui/allLineChartUI";
 
 // Hapus atau ganti antarmuka lama
 interface AllLineChartContainerProps {

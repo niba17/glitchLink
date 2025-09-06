@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { DonutPieCardContainer } from "@/features/analytics/components/containers/donutPieCardContainer";
-import { LineCardContainer } from "@/features/analytics/components/containers/lineCardContainer";
-import { SummarySectionContainer } from "@/features/analytics/components/containers/summarySectionContainer";
+import { DonutPieCardContainer } from "@/features/analytics/components/cards/containers/donutPieCardContainer";
+import { LineCardContainer } from "@/features/analytics/components/cards/containers/lineCardContainer";
+import { SummarySectionContainer } from "@/features/analytics/components/custom/containers/summarySectionContainer";
 
 export default function AnalyticsPage() {
   return (

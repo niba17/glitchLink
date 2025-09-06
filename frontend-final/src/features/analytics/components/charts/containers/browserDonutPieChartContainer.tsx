@@ -1,19 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { OSDonutPieChartUI } from "../charts/osDonutPieChartUI";
-import { OSKey } from "@/features/analytics/types/type";
-import { calculateTotalClick } from "../../utils/donutPieChartHelpers";
+import { BrowserDonutPieChartUI } from "../ui/browserDonutPieChartUI";
+import { BrowserKey } from "@/features/analytics/types/type";
+import { calculateTotalClick } from "@/features/analytics/utils/donutPieChartHelpers"; // Mengimpor fungsi pembantu baru
 
-interface OSDonutPieChartContainerProps {
-  chartData: { key: OSKey; clicks: number }[];
-  activeKeys: OSKey[];
-  onToggleKey: (key: OSKey) => void;
+interface BrowserDonutPieChartContainerProps {
+  chartData: { key: BrowserKey; clicks: number }[];
+  activeKeys: BrowserKey[];
+  onToggleKey: (key: BrowserKey) => void;
 }
 
 function areEqual(
-  prev: OSDonutPieChartContainerProps,
-  next: OSDonutPieChartContainerProps
+  prev: BrowserDonutPieChartContainerProps,
+  next: BrowserDonutPieChartContainerProps
 ) {
   if (prev.chartData.length !== next.chartData.length) return false;
   for (let i = 0; i < prev.chartData.length; i++) {
@@ -31,18 +31,19 @@ function areEqual(
   return true;
 }
 
-export const OSDonutPieChartContainer = React.memo(
-  function OSDonutPieChartContainer({
+export const BrowserDonutPieChartContainer = React.memo(
+  function BrowserDonutPieChartContainer({
     chartData,
     activeKeys,
     onToggleKey,
-  }: OSDonutPieChartContainerProps) {
+  }: BrowserDonutPieChartContainerProps) {
+    // Menggunakan fungsi pembantu baru untuk menghitung total
     const totalClicks = React.useMemo(
       () => calculateTotalClick(chartData),
       [chartData]
     );
     return (
-      <OSDonutPieChartUI
+      <BrowserDonutPieChartUI
         chartData={chartData}
         activeKeys={activeKeys}
         onToggleKey={onToggleKey}

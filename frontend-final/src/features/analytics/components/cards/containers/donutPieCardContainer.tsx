@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { DonutPieCardUI } from "../cards/donutPieCardUI";
+import { DonutPieCardUI } from "../ui/donutPieCardUI";
 import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
 import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";

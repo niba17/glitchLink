@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { DeviceDonutPieChartContainer } from "../containers/deviceDonutPieChartContainer";
-import { OSDonutPieChartContainer } from "../containers/osDonutPieChartContainer";
-import { BrowserDonutPieChartContainer } from "../containers/browserDonutPieChartContainer";
+import { DeviceDonutPieChartContainer } from "../../charts/containers/deviceDonutPieChartContainer";
+import { OSDonutPieChartContainer } from "../../charts/containers/osDonutPieChartContainer";
+import { BrowserDonutPieChartContainer } from "../../charts/containers/browserDonutPieChartContainer";
 import DateRangePicker from "@/components/ui/date-range-picker";
 import {
   DropdownMenu,
