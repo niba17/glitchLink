@@ -5,42 +5,69 @@ import { DonutPieCardUI } from "../ui/donutPieCardUI";
 import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
 import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
-import { chartDataSample } from "@/features/analytics/samples/dataSamples";
 import { useActiveKeys } from "@/features/analytics/hooks/useActiveKeys";
 import {
   devices,
   browsers,
   osList,
 } from "@/features/analytics/constants/analyticsKeys";
+import { useUserLinkAnalytics } from "@/features/analytics/hooks/useUserLinkAnalitics";
+import { UserLink } from "@/features/links/types/type";
 
-export function DonutPieCardContainer() {
-  const { active, onToggle } = useActiveKeys();
+interface DonutPieCardContainerProps {
+  selectedShortlink: UserLink | undefined;
+}
 
-  // Mengagregasi data untuk mendapatkan tanggal awal dan akhir
-  const initialDateRange = React.useMemo(() => {
-    if (chartDataSample.length === 0) {
-      return { from: new Date(), to: new Date() };
-    }
-    const dates = chartDataSample
-      .map((day) => parseISO(day.date))
-      .sort((a, b) => a.getTime() - b.getTime());
-    return {
-      from: dates[0],
-      to: dates[dates.length - 1],
-    };
-  }, []);
-
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    initialDateRange
+export function DonutPieCardContainer({
+  selectedShortlink,
+}: DonutPieCardContainerProps) {
+  const { analyticsData, isLoading, isError } = useUserLinkAnalytics(
+    selectedShortlink?.id
   );
 
-  // useMemo untuk data chart
+  // State untuk menyimpan rentang tanggal
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    undefined
+  );
+
+  // Efek ini akan dijalankan saat `selectedShortlink` berubah.
+  // Ini akan mereset `dateRange` sebelum data baru dimuat.
+  React.useEffect(() => {
+    setDateRange(undefined);
+  }, [selectedShortlink]);
+
+  // Efek ini akan dijalankan saat data analitik baru tiba.
+  // Ini akan mengatur `dateRange` berdasarkan data baru.
+  React.useEffect(() => {
+    if (analyticsData && analyticsData.clicks.length > 0) {
+      const dates = analyticsData.clicks
+        .map((click) => parseISO(click.timestamp))
+        .sort((a, b) => a.getTime() - b.getTime());
+
+      setDateRange({
+        from: dates[0],
+        to: dates[dates.length - 1],
+      });
+    } else {
+      // Jika tidak ada data, set dateRange menjadi undefined
+      setDateRange(undefined);
+    }
+  }, [analyticsData]);
+
   const data = React.useMemo(() => {
-    const filteredData = chartDataSample.filter((day) => {
-      if (!dateRange || !dateRange.from || !dateRange.to) {
-        return false;
+    if (isLoading || isError || !analyticsData?.clicks) {
+      return {
+        deviceData: [],
+        osData: [],
+        browserData: [],
+      };
+    }
+
+    const filteredClicks = analyticsData.clicks.filter((click) => {
+      if (!dateRange?.from || !dateRange.to) {
+        return true;
       }
-      const date = parseISO(day.date);
+      const date = parseISO(click.timestamp);
       return isWithinInterval(date, {
         start: dateRange.from,
         end: dateRange.to,
@@ -51,24 +78,28 @@ export function DonutPieCardContainer() {
     const osData = [...osList.map((key) => ({ key, clicks: 0 }))];
     const browserData = [...browsers.map((key) => ({ key, clicks: 0 }))];
 
-    filteredData.forEach((day) => {
-      Object.keys(day).forEach((key) => {
-        if (key !== "date") {
-          const value = day[key as keyof typeof day];
-          const deviceItem = deviceData.find((d) => d.key === key);
-          if (deviceItem) {
-            deviceItem.clicks += typeof value === "number" ? value : 0;
-          }
-          const osItem = osData.find((o) => o.key === key);
-          if (osItem) {
-            osItem.clicks += typeof value === "number" ? value : 0;
-          }
-          const browserItem = browserData.find((b) => b.key === key);
-          if (browserItem) {
-            browserItem.clicks += typeof value === "number" ? value : 0;
-          }
-        }
-      });
+    filteredClicks.forEach((click) => {
+      // Perbaikan: Konversi data menjadi huruf kecil sebelum memproses
+      const deviceKey = click.device.toLowerCase() as DeviceKey;
+      const osKey = click.os.toLowerCase() as OSKey;
+      const browserKey = click.browser.toLowerCase() as BrowserKey;
+
+      const deviceItem = deviceData.find(
+        (d) => d.key.toLowerCase() === deviceKey
+      );
+      if (deviceItem) {
+        deviceItem.clicks += 1;
+      }
+      const osItem = osData.find((o) => o.key.toLowerCase() === osKey);
+      if (osItem) {
+        osItem.clicks += 1;
+      }
+      const browserItem = browserData.find(
+        (b) => b.key.toLowerCase() === browserKey
+      );
+      if (browserItem) {
+        browserItem.clicks += 1;
+      }
     });
 
     return {
@@ -76,7 +107,19 @@ export function DonutPieCardContainer() {
       osData,
       browserData,
     };
-  }, [dateRange]);
+  }, [dateRange, analyticsData, isLoading, isError]);
+
+  // Menghitung initial state untuk useActiveKeys
+  const initialActiveState = React.useMemo(() => {
+    return {
+      devices: data.deviceData.filter((d) => d.clicks > 0).map((d) => d.key),
+      osList: data.osData.filter((o) => o.clicks > 0).map((o) => o.key),
+      browsers: data.browserData.filter((b) => b.clicks > 0).map((b) => b.key),
+    };
+  }, [data]);
+
+  // Menggunakan hook useActiveKeys dengan initial state yang telah dihitung
+  const { active, onToggle } = useActiveKeys(initialActiveState);
 
   const onDateRangeChange = React.useCallback(
     (range: DateRange | undefined) => {
@@ -85,7 +128,6 @@ export function DonutPieCardContainer() {
     []
   );
 
-  // Perbaikan: Gunakan useCallback untuk memoize fungsi onToggle
   const onToggleDevice = React.useCallback(
     (key: DeviceKey) => onToggle("devices")(key),
     [onToggle]
@@ -98,6 +140,30 @@ export function DonutPieCardContainer() {
     (key: BrowserKey) => onToggle("browsers")(key),
     [onToggle]
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[200px] text-stone-400">
+        <span className="animate-pulse">Loading analytics...</span>
+      </div>
+    );
+  }
+
+  if (isError || !analyticsData) {
+    return (
+      <div className="flex justify-center items-center h-[200px] text-red-400">
+        <span className="text-sm">Failed to load analytics data.</span>
+      </div>
+    );
+  }
+
+  if (analyticsData.clicks.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-[200px] text-stone-400">
+        <span>No click data available for this link.</span>
+      </div>
+    );
+  }
 
   return (
     <DonutPieCardUI

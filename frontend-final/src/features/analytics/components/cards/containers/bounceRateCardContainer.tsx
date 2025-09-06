@@ -5,7 +5,7 @@ import React from "react";
 import { BounceRateCardUI } from "../ui/bounceRateCardUI";
 import {
   useUserLinkAnalytics,
-  LinkAnalyticsResponse,
+  // LinkAnalyticsResponse,
 } from "../../../hooks/useUserLinkAnalitics";
 
 interface BounceRateCardContainerProps {
@@ -19,11 +19,11 @@ export function BounceRateCardContainer({
     useUserLinkAnalytics(shortlinkId);
 
   // Logika untuk menghitung traffic drop
-  const calculateTrafficDrop = (data: LinkAnalyticsResponse) => {
-    // Implementasi logika Anda di sini.
-    // Contoh sederhana: Mengambil jumlah klik total.
-    return data?.clicksCount ?? 0;
-  };
+  // const calculateTrafficDrop = (data: LinkAnalyticsResponse) => {
+  //   // Implementasi logika Anda di sini.
+  //   // Contoh sederhana: Mengambil jumlah klik total.
+  //   return data?.clicksCount ?? 0;
+  // };
 
   if (isLoading) {
     return (
@@ -41,7 +41,7 @@ export function BounceRateCardContainer({
     );
   }
 
-  const clicks = analyticsData ? calculateTrafficDrop(analyticsData) : 0;
+  // const clicks = analyticsData ? calculateTrafficDrop(analyticsData) : 0;
 
-  return <BounceRateCardUI clicks={clicks} />;
+  return <BounceRateCardUI />;
 }

@@ -21,12 +21,14 @@ type ActiveState = {
 
 type ActiveKeyType = keyof ActiveState;
 
-export const useActiveKeys = () => {
-  const [active, setActive] = React.useState<ActiveState>({
-    devices: [...devices],
-    browsers: [...browsers],
-    osList: [...osList],
-  });
+export const useActiveKeys = (initialActiveState: ActiveState) => {
+  const [active, setActive] = React.useState<ActiveState>(initialActiveState);
+
+  // Gunakan useEffect untuk menyinkronkan state lokal dengan data awal
+  // Ini akan berjalan setiap kali initialActiveState berubah
+  React.useEffect(() => {
+    setActive(initialActiveState);
+  }, [initialActiveState]);
 
   const onToggle = React.useCallback(
     (type: ActiveKeyType) => (key: ChartKey) => {

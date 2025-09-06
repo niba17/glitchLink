@@ -75,7 +75,10 @@ export default function AnalyticsPage() {
         <SummarySectionContainer selectedShortlink={selectedShortlink} />
       </section>
       <section>
-        <DonutPieCardContainer selectedShortlink={selectedShortlink} />
+        <DonutPieCardContainer
+          key={selectedShortlink?.id}
+          selectedShortlink={selectedShortlink}
+        />
       </section>
       <section>
         {/* <LineCardContainer selectedShortlink={selectedShortlink} /> */}

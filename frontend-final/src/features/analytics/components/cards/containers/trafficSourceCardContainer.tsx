@@ -5,7 +5,7 @@ import React from "react";
 import { TrafficSourceCardUI } from "../ui/trafficSourceCardUI";
 import {
   useUserLinkAnalytics,
-  ClickEvent,
+  // ClickEvent,
 } from "../../../hooks/useUserLinkAnalitics";
 
 interface TrafficSourceCardContainerProps {
@@ -28,10 +28,10 @@ export function TrafficSourceCardContainer({
     }
 
     const dailyClicks: { [key: string]: number } = {};
-    analyticsData.clicks.forEach((click: ClickEvent) => {
-      const date = new Date(click.timestamp).toLocaleDateString();
-      dailyClicks[date] = (dailyClicks[date] || 0) + 1;
-    });
+    // analyticsData.clicks.forEach((click: ClickEvent) => {
+    //   const date = new Date(click.timestamp).toLocaleDateString();
+    //   dailyClicks[date] = (dailyClicks[date] || 0) + 1;
+    // });
 
     const maxClicks = Math.max(...Object.values(dailyClicks));
 

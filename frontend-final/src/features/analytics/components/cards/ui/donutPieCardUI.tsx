@@ -44,17 +44,24 @@ export function DonutPieCardUI({
   onToggleOS,
   onToggleBrowser,
 }: DonutPieCardUIProps) {
-  // Memo filtered data per chart
+  // Memo filtered data for charts, based on active keys AND clicks > 0
   const filteredDeviceData = React.useMemo(
-    () => deviceData.filter((item) => activeDevices.includes(item.key)),
+    () =>
+      deviceData.filter(
+        (item) => activeDevices.includes(item.key) && item.clicks > 0
+      ),
     [deviceData, activeDevices]
   );
   const filteredOSData = React.useMemo(
-    () => osData.filter((item) => activeOS.includes(item.key)),
+    () =>
+      osData.filter((item) => activeOS.includes(item.key) && item.clicks > 0),
     [osData, activeOS]
   );
   const filteredBrowserData = React.useMemo(
-    () => browserData.filter((item) => activeBrowsers.includes(item.key)),
+    () =>
+      browserData.filter(
+        (item) => activeBrowsers.includes(item.key) && item.clicks > 0
+      ),
     [browserData, activeBrowsers]
   );
 
@@ -62,7 +69,9 @@ export function DonutPieCardUI({
     <Card className="bg-foreground p-0">
       <CardHeader className="pb-0">
         <div className="flex space-x-2">
+          {/* Tambahkan key di sini untuk memaksa komponen me-render ulang */}
           <DateRangePicker
+            key={JSON.stringify(dateRange)}
             initialRange={dateRange}
             onChange={onDateRangeChange}
           />
@@ -73,6 +82,7 @@ export function DonutPieCardUI({
               <Button variant="outline">Device</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
+              {/* Dropdown menu menampilkan semua item, aktif atau tidak */}
               {deviceData.map((d) => (
                 <DropdownMenuCheckboxItem
                   key={d.key}

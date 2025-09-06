@@ -3,11 +3,11 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-interface BounceRateCardUIProps {
-  clicks: number;
-}
+// interface BounceRateCardUIProps {
+//   clicks: number;
+// }
 
-export function BounceRateCardUI({ clicks }: BounceRateCardUIProps) {
+export function BounceRateCardUI() {
   return (
     <Card className="bg-foreground p-0">
       <CardHeader className="pb-0 text-lg font-semibold text-accent">

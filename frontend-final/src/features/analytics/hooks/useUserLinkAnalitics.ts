@@ -3,17 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { analyticService } from "../services/analyticService";
-
-export interface ClickEvent {
-  id: number;
-  timestamp: string;
-}
-
-export interface LinkAnalyticsResponse {
-  clicksCount: number;
-  clicks: ClickEvent[];
-  // properti lain yang mungkin ada
-}
+import { LinkAnalyticsResponse } from "../types/type";
 
 export function useUserLinkAnalytics(shortlinkId?: number) {
   const token = useAuthStore((s) => s.token);
