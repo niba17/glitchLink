@@ -3,19 +3,19 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-interface TrafficDropCardUIProps {
+interface TrafficSourceCardUIProps {
   clicks: number;
 }
 
-export function TrafficDropCardUI({ clicks }: TrafficDropCardUIProps) {
+export function TrafficSourceCardUI({ clicks }: TrafficSourceCardUIProps) {
   return (
     <Card className="bg-foreground p-0">
       <CardHeader className="pb-0 text-lg font-semibold text-accent">
-        Traffic Drop
+        Traffic Source
       </CardHeader>
       <CardContent>
         <div className="text-6xl font-bold text-center text-accent">
-          {clicks.toLocaleString()}
+          {/* {clicks.toLocaleString()} */}
         </div>
       </CardContent>
     </Card>

@@ -2,19 +2,19 @@
 "use client";
 
 import React from "react";
-import { TrafficSpikeCardUI } from "../ui/trafficSpikeCardUI";
+import { TrafficSourceCardUI } from "../ui/trafficSourceCardUI";
 import {
   useUserLinkAnalytics,
   ClickEvent,
 } from "../../../hooks/useUserLinkAnalitics";
 
-interface TrafficSpikeCardContainerProps {
+interface TrafficSourceCardContainerProps {
   shortlinkId?: number; // Perbarui tipe data di sini
 }
 
-export function TrafficSpikeCardContainer({
+export function TrafficSourceCardContainer({
   shortlinkId,
-}: TrafficSpikeCardContainerProps) {
+}: TrafficSourceCardContainerProps) {
   const { analyticsData, isLoading, isError } =
     useUserLinkAnalytics(shortlinkId);
 
@@ -56,5 +56,5 @@ export function TrafficSpikeCardContainer({
     );
   }
 
-  return <TrafficSpikeCardUI clicks={spikeValue} />;
+  return <TrafficSourceCardUI clicks={spikeValue} />;
 }

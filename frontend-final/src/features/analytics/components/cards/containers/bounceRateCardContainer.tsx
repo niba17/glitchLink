@@ -1,20 +1,20 @@
-// Lokasi: frontend-final\src\features\analytics\components\cards\containers\trafficDropCardContainer.tsx
+// Lokasi: frontend-final\src\features\analytics\components\cards\containers\bounceRateCardContainer.tsx
 "use client";
 
 import React from "react";
-import { TrafficDropCardUI } from "../ui/trafficDropCardUI";
+import { BounceRateCardUI } from "../ui/bounceRateCardUI";
 import {
   useUserLinkAnalytics,
   LinkAnalyticsResponse,
 } from "../../../hooks/useUserLinkAnalitics";
 
-interface TrafficDropCardContainerProps {
+interface BounceRateCardContainerProps {
   shortlinkId?: number; // Tambahkan properti shortlinkId di sini
 }
 
-export function TrafficDropCardContainer({
+export function BounceRateCardContainer({
   shortlinkId,
-}: TrafficDropCardContainerProps) {
+}: BounceRateCardContainerProps) {
   const { analyticsData, isLoading, isError } =
     useUserLinkAnalytics(shortlinkId);
 
@@ -43,5 +43,5 @@ export function TrafficDropCardContainer({
 
   const clicks = analyticsData ? calculateTrafficDrop(analyticsData) : 0;
 
-  return <TrafficDropCardUI clicks={clicks} />;
+  return <BounceRateCardUI clicks={clicks} />;
 }

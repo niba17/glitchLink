@@ -3,19 +3,19 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-interface TrafficSpikeCardUIProps {
+interface BounceRateCardUIProps {
   clicks: number;
 }
 
-export function TrafficSpikeCardUI({ clicks }: TrafficSpikeCardUIProps) {
+export function BounceRateCardUI({ clicks }: BounceRateCardUIProps) {
   return (
     <Card className="bg-foreground p-0">
       <CardHeader className="pb-0 text-lg font-semibold text-accent">
-        Traffic Spike
+        Bounce Rate
       </CardHeader>
       <CardContent>
         <div className="text-6xl font-bold text-center text-accent">
-          {clicks.toLocaleString()}
+          {/* {clicks.toLocaleString()} */}
         </div>
       </CardContent>
     </Card>
