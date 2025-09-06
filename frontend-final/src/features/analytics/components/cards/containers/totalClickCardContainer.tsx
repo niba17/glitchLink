@@ -60,11 +60,5 @@ export function TotalClickCardContainer({
   const clicksData = analyticsData?.clicks ?? [];
   const chartData = getCombinedChartData(clicksData);
 
-  return (
-    <TotalClickCardUI
-      clicks={clicksCount}
-      chartData={chartData}
-      chartTitle="Total Clicks (Combined)"
-    />
-  );
+  return <TotalClickCardUI clicks={clicksCount} chartData={chartData} />;
 }

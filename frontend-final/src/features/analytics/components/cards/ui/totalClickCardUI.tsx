@@ -22,39 +22,31 @@ interface ChartDataItem {
 interface TotalClickCardUIProps {
   clicks: number;
   chartData: ChartDataItem[];
-  chartTitle: string;
 }
 
-export function TotalClickCardUI({
-  clicks,
-  chartData,
-  chartTitle,
-}: TotalClickCardUIProps) {
+export function TotalClickCardUI({ clicks, chartData }: TotalClickCardUIProps) {
   return (
     <Card className="bg-foreground p-0">
       <CardHeader className="pb-0 text-lg font-semibold text-accent">
-        {chartTitle}
+        Total Clicks : {clicks.toLocaleString()}
       </CardHeader>
       <CardContent>
         <div className="flex flex-col">
-          <div className="text-6xl font-bold text-center text-accent">
-            {clicks.toLocaleString()}
-          </div>
           <div>
-            <div className="mt-4 p-4">
+            <div>
               <div className="flex flex-col items-start gap-2 text-sm">
                 <div className="flex gap-2 leading-none font-medium">
                   Trending up by 5.2% this month{" "}
                   <TrendingUp className="h-4 w-4" />
                 </div>
               </div>
-              <ChartContainer className="m-0" config={chartConfig}>
+              <ChartContainer config={chartConfig}>
                 <BarChart
                   accessibilityLayer
                   data={chartData}
                   layout="vertical"
                   margin={{
-                    left: 5, // Tambahkan margin kiri untuk label Y-Axis
+                    left: 5,
                     right: 5,
                   }}
                 >
@@ -112,7 +104,7 @@ export function TotalClickCardUI({
                       </div>
                     )}
                   />
-                  <Bar dataKey="visitors" layout="vertical" radius={5} />
+                  <Bar dataKey="visitors" layout="vertical" />
                 </BarChart>
               </ChartContainer>
             </div>
