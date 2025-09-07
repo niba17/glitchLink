@@ -5,7 +5,7 @@ import { DonutPieCardUI } from "../ui/donutPieCardUI";
 import { DateRange } from "react-day-picker";
 import { isWithinInterval, parseISO } from "date-fns";
 import { DeviceKey, BrowserKey, OSKey } from "@/features/analytics/types/type";
-import { useActiveKeys } from "@/features/analytics/hooks/useActiveKeys";
+import { useActiveKeysDonutPieChart } from "@/features/analytics/hooks/useActiveKeysDonutPieChart";
 import {
   devices,
   browsers,
@@ -109,7 +109,7 @@ export function DonutPieCardContainer({
     };
   }, [dateRange, analyticsData, isLoading, isError]);
 
-  // Menghitung initial state untuk useActiveKeys
+  // Menghitung initial state untuk useActiveKeysDonutPieChart
   const initialActiveState = React.useMemo(() => {
     return {
       devices: data.deviceData.filter((d) => d.clicks > 0).map((d) => d.key),
@@ -118,8 +118,8 @@ export function DonutPieCardContainer({
     };
   }, [data]);
 
-  // Menggunakan hook useActiveKeys dengan initial state yang telah dihitung
-  const { active, onToggle } = useActiveKeys(initialActiveState);
+  // Menggunakan hook useActiveKeysDonutPieChart dengan initial state yang telah dihitung
+  const { active, onToggle } = useActiveKeysDonutPieChart(initialActiveState);
 
   const onDateRangeChange = React.useCallback(
     (range: DateRange | undefined) => {

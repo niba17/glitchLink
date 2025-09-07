@@ -1,5 +1,3 @@
-// frontend-final/src/features/analytics/components/charts/allLineChartUI.tsx
-
 "use client";
 
 import * as React from "react";
@@ -12,25 +10,15 @@ import { ChartKey } from "@/features/analytics/types/type";
 interface AllLineChartUIProps {
   chartData: ChartDataItem[];
   active: Record<"devices" | "browsers" | "osList", ChartKey[]>;
-  rendered: Record<"devices" | "browsers" | "osList", ChartKey[]>;
 }
 
-export function AllLineChartUI({
-  chartData,
-  active,
-  rendered,
-}: AllLineChartUIProps) {
-  const allRenderedKeys = {
-    devices: rendered.devices,
-    browsers: rendered.browsers,
-    osList: rendered.osList,
-  };
-
-  const allActiveKeys = {
-    devices: active.devices,
-    browsers: active.browsers,
-    osList: active.osList,
-  };
+export function AllLineChartUI({ chartData, active }: AllLineChartUIProps) {
+  // Gabungkan semua key yang aktif menjadi satu array tunggal untuk rendering
+  const allActiveKeys = [
+    ...active.devices,
+    ...active.browsers,
+    ...active.osList,
+  ];
 
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
@@ -83,29 +71,19 @@ export function AllLineChartUI({
             </div>
           )}
         />
-
-        {Object.keys(allRenderedKeys).map((type) => {
-          return allRenderedKeys[type as keyof typeof allRenderedKeys].map(
-            (key) => {
-              const isActive =
-                allActiveKeys[type as keyof typeof allActiveKeys].includes(key);
-              return (
-                <Line
-                  key={key} // ✨ Perbaikan di sini: kunci hanya berdasarkan dataKey
-                  type="linear"
-                  dataKey={key}
-                  stroke={chartConfig[key].color}
-                  strokeWidth={2}
-                  dot={false}
-                  hide={!isActive}
-                  // ✨ Tambahan: Menghilangkan animasi jika tidak aktif
-                  isAnimationActive={isActive}
-                  animationDuration={300} // Anda bisa sesuaikan durasi animasi
-                />
-              );
-            }
-          );
-        })}
+        {/* Render hanya garis (line) untuk key yang aktif */}
+        {allActiveKeys.map((key) => (
+          <Line
+            key={key}
+            type="linear"
+            dataKey={key}
+            stroke={chartConfig[key].color}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={true}
+            animationDuration={300}
+          />
+        ))}
       </LineChart>
     </ChartContainer>
   );

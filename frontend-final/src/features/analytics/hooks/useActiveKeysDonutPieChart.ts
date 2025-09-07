@@ -1,5 +1,3 @@
-// frontend-final/src/features/analytics/hooks/useActiveKeys.ts
-
 import * as React from "react";
 import {
   DeviceKey,
@@ -7,11 +5,6 @@ import {
   OSKey,
   ChartKey,
 } from "@/features/analytics/types/type";
-import {
-  devices,
-  browsers,
-  osList,
-} from "@/features/analytics/constants/analyticsKeys";
 
 type ActiveState = {
   devices: DeviceKey[];
@@ -21,11 +14,11 @@ type ActiveState = {
 
 type ActiveKeyType = keyof ActiveState;
 
-export const useActiveKeys = (initialActiveState: ActiveState) => {
+export const useActiveKeysDonutPieChart = (initialActiveState: ActiveState) => {
   const [active, setActive] = React.useState<ActiveState>(initialActiveState);
 
-  // Gunakan useEffect untuk menyinkronkan state lokal dengan data awal
-  // Ini akan berjalan setiap kali initialActiveState berubah
+  // Perbaikan: useEffect ini sangat penting untuk menyinkronkan
+  // state internal dengan prop yang berubah dari luar.
   React.useEffect(() => {
     setActive(initialActiveState);
   }, [initialActiveState]);

@@ -81,7 +81,10 @@ export default function AnalyticsPage() {
         />
       </section>
       <section>
-        {/* <LineCardContainer selectedShortlink={selectedShortlink} /> */}
+        <LineCardContainer
+          key={selectedShortlink?.id}
+          selectedShortlink={selectedShortlink}
+        />
       </section>
     </div>
   );

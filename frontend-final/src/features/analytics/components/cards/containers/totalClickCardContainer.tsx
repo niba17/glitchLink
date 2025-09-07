@@ -1,4 +1,3 @@
-// Lokasi: frontend-final\src\features\analytics\components\cards\containers\totalClickCardContainer.tsx
 "use client";
 
 import React from "react";
@@ -35,10 +34,10 @@ const getCombinedChartData = (clicks: any[]) => {
   }, {});
 
   const combinedData = allKeys.map((key) => {
-    const visitors = counts[key] || 0;
+    const clicks = counts[key] || 0;
     return {
       name: key,
-      visitors: visitors,
+      clicks: clicks,
       fill:
         chartConfig[key as BrowserKey | DeviceKey | OSKey]?.color || "#e5e5e5",
     };

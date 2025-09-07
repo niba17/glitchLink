@@ -1,4 +1,4 @@
-// frontend-final/src/features/analytics/components/cards/lineCardUI.tsx
+// Lokasi File: frontend-final/src/features/analytics/components/cards/ui/lineCardUI.tsx
 
 "use client";
 
@@ -13,59 +13,92 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { type DateRange } from "react-day-picker";
-import { ChartKey } from "@/features/analytics/types/type"; // ✨ Mengimpor ChartKey saja
-
-// ✨ Gunakan kembali interface dari custom hook (atau buat yang baru jika belum ada)
-interface DropdownOption {
-  key: ChartKey;
-  label: string;
-  color: string;
-  value: number;
-  checked: boolean;
-  onToggle: () => void;
-}
+import {
+  ChartKey,
+  ChartDataItem,
+  DeviceKey,
+  BrowserKey,
+  OSKey,
+} from "@/features/analytics/types/type";
+import { AllLineChartContainer } from "@/features/analytics/components/charts/containers/allLineChartContainer";
+import {
+  devices,
+  browsers,
+  osList,
+} from "@/features/analytics/constants/analyticsKeys";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
 
 interface LineCardUIProps {
   dateRange: DateRange | undefined;
   setDateRange: (range: DateRange | undefined) => void;
-
-  dropdowns: {
-    devices: DropdownOption[];
-    osList: DropdownOption[];
-    browsers: DropdownOption[];
-  };
-
-  children: React.ReactNode;
+  chartData: ChartDataItem[];
+  activeDevices: DeviceKey[];
+  activeOS: OSKey[];
+  activeBrowsers: BrowserKey[];
+  onToggleDevice: (key: DeviceKey) => void;
+  onToggleOS: (key: OSKey) => void;
+  onToggleBrowser: (key: BrowserKey) => void;
 }
 
 export function LineCardUI({
   dateRange,
   setDateRange,
-  dropdowns,
-  children,
+  chartData,
+  activeDevices,
+  activeOS,
+  activeBrowsers,
+  onToggleDevice,
+  onToggleOS,
+  onToggleBrowser,
 }: LineCardUIProps) {
-  const renderDropdown = (label: string, options: DropdownOption[]) => (
+  // Fungsi pembantu untuk menghitung total klik per key
+  const calculateTotals = (keys: ChartKey[]) => {
+    const totals: Record<ChartKey, number> = {} as Record<ChartKey, number>;
+    keys.forEach((key) => {
+      totals[key] = chartData.reduce(
+        (sum, item) => sum + ((item[key] as number) || 0),
+        0
+      );
+    });
+    return totals;
+  };
+
+  const deviceTotals = calculateTotals(devices as ChartKey[]);
+  const osTotals = calculateTotals(osList as ChartKey[]);
+  const browserTotals = calculateTotals(browsers as ChartKey[]);
+
+  const renderDropdown = (
+    label: string,
+    keys: string[],
+    activeKeys: string[],
+    totals: Record<string, number>,
+    onToggle: (key: any) => void
+  ) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">{label}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        {options.map((opt) => (
+        {keys.map((key) => (
           <DropdownMenuCheckboxItem
-            key={opt.key}
-            checked={opt.checked}
-            onCheckedChange={opt.onToggle}
+            key={key}
+            checked={activeKeys.includes(key)}
+            onCheckedChange={() => onToggle(key)}
             onSelect={(e: Event) => e.preventDefault()}
             className="justify-between"
           >
             <span className="flex items-center space-x-2">
               <span
                 className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: opt.color }}
+                style={{
+                  backgroundColor:
+                    chartConfig[key as keyof typeof chartConfig]?.color ||
+                    "#8884d8",
+                }}
               />
-              <span>{opt.label}</span>
+              <span>{key}</span>
             </span>
-            <span>{opt.value.toLocaleString()}</span>
+            <span>{totals[key]?.toLocaleString()}</span>
           </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>
@@ -77,16 +110,38 @@ export function LineCardUI({
       <CardHeader className="p-0">
         <div className="flex space-x-2">
           <DateRangePicker
+            key={JSON.stringify(dateRange)}
             initialRange={dateRange}
-            onChange={setDateRange} // ✨ Menghapus as any
+            onChange={setDateRange}
           />
-          {renderDropdown("Device", dropdowns.devices)}
-          {renderDropdown("OS", dropdowns.osList)}
-          {renderDropdown("Browser", dropdowns.browsers)}
+          {renderDropdown(
+            "Device",
+            devices,
+            activeDevices,
+            deviceTotals,
+            onToggleDevice
+          )}
+          {renderDropdown("OS", osList, activeOS, osTotals, onToggleOS)}
+          {renderDropdown(
+            "Browser",
+            browsers,
+            activeBrowsers,
+            browserTotals,
+            onToggleBrowser
+          )}
         </div>
       </CardHeader>
 
-      <CardContent className="p-0">{children}</CardContent>
+      <CardContent className="p-0">
+        <AllLineChartContainer
+          chartData={chartData}
+          active={{
+            devices: activeDevices,
+            osList: activeOS,
+            browsers: activeBrowsers,
+          }}
+        />
+      </CardContent>
     </Card>
   );
 }
