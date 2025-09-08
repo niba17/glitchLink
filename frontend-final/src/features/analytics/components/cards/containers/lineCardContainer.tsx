@@ -75,12 +75,7 @@ export function LineCardContainer({
   const allKeys = [...devices, ...browsers, ...osList] as ChartKey[];
 
   const chartData = React.useMemo(() => {
-    if (
-      isLoading ||
-      isError ||
-      !analyticsData?.clicks ||
-      analyticsData.clicks.length === 0
-    ) {
+    if (!analyticsData?.clicks) {
       return [];
     }
 
@@ -149,7 +144,7 @@ export function LineCardContainer({
     });
 
     return Array.from(clicksMap.values());
-  }, [dateRange, analyticsData, isLoading, isError, allKeys]);
+  }, [dateRange, analyticsData, allKeys]);
 
   const initialActiveState = React.useMemo(() => {
     const devicesWithData = devices.filter((key) =>
@@ -207,30 +202,6 @@ export function LineCardContainer({
     [onToggle]
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[200px] text-stone-400">
-        <span className="animate-pulse">Loading analytics...</span>
-      </div>
-    );
-  }
-
-  if (isError || !analyticsData) {
-    return (
-      <div className="flex justify-center items-center h-[200px] text-red-400">
-        <span className="text-sm">Failed to load analytics data.</span>
-      </div>
-    );
-  }
-
-  if (analyticsData.clicks.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-[200px] text-stone-400">
-        <span>No click data available for this link.</span>
-      </div>
-    );
-  }
-
   return (
     <LineCardUI
       dateRange={dateRange}
@@ -242,6 +213,9 @@ export function LineCardContainer({
       onToggleDevice={onToggleDevice}
       onToggleOS={onToggleOS}
       onToggleBrowser={onToggleBrowser}
+      isLoading={isLoading}
+      isError={isError}
+      hasData={analyticsData?.clicks.length !== 0}
     />
   );
 }

@@ -26,7 +26,7 @@ export const DeviceDonutPieChartUI = React.memo(function DeviceDonutPieChartUI({
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-lg font-semibold text-accent">Device</h2>
-      <ChartContainer config={chartConfig} className="mx-auto h-[200px]">
+      <ChartContainer config={chartConfig} className="h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <ChartTooltip

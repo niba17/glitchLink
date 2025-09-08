@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -12,34 +11,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2, Copy } from "lucide-react";
-import { useClipboard } from "@/hooks/useClipboard";
 import { GuestLinkUI } from "@/features/links/types/type";
-import { GUEST_SHORT_LINK_STRINGS } from "../../constants/strings";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { GUEST_SHORT_LINK_STRINGS } from "../../../constants/strings";
+import ConfirmDialog from "@/components/customs/ConfirmDialog";
 
-interface GuestLinkListProps {
+interface GuestLinkListUIProps {
   links: GuestLinkUI[];
-  onDelete: (id: number) => void;
-  onCopy?: (shortUrl: string) => void;
+  onDeleteClick: (id: number) => void;
+  onCopy: (shortUrl: string) => void;
+  openDialog: boolean;
+  onConfirmDelete: () => void;
+  onCancelDelete: () => void;
 }
 
-export function GuestLinkList({ links, onDelete }: GuestLinkListProps) {
-  const { copy } = useClipboard();
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  const handleDeleteClick = (id: number) => {
-    setSelectedId(id);
-    setOpenDialog(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedId !== null) {
-      onDelete(selectedId);
-    }
-    setOpenDialog(false);
-  };
-
+export function GuestLinkListUI({
+  links,
+  onDeleteClick,
+  onCopy,
+  openDialog,
+  onConfirmDelete,
+  onCancelDelete,
+}: GuestLinkListUIProps) {
   return (
     <>
       <ul className="grid grid-cols-3 gap-[20px]">
@@ -66,14 +58,14 @@ export function GuestLinkList({ links, onDelete }: GuestLinkListProps) {
                 <Button
                   title="Copy short link"
                   variant="icon"
-                  onClick={() => copy(link.shortUrl)}
+                  onClick={() => onCopy(link.shortUrl)}
                 >
                   <Copy />
                 </Button>
                 <Button
                   title="Delete short link"
                   variant="icon"
-                  onClick={() => handleDeleteClick(link.id)}
+                  onClick={() => onDeleteClick(link.id)}
                 >
                   <Trash2 />
                 </Button>
@@ -89,8 +81,8 @@ export function GuestLinkList({ links, onDelete }: GuestLinkListProps) {
         description={GUEST_SHORT_LINK_STRINGS.deleteConfirmDescription}
         confirmText={GUEST_SHORT_LINK_STRINGS.delete}
         cancelText={GUEST_SHORT_LINK_STRINGS.cancel}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setOpenDialog(false)}
+        onConfirm={onConfirmDelete}
+        onCancel={onCancelDelete}
       />
     </>
   );

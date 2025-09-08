@@ -1,15 +1,14 @@
 "use client";
 
 import React from "react";
-import CreateLinkForm from "@/features/links/components/containers/CreateShortLinkFormContainer";
+import CreateLinkForm from "@/features/links/components/forms/containers/CreateShortLinkFormContainer";
 import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
 import { useClipboard } from "@/hooks/useClipboard";
-import { GuestLinkList } from "@/features/links/components/lists/GuestLinkList";
+import GuestLinksListContainer from "@/features/links/components/lists/containers/GuestLinkListContainer";
 import { useDeleteShortLinkToast } from "@/features/links/hooks/toast/useDeleteShortLinkToast";
 
 export default function Home() {
   const { uiGuestLinks } = useGuestLinks();
-  const { copy } = useClipboard();
   const deleteWithToast = useDeleteShortLinkToast();
 
   return (
@@ -29,7 +28,6 @@ export default function Home() {
           <CreateLinkForm />
         </div>
       </section>
-
       <section>
         <div className="flex items-center justify-center py-[25px]">
           <div className="flex-grow border-t-[2px]"></div>
@@ -39,10 +37,9 @@ export default function Home() {
           <div className="flex-grow border-t-[2px]"></div>
         </div>
 
-        <GuestLinkList
+        <GuestLinksListContainer
           links={uiGuestLinks}
           onDelete={deleteWithToast}
-          onCopy={(shortUrl) => copy(shortUrl)}
         />
       </section>
     </main>

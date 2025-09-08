@@ -3,7 +3,7 @@
 import { useState } from "react";
 import SignInFormUI from "../UI/SignInFormUI";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { SignInPayload } from "../../types/auth";
+import { SignInPayload } from "../../../types/auth";
 
 interface Props {
   onClose?: () => void;

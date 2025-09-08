@@ -11,20 +11,15 @@ interface SummarySectionUIProps {
 }
 
 export function SummarySectionUI({ selectedShortlink }: SummarySectionUIProps) {
-  if (!selectedShortlink) {
-    return (
-      <h1 className="text-md font-semibold text-stone-200">
-        <span className="animate-pulse">Loading analytics...</span>
-      </h1>
-    );
-  }
+  // Menggunakan 'id' jika shortlink ada, jika tidak, gunakan 0 atau nilai default
+  const shortlinkId = selectedShortlink?.id || 0;
 
   return (
     <div className="flex flex-col space-y-5">
       <div className="grid grid-cols-3 justify-center space-x-5">
-        <TotalClickCardContainer shortlinkId={selectedShortlink.id} />
-        <BounceRateCardContainer shortlinkId={selectedShortlink.id} />
-        <TrafficSourceCardContainer shortlinkId={selectedShortlink.id} />
+        <TotalClickCardContainer shortlinkId={shortlinkId} />
+        <BounceRateCardContainer shortlinkId={shortlinkId} />
+        <TrafficSourceCardContainer shortlinkId={shortlinkId} />
       </div>
     </div>
   );

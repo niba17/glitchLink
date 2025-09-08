@@ -55,7 +55,7 @@ export function DonutPieCardContainer({
   }, [analyticsData]);
 
   const data = React.useMemo(() => {
-    if (isLoading || isError || !analyticsData?.clicks) {
+    if (!analyticsData?.clicks) {
       return {
         deviceData: [],
         osData: [],
@@ -107,7 +107,7 @@ export function DonutPieCardContainer({
       osData,
       browserData,
     };
-  }, [dateRange, analyticsData, isLoading, isError]);
+  }, [dateRange, analyticsData]);
 
   // Menghitung initial state untuk useActiveKeysDonutPieChart
   const initialActiveState = React.useMemo(() => {
@@ -141,30 +141,6 @@ export function DonutPieCardContainer({
     [onToggle]
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[200px] text-stone-400">
-        <span className="animate-pulse">Loading analytics...</span>
-      </div>
-    );
-  }
-
-  if (isError || !analyticsData) {
-    return (
-      <div className="flex justify-center items-center h-[200px] text-red-400">
-        <span className="text-sm">Failed to load analytics data.</span>
-      </div>
-    );
-  }
-
-  if (analyticsData.clicks.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-[200px] text-stone-400">
-        <span>No click data available for this link.</span>
-      </div>
-    );
-  }
-
   return (
     <DonutPieCardUI
       dateRange={dateRange}
@@ -178,6 +154,9 @@ export function DonutPieCardContainer({
       onToggleDevice={onToggleDevice}
       onToggleOS={onToggleOS}
       onToggleBrowser={onToggleBrowser}
+      isLoading={isLoading}
+      isError={isError}
+      hasData={analyticsData?.clicks.length !== 0}
     />
   );
 }

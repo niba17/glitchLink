@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/card";
 import { DeviceDonutPieChartContainer } from "../../charts/containers/deviceDonutPieChartContainer";
 import { OSDonutPieChartContainer } from "../../charts/containers/osDonutPieChartContainer";
 import { BrowserDonutPieChartContainer } from "../../charts/containers/browserDonutPieChartContainer";
@@ -29,6 +34,9 @@ interface DonutPieCardUIProps {
   onToggleDevice: (key: DeviceKey) => void;
   onToggleOS: (key: OSKey) => void;
   onToggleBrowser: (key: BrowserKey) => void;
+  isLoading: boolean;
+  isError: boolean;
+  hasData: boolean;
 }
 
 export function DonutPieCardUI({
@@ -43,6 +51,9 @@ export function DonutPieCardUI({
   onToggleDevice,
   onToggleOS,
   onToggleBrowser,
+  isLoading,
+  isError,
+  hasData,
 }: DonutPieCardUIProps) {
   // Memo filtered data for charts, based on active keys AND clicks > 0
   const filteredDeviceData = React.useMemo(
@@ -66,23 +77,23 @@ export function DonutPieCardUI({
   );
 
   return (
-    <Card className="bg-foreground p-0">
-      <CardHeader className="pb-0">
-        <div className="flex space-x-2">
-          {/* Tambahkan key di sini untuk memaksa komponen me-render ulang */}
+    <Card className="bg-foreground p-5">
+      <CardHeader className="p-0 pb-3">
+        <div className="flex flex-wrap gap-y-2 space-x-2">
+          {/* Add key here to force component to re-render */}
           <DateRangePicker
             key={JSON.stringify(dateRange)}
             initialRange={dateRange}
             onChange={onDateRangeChange}
           />
 
-          {/* DropdownMenu untuk Device */}
+          {/* DropdownMenu for Device */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Device</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-              {/* Dropdown menu menampilkan semua item, aktif atau tidak */}
+              {/* Dropdown menu displays all items, active or not */}
               {deviceData.map((d) => (
                 <DropdownMenuCheckboxItem
                   key={d.key}
@@ -104,7 +115,7 @@ export function DonutPieCardUI({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* DropdownMenu untuk OS */}
+          {/* DropdownMenu for OS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">OS</Button>
@@ -131,7 +142,7 @@ export function DonutPieCardUI({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* DropdownMenu untuk Browser */}
+          {/* DropdownMenu for Browser */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Browser</Button>
@@ -158,23 +169,49 @@ export function DonutPieCardUI({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        <CardDescription>
+          By default, the chart displays data from the shortlink's entire
+          lifetime
+        </CardDescription>
       </CardHeader>
-      <CardContent className="mt-5 flex space-x-2">
-        <DeviceDonutPieChartContainer
-          chartData={filteredDeviceData}
-          activeKeys={activeDevices}
-          onToggleKey={onToggleDevice}
-        />
-        <OSDonutPieChartContainer
-          chartData={filteredOSData}
-          activeKeys={activeOS}
-          onToggleKey={onToggleOS}
-        />
-        <BrowserDonutPieChartContainer
-          chartData={filteredBrowserData}
-          activeKeys={activeBrowsers}
-          onToggleKey={onToggleBrowser}
-        />
+      <CardContent className="p-0 flex flex-wrap justify-around gap-y-2">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-[200px] text-stone-400 w-full">
+            <span className="animate-pulse">Loading analytics...</span>
+          </div>
+        ) : isError ? (
+          <div className="flex justify-center items-center h-[200px] text-red-400 w-full">
+            <span className="text-sm">Failed to load analytics data.</span>
+          </div>
+        ) : !hasData ? (
+          <div className="flex justify-center items-center h-[200px] text-stone-400 w-full">
+            <span>No click data available for this link.</span>
+          </div>
+        ) : (
+          <>
+            <div className="flex-1">
+              <DeviceDonutPieChartContainer
+                chartData={filteredDeviceData}
+                activeKeys={activeDevices}
+                onToggleKey={onToggleDevice}
+              />
+            </div>
+            <div className="flex-1">
+              <OSDonutPieChartContainer
+                chartData={filteredOSData}
+                activeKeys={activeOS}
+                onToggleKey={onToggleOS}
+              />
+            </div>
+            <div className="flex-1">
+              <BrowserDonutPieChartContainer
+                chartData={filteredBrowserData}
+                activeKeys={activeBrowsers}
+                onToggleKey={onToggleBrowser}
+              />
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

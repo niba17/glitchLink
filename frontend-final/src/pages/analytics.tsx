@@ -3,7 +3,7 @@
 import React from "react";
 import { DonutPieCardContainer } from "@/features/analytics/components/cards/containers/donutPieCardContainer";
 import { LineCardContainer } from "@/features/analytics/components/cards/containers/lineCardContainer";
-import { SummarySectionContainer } from "@/features/analytics/components/custom/containers/summarySectionContainer";
+import { SummarySectionContainer } from "@/features/analytics/components/customs/containers/summarySectionContainer";
 import {
   DropdownMenu,
   DropdownMenuContent,

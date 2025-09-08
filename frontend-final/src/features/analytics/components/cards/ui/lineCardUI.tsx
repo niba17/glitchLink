@@ -1,9 +1,13 @@
-// Lokasi File: frontend-final/src/features/analytics/components/cards/ui/lineCardUI.tsx
-
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import DateRangePicker from "@/components/ui/date-range-picker";
 import {
@@ -38,6 +42,10 @@ interface LineCardUIProps {
   onToggleDevice: (key: DeviceKey) => void;
   onToggleOS: (key: OSKey) => void;
   onToggleBrowser: (key: BrowserKey) => void;
+  // Tambahkan properti status
+  isLoading: boolean;
+  isError: boolean;
+  hasData: boolean;
 }
 
 export function LineCardUI({
@@ -50,13 +58,17 @@ export function LineCardUI({
   onToggleDevice,
   onToggleOS,
   onToggleBrowser,
+  // Dapatkan properti status
+  isLoading,
+  isError,
+  hasData,
 }: LineCardUIProps) {
   // Fungsi pembantu untuk menghitung total klik per key
   const calculateTotals = (keys: ChartKey[]) => {
     const totals: Record<ChartKey, number> = {} as Record<ChartKey, number>;
     keys.forEach((key) => {
       totals[key] = chartData.reduce(
-        (sum, item) => sum + ((item[key] as number) || 0),
+        (sum, item) => sum + Number(item[key] || 0),
         0
       );
     });
@@ -66,6 +78,13 @@ export function LineCardUI({
   const deviceTotals = calculateTotals(devices as ChartKey[]);
   const osTotals = calculateTotals(osList as ChartKey[]);
   const browserTotals = calculateTotals(browsers as ChartKey[]);
+
+  const allActiveKeys = [...activeDevices, ...activeOS, ...activeBrowsers];
+  const totalClicks = chartData.reduce(
+    (sum, item) =>
+      sum + allActiveKeys.reduce((s, key) => s + Number(item[key] || 0), 0),
+    0
+  );
 
   const renderDropdown = (
     label: string,
@@ -106,9 +125,9 @@ export function LineCardUI({
   );
 
   return (
-    <Card className="bg-foreground p-5 space-y-7">
-      <CardHeader className="p-0">
-        <div className="flex space-x-2">
+    <Card className="bg-foreground p-5">
+      <CardHeader className="p-0 pb-6">
+        <div className="flex flex-wrap gap-y-2 space-x-2">
           <DateRangePicker
             key={JSON.stringify(dateRange)}
             initialRange={dateRange}
@@ -130,18 +149,44 @@ export function LineCardUI({
             onToggleBrowser
           )}
         </div>
+        <CardDescription>
+          By default, the chart displays data from the shortlink's entire
+          lifetime
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="p-0">
-        <AllLineChartContainer
-          chartData={chartData}
-          active={{
-            devices: activeDevices,
-            osList: activeOS,
-            browsers: activeBrowsers,
-          }}
-        />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-[200px] text-stone-400 w-full">
+            <span className="animate-pulse">Loading analytics...</span>
+          </div>
+        ) : isError ? (
+          <div className="flex justify-center items-center h-[200px] text-red-400 w-full">
+            <span className="text-sm">Failed to load analytics data.</span>
+          </div>
+        ) : !hasData ? (
+          <div className="flex justify-center items-center h-[200px] text-stone-400 w-full">
+            <span>No click data available for this link.</span>
+          </div>
+        ) : (
+          <AllLineChartContainer
+            chartData={chartData}
+            active={{
+              devices: activeDevices,
+              osList: activeOS,
+              browsers: activeBrowsers,
+            }}
+          />
+        )}
       </CardContent>
+      {/* <CardFooter className="flex-col items-end text-sm p-0">
+        <div className="flex items-center font-medium leading-none">
+          Total Clicks {totalClicks}
+        </div>
+        <div className="leading-none text-muted-foreground">
+          Showing data for selected date range and categories
+        </div>
+      </CardFooter> */}
     </Card>
   );
 }

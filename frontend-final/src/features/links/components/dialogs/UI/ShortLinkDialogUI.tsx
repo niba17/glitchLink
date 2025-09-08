@@ -4,34 +4,31 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogFooter,
   DialogTitle,
   DialogDescription,
-  DialogClose,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import CreateShortLinkFormContainer from "@/features/links/components/containers/CreateShortLinkFormContainer";
-import UpdateShortLinkFormContainer from "@/features/links/components/containers/UpdateShortLinkFormContainer";
+import CreateShortLinkFormContainer from "@/features/links/components/forms/containers/CreateShortLinkFormContainer";
+import UpdateShortLinkFormContainer from "@/features/links/components/forms/containers/UpdateShortLinkFormContainer";
 
-interface ShortLinkDialogProps {
+interface ShortLinkDialogUIProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "create" | "update";
   linkId?: number;
   currentAlias?: string;
   currentExpiresAt?: string;
-  onClose?: () => void; // tambahkan ini
+  onClose?: () => void;
 }
 
-export default function ShortLinkDialog({
+export default function ShortLinkDialogUI({
   open,
   onOpenChange,
   mode,
   linkId,
   currentAlias = "",
   currentExpiresAt = "",
-  onClose, // ✅ tambahkan ini
-}: ShortLinkDialogProps) {
+  onClose,
+}: ShortLinkDialogUIProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>

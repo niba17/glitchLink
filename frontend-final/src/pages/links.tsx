@@ -7,11 +7,11 @@ import { useUserLinks } from "@/features/links/hooks/useUserLinks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useClipboard } from "@/hooks/useClipboard";
 import { Copy, Edit, Trash2 } from "lucide-react";
-import { DataTable, Column } from "@/components/common/DataTable";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { DataTable, Column } from "@/components/customs/DataTable";
+import ConfirmDialog from "@/components/customs/ConfirmDialog";
 import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
 import { UserLink } from "@/features/links/types/type";
-import ShortLinkDialog from "@/features/links/components/dialogs/ShortLinkDialog";
+import ShortLinkDialogContainer from "@/features/links/components/dialogs/containers/ShortLinkDialogContainer";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
@@ -153,7 +153,7 @@ export default function LinksPage() {
       </div>
 
       {/* 🔹 Create dialog */}
-      <ShortLinkDialog
+      <ShortLinkDialogContainer
         open={openCreateDialog}
         onOpenChange={setOpenCreateDialog}
         mode="create"
@@ -161,7 +161,7 @@ export default function LinksPage() {
       />
 
       {/* 🔹 Update dialog */}
-      <ShortLinkDialog
+      <ShortLinkDialogContainer
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
         mode="update"

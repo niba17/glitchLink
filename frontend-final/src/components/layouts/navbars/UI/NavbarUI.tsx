@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "../../../ui/button";
 import {
   Dialog,
   DialogTrigger,
@@ -9,24 +8,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "../ui/dialog";
-import { useAuthStore } from "@/store/useAuthStore";
-import AuthFormContainer from "@/features/auth/components/containers/AuthFormContainer";
-import ConfirmDialog from "../common/ConfirmDialog";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+} from "../../../ui/dialog";
+import AuthFormContainer from "@/features/auth/components/forms/containers/AuthFormContainer";
+import ConfirmDialog from "../../../customs/ConfirmDialog";
 
-export default function Navbar() {
-  const { isLoggedIn, rehydrated } = useAuthStore();
-  const { signOut } = useAuth(); // panggil di top level
-  const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+interface NavbarUIProps {
+  isLoggedIn: boolean;
+  openLogoutDialog: boolean;
+  setOpenLogoutDialog: (open: boolean) => void;
+  handleConfirmLogout: () => void;
+}
 
-  if (!rehydrated) return null;
-
-  const handleConfirmLogout = () => {
-    signOut(); // langsung panggil hook mutate
-    setOpenLogoutDialog(false);
-  };
-
+export default function NavbarUI({
+  isLoggedIn,
+  openLogoutDialog,
+  setOpenLogoutDialog,
+  handleConfirmLogout,
+}: NavbarUIProps) {
   return (
     <nav className="w-full px-[145px] py-3 flex justify-between items-center bg-zinc-800">
       <div className="text-3xl font-bold text-white">glitchLink</div>
