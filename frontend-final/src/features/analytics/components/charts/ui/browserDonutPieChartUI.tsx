@@ -122,8 +122,8 @@ export const BrowserDonutPieChartUI = React.memo(
             </PieChart>
           </ResponsiveContainer>
         </ChartContainer>
-        <p className="text-sm text-muted-foreground">
-          Last click about 5 mins ago
+        <p className="text-xs text-muted-foreground">
+          Last click about 5 mins ago by Chrome
         </p>
       </div>
     );

@@ -123,8 +123,8 @@ export const OSDonutPieChartUI = React.memo(function OSDonutPieChartUI({
           </PieChart>
         </ResponsiveContainer>
       </ChartContainer>
-      <p className="text-sm text-muted-foreground">
-        Last click about 5 mins ago
+      <p className="text-xs text-muted-foreground">
+        Last click about 5 mins ago by Android
       </p>
     </div>
   );
