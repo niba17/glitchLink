@@ -5,6 +5,7 @@ import linkRoutes from "./routes/linkRoutes";
 import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/errorMiddleware";
 import { LinkController } from "./controllers/linkController";
+import { noCache } from "./middlewares/noCache";
 import cors from "cors";
 
 dotenv.config();
@@ -23,12 +24,11 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/links", linkRoutes);
 
-const linkController = new LinkController();
-
-app.get(
-  "/:shortCode",
-  linkController.redirectToOriginalUrl.bind(linkController)
-);
+app.get("/:shortCode", noCache, async (req, res, next) => {
+  console.log("Redirect route hit:", req.params.shortCode);
+  const linkController = new LinkController();
+  return linkController.redirectToOriginalUrl(req, res, next);
+});
 
 app.use(errorMiddleware);
 

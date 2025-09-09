@@ -207,7 +207,7 @@ export class LinkService {
 
   async getOriginalUrl(shortCode: string, req: any): Promise<string> {
     const link = await this.linkRepository.findByShortCode(shortCode);
-    if (!link) throw new ExpiredError("Link");
+    if (!link) throw new NotFoundError("Link");
     if (link.expiresAt && new Date() > link.expiresAt)
       throw new ExpiredError("Link");
 

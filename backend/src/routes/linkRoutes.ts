@@ -25,6 +25,6 @@ router.get("/analytics", authMiddleware(), linkController.getAllLinkAnalytics);
 router.delete("/:linkId", authMiddleware(), linkController.deleteLink);
 
 // Endpoint publik redirect tanpa auth
-router.get("/:shortCode", linkController.redirectToOriginalUrl);
+// router.get("/:shortCode", linkController.redirectToOriginalUrl);
 
 export default router;
