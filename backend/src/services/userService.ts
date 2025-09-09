@@ -15,7 +15,9 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
 
-  async registerUser(userData: RegisterUserDto): Promise<UserWithoutPassword> {
+  async registerUser(
+    userData: RegisterUserDto
+  ): Promise<{ token: string; user: UserWithoutPassword }> {
     const { email, password } = userData;
 
     const existingUser = await this.userRepository.findByEmail(email);
@@ -32,7 +34,10 @@ export class UserService {
       password: hashedPassword,
     });
 
-    return this.excludePassword(newUser);
+    // langsung generate token, sama seperti loginUser
+    const token = generateJwt(newUser);
+
+    return { token, user: this.excludePassword(newUser) };
   }
 
   async loginUser(

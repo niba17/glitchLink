@@ -1,15 +1,15 @@
-// frontend-final/src/hooks/useToastHandler.ts
 "use client";
 
+import React from "react";
 import { toast } from "sonner";
 
 export function useToastHandler() {
   const showSuccess = (message: string) => {
-    toast.success(message);
+    toast.success(<span style={{ whiteSpace: "pre-line" }}>{message}</span>);
   };
 
   const showError = (message: string) => {
-    toast.error(message);
+    toast.error(<span style={{ whiteSpace: "pre-line" }}>{message}</span>);
   };
 
   return { showSuccess, showError };

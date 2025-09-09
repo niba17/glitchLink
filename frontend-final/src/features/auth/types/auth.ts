@@ -15,10 +15,19 @@ export interface AuthError {
   message: string;
 }
 
+export interface AuthResponseData {
+  token: string;
+  user: {
+    id: number;
+    email: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 export interface AuthResponse {
   status: "success" | "error";
   message: string;
-  token?: string; // token hanya ada kalau sukses
-  email?: string; // optional
-  errors?: AuthError[]; // array error dari BE
+  data?: AuthResponseData;
+  errors?: AuthError[];
 }

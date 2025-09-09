@@ -17,12 +17,15 @@ export class UserController {
   ): Promise<void> => {
     try {
       const validatedData = registerUserSchema.parse(req.body);
-      const newUser = await this.userService.registerUser(validatedData);
+      // sekarang registerUser sudah return { token, user }
+      const { token, user } = await this.userService.registerUser(
+        validatedData
+      );
 
       res.status(201).json({
         status: "success",
-        message: "User register successfully",
-        data: newUser,
+        message: "User registered & logged in successfully",
+        data: { token, user },
       });
     } catch (error: any) {
       next(error);
@@ -38,9 +41,11 @@ export class UserController {
       const validatedData = loginUserSchema.parse(req.body);
       const { token, user } = await this.userService.loginUser(validatedData);
 
-      res
-        .status(200)
-        .json({ status: "success", message: "User login successfully", token });
+      res.status(200).json({
+        status: "success",
+        message: "User login successfully",
+        data: { token, user },
+      });
     } catch (error: any) {
       next(error);
     }

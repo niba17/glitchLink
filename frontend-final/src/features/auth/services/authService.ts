@@ -13,44 +13,19 @@ const api = axios.create({
 
 export const authService = {
   register: async (payload: SignUpPayload): Promise<AuthResponse> => {
-    const res = await api.post<AuthResponse>("/users", payload, {
+    const res = await api.post("/users", payload, {
       headers: { "Content-Type": "application/json" },
     });
 
-    const data = res.data;
-
-    if (data.status !== "success") {
-      const message =
-        data.errors
-          ?.map((e) => e.message)
-          .filter(Boolean)
-          .join(", ") ||
-        data.message ||
-        "Failed to register";
-      throw new Error(message);
-    }
-
-    return data;
+    return res.data;
   },
 
   login: async (payload: SignInPayload): Promise<AuthResponse> => {
-    const res = await api.post<AuthResponse>("/users/login", payload, {
+    const res = await api.post("/users/login", payload, {
       headers: { "Content-Type": "application/json" },
     });
 
-    const data = res.data;
-
-    if (data.status !== "success") {
-      const message =
-        data.errors
-          ?.map((e) => e.message)
-          .filter(Boolean)
-          .join(", ") ||
-        data.message ||
-        "Failed to Sign In";
-      throw new Error(message);
-    }
-
-    return data;
+    // jangan hanya return data, return seluruh res.data
+    return res.data;
   },
 };

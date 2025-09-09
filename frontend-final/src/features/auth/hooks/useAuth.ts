@@ -1,78 +1,113 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutateFunction } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { authService } from "../services/authService";
-import { SignInPayload, SignUpPayload, AuthResponse } from "../types/auth";
+import { AuthResponse, SignInPayload, SignUpPayload } from "../types/auth";
+
+export interface AuthErrorParsed {
+  rootError: string;
+  fieldErrors: Record<string, string>;
+}
+
+export const parseAuthError = (err: any): AuthErrorParsed => {
+  const fe: Record<string, string> = {};
+  let re = "Something went wrong";
+
+  // AxiosError
+  if (err?.isAxiosError) {
+    const data = (err as AxiosError<any>).response?.data;
+    if (data) {
+      if (Array.isArray(data.errors)) {
+        data.errors.forEach((e: { path: string; message: string }) => {
+          fe[e.path] = e.message || "";
+        });
+      }
+      if (data.message) re = data.message;
+    }
+  }
+  // fallback generic Error
+  else if (err instanceof Error) {
+    re = err.message;
+  }
+
+  return { rootError: re, fieldErrors: fe };
+};
 
 export function useAuth() {
   const { setAuth, clearAuth } = useAuthStore();
   const { showSuccess, showError } = useToastHandler();
   const router = useRouter();
 
-  // Semua useMutation dipanggil di level top
-  const signInMutation = useMutation({
-    mutationFn: (payload: SignInPayload) => authService.login(payload),
-    onSuccess: (data) => {
-      setAuth({
-        isLoggedIn: true,
-        email: data?.email || "",
-        token: data?.token || "",
-      });
-      showSuccess(data.message || "User login successfully");
-      router.replace("/links");
-    },
-    onError: (err: any) => {
-      let msg = "User login failed";
-      if ((err as AxiosError).isAxiosError) {
-        const axiosErr = err as AxiosError<any>;
-        const responseData = axiosErr.response?.data;
-        if (responseData) {
-          const firstError = responseData.errors?.find(
-            (e: any) => e.message && e.message.trim() !== ""
-          )?.message;
-          msg = firstError || responseData.message || msg;
-        }
-      } else if (err instanceof Error) {
-        msg = err.message;
+  const signInMutation = useMutation<AuthResponse, AxiosError, SignInPayload>({
+    mutationFn: (payload) => authService.login(payload),
+    onSuccess: (res) => {
+      const token = res.data?.token;
+      const email = res.data?.user?.email;
+      if (token && email) {
+        setAuth({ isLoggedIn: true, token, email });
+        showSuccess(res.message);
+        router.replace("/links");
+      } else {
+        showError(res.message);
       }
-      showError(msg);
+    },
+    onError: (err: AxiosError) => {
+      const { rootError } = parseAuthError(err);
+      showError(rootError);
     },
   });
 
-  const signUpMutation = useMutation({
-    mutationFn: (payload: SignUpPayload) => authService.register(payload),
-    onSuccess: (data) => {
-      setAuth({
-        isLoggedIn: true,
-        email: data?.email || "",
-        token: data?.token || "",
-      });
-      showSuccess(data.message || "Signed up successfully");
+  const signUpMutation = useMutation<AuthResponse, AxiosError, SignUpPayload>({
+    mutationFn: (payload) => authService.register(payload),
+    onSuccess: (res) => {
+      const token = res.data?.token;
+      const email = res.data?.user?.email;
+      if (token && email) {
+        setAuth({ isLoggedIn: true, token, email });
+        showSuccess(res.message);
+        router.replace("/links");
+      } else {
+        showError(res.message);
+      }
     },
-    onError: (err: any) => {
-      showError(err?.message || "Failed to Sign Up");
+    onError: (err: AxiosError) => {
+      const { rootError } = parseAuthError(err);
+      showError(rootError);
+      return parseAuthError(err); // agar container bisa pakai fieldErrors
     },
   });
 
   const signOutMutation = useMutation({
-    mutationFn: async () => true, // kalau ada API logout, panggil di sini
+    mutationFn: async () => true,
     onSuccess: () => {
       clearAuth();
       showSuccess("Signed out successfully");
+      router.replace("/");
     },
     onError: () => showError("Sign out failed"),
   });
 
   return {
-    signIn: signInMutation.mutate,
-    signUp: signUpMutation.mutate,
+    signIn: signInMutation.mutate as unknown as UseMutateFunction<
+      AuthResponse,
+      AuthErrorParsed,
+      SignInPayload,
+      unknown
+    >,
+    signUp: signUpMutation.mutate as unknown as UseMutateFunction<
+      AuthResponse,
+      AuthErrorParsed,
+      SignUpPayload,
+      unknown
+    >,
     signOut: signOutMutation.mutate,
     signInStatus: signInMutation.status,
     signUpStatus: signUpMutation.status,
     signOutStatus: signOutMutation.status,
+    parseAuthError,
   };
 }

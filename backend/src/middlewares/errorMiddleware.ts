@@ -13,8 +13,7 @@ export function errorMiddleware(
       status: "error",
       message: "Validation failed",
       errors: err.issues.map((issue) => ({
-        // status: "error",
-        path: issue.path.join("."), // biasanya string key
+        path: issue.path.join("."),
         message: issue.message,
       })),
     });
@@ -32,9 +31,6 @@ export function errorMiddleware(
     });
   }
 
-  console.error("[Internal Error]", err);
-
-  // default error
   return res.status(500).json({
     status: "error",
     message: "Internal Server Error",
