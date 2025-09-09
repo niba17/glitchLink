@@ -59,9 +59,20 @@ export default function UpdateShortLinkFormUI({
 
         {/* Expiration Date */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-md" htmlFor="expiresAt">
-            Expiration Date (Optional)
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-md" htmlFor="expiresAt">
+              Expiration Date (Optional)
+            </Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onChangeExpiresAt("")}
+              className="h-5"
+            >
+              <span className="text-xs">Reset date</span>
+            </Button>
+          </div>
           <Input
             id="expiresAt"
             placeholder="yyyy-mm-dd hh:mm"
@@ -74,19 +85,12 @@ export default function UpdateShortLinkFormUI({
                 : ""
             }
           />
-
           {fieldErrors?.expiresAt && (
             <p className="text-sm text-red-500">{fieldErrors.expiresAt}</p>
           )}
         </div>
       </div>
-
       <div className="flex justify-end space-x-2">
-        {/* <DialogClose asChild>
-          <Button type="button" variant="outline">
-            Cancel
-          </Button>
-        </DialogClose> */}
         <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>

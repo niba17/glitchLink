@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DialogClose } from "@/components/ui/dialog";
 
 interface CreateShortLinkFormUIProps {
   originalUrl: string;
@@ -39,6 +38,7 @@ export default function CreateShortLinkFormUI({
       )}
 
       <div className="flex flex-col space-y-2">
+        {/* Original Link */}
         <div className="flex flex-col space-y-1">
           <Label className="text-md" htmlFor="originalUrl">
             Original Link
@@ -60,6 +60,7 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
+        {/* Custom Alias */}
         <div className="flex flex-col space-y-1">
           <Label className="text-md" htmlFor="customAlias">
             Custom Alias (Optional)
@@ -81,10 +82,23 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
+        {/* Expiration Date */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-md" htmlFor="expiresAt">
-            Expiration Date (Optional)
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-md" htmlFor="expiresAt">
+              Expiration Date (Optional)
+            </Label>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onChangeExpiresAt("")}
+              className="h-5"
+            >
+              <span className="text-xs">Reset date</span>
+            </Button>
+          </div>
           <Input
             id="expiresAt"
             type="datetime-local"
@@ -102,13 +116,8 @@ export default function CreateShortLinkFormUI({
         </div>
       </div>
 
-      {/* Tombol Cancel + Submit */}
+      {/* Cancel + Submit */}
       <div className="flex justify-end space-x-2">
-        {/* <DialogClose asChild>
-          <Button type="button" variant="outline">
-            Cancel
-          </Button>
-        </DialogClose> */}
         <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>

@@ -73,9 +73,20 @@ export default function CreateShortLinkFormUI({
         </div>
 
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="expiresAt">
-            Expiration Date (Optional)
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-lg" htmlFor="expiresAt">
+              Expiration Date (Optional)
+            </Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onChangeExpiresAt("")}
+              className="h-5"
+            >
+              <span className="text-xs">Reset date</span>
+            </Button>
+          </div>
           <Input
             id="expiresAt"
             type="datetime-local"
