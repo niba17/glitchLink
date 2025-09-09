@@ -12,6 +12,10 @@ import ConfirmDialog from "@/components/customs/ConfirmDialog";
 import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
 import { UserLink } from "@/features/links/types/type";
 import ShortLinkDialogContainer from "@/features/links/components/dialogs/containers/ShortLinkDialogContainer";
+import {
+  formatForDisplay,
+  formatForInput,
+} from "../features/links/utils/dateFormatters"; // Import fungsi formatForInput
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
@@ -117,7 +121,6 @@ export default function LinksPage() {
         </span>
       ),
     },
-
     {
       key: "createdAt",
       header: (
@@ -126,9 +129,11 @@ export default function LinksPage() {
       className: "text-end text-stone-200",
       render: (item) => (
         <div className="flex flex-col text-end">
-          <span title="Short link created">{item.createdAt}</span>
+          <span title="Short link created">
+            {formatForDisplay(item.createdAt ?? null)}
+          </span>
           <span title="Short link expired" className="text-red-500">
-            {item.expiresAt || "-"}
+            {formatForDisplay(item.expiresAt ?? null)}
           </span>
         </div>
       ),
