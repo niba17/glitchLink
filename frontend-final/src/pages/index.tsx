@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import CreateLinkForm from "@/features/links/components/forms/containers/CreateShortLinkFormContainer";
 import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";

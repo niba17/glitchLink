@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import SignInFormContainer from "./SignInFormContainer";
 import SignUpFormContainer from "./SignUpFormContainer";

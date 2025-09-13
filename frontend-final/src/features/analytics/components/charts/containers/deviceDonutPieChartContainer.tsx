@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { DeviceDonutPieChartUI } from "../ui/deviceDonutPieChartUI";
 import { DeviceKey } from "@/features/analytics/types/type";

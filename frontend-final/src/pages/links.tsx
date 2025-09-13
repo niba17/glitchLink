@@ -1,5 +1,4 @@
 // frontend-final/src/pages/links.tsx
-"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,6 +17,8 @@ import {
   formatForInput,
 } from "../features/links/utils/dateFormatters";
 import { useToastHandler } from "@/hooks/useToastHandler";
+import { Badge } from "@/components/ui/badge";
+import { isAfter } from "date-fns";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
@@ -66,19 +67,18 @@ export default function LinksPage() {
       header: <span className="text-xl font-semibold">Links</span>,
       className: "text-stone-200",
       render: (item) => {
+        const isActive =
+          !item.expiresAt || isAfter(new Date(item.expiresAt), new Date());
+
         const handleVisit = async () => {
           try {
-            // jangan auto-follow redirect
             const res = await fetch(item.shortUrl, {
               method: "GET",
               redirect: "manual",
             });
-
             const contentType = res.headers.get("content-type") || "";
 
-            // Case: BE returns JSON (expired / error)
             if (contentType.includes("application/json")) {
-              // safe parse JSON
               const data = await res.json().catch(() => null);
               if (data?.status === "error") {
                 showError(data.message || "Link tidak valid");
@@ -86,24 +86,20 @@ export default function LinksPage() {
               }
             }
 
-            // Case: redirect — beberapa browser membuat `opaqueredirect` / status 0 untuk cross-origin redirect
             if (
               res.type === "opaqueredirect" ||
               (res.status >= 300 && res.status < 400) ||
               res.status === 0
             ) {
-              // buka shortUrl di tab baru supaya browser yang handle redirect (ke original)
               window.open(item.shortUrl, "_blank");
               return;
             }
 
-            // jika sukses (200) kemungkinan server mengembalikan halaman HTML langsung
             if (res.ok) {
               window.open(item.shortUrl, "_blank");
               return;
             }
 
-            // fallback
             showError("Link tidak bisa diakses");
           } catch (err) {
             console.error("visit shortlink error:", err);
@@ -112,13 +108,21 @@ export default function LinksPage() {
         };
 
         return (
-          <div className="flex flex-col">
-            <button
-              onClick={handleVisit}
-              className="font-semibold underline block break-words text-left text-blue-400 hover:text-blue-300"
-            >
-              {item.shortUrl}
-            </button>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleVisit}
+                className="font-semibold underline text-left text-blue-400 hover:text-blue-300 break-words"
+              >
+                {item.shortUrl}
+              </button>
+              <Badge
+                variant={isActive ? "success" : "blocked"}
+                className="text-[10px] h-5 px-1 rounded-full"
+              >
+                {isActive ? "Active" : "Expired"}
+              </Badge>
+            </div>
             <span
               title="Original link"
               className="text-[14px] text-stone-400 break-words"

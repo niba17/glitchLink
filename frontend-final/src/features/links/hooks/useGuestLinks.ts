@@ -1,5 +1,4 @@
 // frontend-final/src/features/links/hooks/useGuestLinks.ts
-"use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { ShortLinkPayload } from "../../../types/type";
 import { useGuestLinks } from "../../../hooks/useGuestLinks";

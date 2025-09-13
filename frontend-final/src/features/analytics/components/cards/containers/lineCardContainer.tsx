@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { LineCardUI } from "@/features/analytics/components/cards/ui/lineCardUI";
 import {

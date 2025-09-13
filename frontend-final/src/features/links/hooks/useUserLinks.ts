@@ -1,5 +1,3 @@
-"use client";
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { linkService } from "../services/linkService";
 import { useAuthStore } from "@/store/useAuthStore";

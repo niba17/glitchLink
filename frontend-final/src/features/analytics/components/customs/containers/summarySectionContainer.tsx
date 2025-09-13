@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { SummarySectionUI } from "../ui/summarySectionUI";
 import { UserLink } from "@/features/links/types/type";

@@ -1,5 +1,3 @@
-"use client";
-
 import ShortLinkDialogUI from "../UI/ShortLinkDialogUI";
 
 interface ShortLinkDialogContainerProps {

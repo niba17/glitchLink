@@ -1,14 +1,3 @@
-"use client";
-
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2, Copy } from "lucide-react";
 import { GuestLinkUI } from "@/features/links/types/type";

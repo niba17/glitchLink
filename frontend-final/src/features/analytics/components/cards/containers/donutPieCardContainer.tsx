@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { DonutPieCardUI } from "../ui/donutPieCardUI";
 import { DateRange } from "react-day-picker";

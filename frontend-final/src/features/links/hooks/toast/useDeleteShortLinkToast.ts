@@ -1,21 +1,24 @@
-"use client";
-
-import { toast } from "sonner";
 import { useGuestLinks } from "../useGuestLinks";
 import { GUEST_SHORT_LINK_STRINGS } from "../../constants/strings";
+import { useToastHandler } from "@/hooks/useToastHandler";
 
-/**
- * Hook helper untuk delete guest link dengan toast.
- * Kelebihan: reusable dan konsisten di seluruh app.
- */
 export function useDeleteShortLinkToast() {
   const { deleteShortLink } = useGuestLinks();
+  const { showSuccess, showError } = useToastHandler(); // ⬅️ pakai custom toast
 
   const deleteWithToast = (id: number) => {
     deleteShortLink(id, {
-      onSuccess: () => toast.success(GUEST_SHORT_LINK_STRINGS.deleteSuccess),
-      onError: (err: any) =>
-        toast.error(err?.message || GUEST_SHORT_LINK_STRINGS.deleteError),
+      onSuccess: (data: any) => {
+        // Ambil pesan sukses dari BE jika ada, fallback ke constant
+        const message = data?.message || GUEST_SHORT_LINK_STRINGS.deleteSuccess;
+        showSuccess(message);
+      },
+      onError: (error: any) => {
+        const apiError = error.response?.data || error.data;
+        const message =
+          apiError?.message || GUEST_SHORT_LINK_STRINGS.deleteError;
+        showError(message);
+      },
     });
   };
 

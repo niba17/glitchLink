@@ -1,5 +1,4 @@
 // Lokasi: frontend-final\src\features\analytics\components\cards\containers\bounceRateCardContainer.tsx
-"use client";
 
 import React from "react";
 import { BounceRateCardUI } from "../ui/bounceRateCardUI";

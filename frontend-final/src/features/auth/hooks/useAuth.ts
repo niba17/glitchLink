@@ -1,5 +1,3 @@
-"use client";
-
 import { useMutation, UseMutateFunction } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";

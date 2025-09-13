@@ -1,6 +1,8 @@
-"use client";
-
-import { Button } from "../../../ui/button";
+import { Button } from "@/components/ui/button";
+import { NavMenuUI } from "./nav-menuUI";
+import { NavigationSheetUI } from "./navigation-sheetUI";
+import ConfirmDialog from "../../../../customs/ConfirmDialog";
+import AuthFormContainer from "@/features/auth/components/forms/containers/AuthFormContainer";
 import {
   Dialog,
   DialogTrigger,
@@ -8,31 +10,33 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "../../../ui/dialog";
-import AuthFormContainer from "@/features/auth/components/forms/containers/AuthFormContainer";
-import ConfirmDialog from "../../../customs/ConfirmDialog";
+} from "../../../../ui/dialog";
 
-interface NavbarUIProps {
+interface Navbar02UIProps {
   isLoggedIn: boolean;
   openLogoutDialog: boolean;
   setOpenLogoutDialog: (open: boolean) => void;
   handleConfirmLogout: () => void;
 }
 
-export default function NavbarUI({
+export const Navbar02UI = ({
   isLoggedIn,
   openLogoutDialog,
   setOpenLogoutDialog,
   handleConfirmLogout,
-}: NavbarUIProps) {
+}: Navbar02UIProps) => {
   return (
-    <nav className="w-full px-[145px] py-3 flex justify-between items-center bg-zinc-800">
+    <nav className="sticky top-0 w-full py-3 flex justify-between items-center bg-zinc-800 px-[145px] z-50">
       <div className="text-3xl font-bold text-white">glitchLink</div>
-      <div>
+
+      {/* Desktop Menu */}
+      {isLoggedIn && <NavMenuUI className="hidden md:block" />}
+
+      <div className="flex items-center gap-3">
         {!isLoggedIn ? (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" className="text-[20px]">
+              <Button variant="outline" className="hidden sm:inline-flex">
                 Sign In
               </Button>
             </DialogTrigger>
@@ -49,8 +53,8 @@ export default function NavbarUI({
         ) : (
           <>
             <Button
-              variant="ghost"
-              className="text-2xl"
+              variant="outline"
+              className="hidden sm:inline-flex"
               onClick={() => setOpenLogoutDialog(true)}
             >
               Sign Out
@@ -67,7 +71,16 @@ export default function NavbarUI({
             />
           </>
         )}
+
+        {/* Mobile Menu */}
+        {isLoggedIn && (
+          <div className="md:hidden">
+            <NavigationSheetUI />
+          </div>
+        )}
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar02UI;

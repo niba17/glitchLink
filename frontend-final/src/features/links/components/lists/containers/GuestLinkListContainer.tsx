@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { useClipboard } from "@/hooks/useClipboard";
 import { GuestLinkUI } from "@/features/links/types/type";

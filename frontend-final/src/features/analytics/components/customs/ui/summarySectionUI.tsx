@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { TotalClickCardContainer } from "../../cards/containers/totalClickCardContainer";
 import { TrafficSourceCardContainer } from "../../cards/containers/trafficSourceCardContainer";

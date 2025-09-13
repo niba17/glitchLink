@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import SignInFormUI from "../UI/SignInFormUI";
 import { useAuth, AuthErrorParsed } from "@/features/auth/hooks/useAuth";

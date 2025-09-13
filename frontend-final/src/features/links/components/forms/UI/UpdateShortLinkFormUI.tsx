@@ -1,8 +1,6 @@
 // frontend-final/src/features/links/components/forms/UpdateShortLinkFormUI.tsx
-"use client";
 
 import { Button } from "@/components/ui/button";
-import { DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 

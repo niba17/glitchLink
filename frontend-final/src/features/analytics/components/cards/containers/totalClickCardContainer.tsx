@@ -1,15 +1,8 @@
-"use client";
-
 import React from "react";
 import { TotalClickCardUI } from "../ui/totalClickCardUI";
 import { useUserLinkAnalytics } from "@/features/analytics/hooks/useUserLinkAnalitics";
 import { chartConfig } from "@/features/analytics/config/chartConfig";
-import {
-  allKeys,
-  browsers,
-  devices,
-  osList,
-} from "@/features/analytics/constants/analyticsKeys";
+import { allKeys } from "@/features/analytics/constants/analyticsKeys";
 import { BrowserKey, DeviceKey, OSKey } from "@/features/analytics/types/type";
 
 interface TotalClickCardContainerProps {

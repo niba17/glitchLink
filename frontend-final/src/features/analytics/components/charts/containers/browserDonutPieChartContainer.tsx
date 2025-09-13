@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { BrowserDonutPieChartUI } from "../ui/browserDonutPieChartUI";
 import { BrowserKey } from "@/features/analytics/types/type";

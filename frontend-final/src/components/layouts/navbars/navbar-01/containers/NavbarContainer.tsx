@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useAuth } from "@/features/auth/hooks/useAuth";

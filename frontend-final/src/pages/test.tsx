@@ -1,9 +1,12 @@
+// frontend-final/src/pages/test.tsx
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useToastHandler } from "@/hooks/useToastHandler";
 
 export default function TestPage() {
+  const { showSuccess, showError } = useToastHandler();
+
   const { data, isLoading } = useQuery({
     queryKey: ["hello"],
     queryFn: async () => {
@@ -15,7 +18,7 @@ export default function TestPage() {
   return (
     <div className="p-6">
       <button
-        onClick={() => toast.success("Sonner works!")}
+        onClick={() => showSuccess("Sonner works!")}
         className="px-4 py-2 bg-blue-600 text-white rounded-lg"
       >
         Show Toast

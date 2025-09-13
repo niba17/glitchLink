@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";

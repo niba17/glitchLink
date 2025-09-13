@@ -1,5 +1,4 @@
 // Lokasi: frontend-final\src\features\analytics\components\cards\containers\trafficSpikeCardContainer.tsx
-"use client";
 
 import React from "react";
 import { TrafficSourceCardUI } from "../ui/trafficSourceCardUI";

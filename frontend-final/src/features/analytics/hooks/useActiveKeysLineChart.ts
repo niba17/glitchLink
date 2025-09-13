@@ -1,11 +1,6 @@
-"use client";
-
 import React from "react";
 import {
   ChartKey,
-  DeviceKey,
-  BrowserKey,
-  OSKey,
   ActiveState,
   ActiveKeyType,
 } from "@/features/analytics/types/type";

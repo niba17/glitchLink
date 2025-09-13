@@ -1,5 +1,4 @@
 // frontend-final/src/features/analytics/components/charts/containers/allLineChartContainer.tsx
-"use client";
 
 import * as React from "react";
 import { ChartKey, ChartDataItem } from "@/features/analytics/types/type";

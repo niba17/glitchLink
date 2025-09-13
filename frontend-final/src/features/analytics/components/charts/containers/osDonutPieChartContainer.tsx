@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { OSDonutPieChartUI } from "../ui/osDonutPieChartUI";
 import { OSKey } from "@/features/analytics/types/type";
