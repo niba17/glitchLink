@@ -1,3 +1,4 @@
+import { DateTimePicker } from "@/components/customs/DateTimePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,11 +114,10 @@ export default function CreateGuestShortLinkFormUI({
               <span className="text-xs">Reset date</span>
             </Button>
           </div>
-          <Input
+          <DateTimePicker
             id="expiresAt"
-            type="datetime-local"
-            value={expiresAt || ""}
-            onChange={(e) => onChangeExpiresAt(e.target.value)}
+            value={expiresAt} // string ISO
+            onChange={(val) => onChangeExpiresAt(val)}
             className={
               fieldErrors?.expiresAt
                 ? "border border-red-500 focus:ring-red-500"

@@ -1,5 +1,6 @@
 // frontend-final/src/features/links/components/forms/UpdateShortLinkFormUI.tsx
 
+import { DateTimePicker } from "@/components/customs/DateTimePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,12 +89,10 @@ export default function UpdateShortLinkFormUI({
               <span className="text-xs">Reset date</span>
             </Button>
           </div>
-          <Input
+          <DateTimePicker
             id="expiresAt"
-            placeholder="yyyy-mm-dd hh:mm"
-            type="datetime-local"
             value={expiresAt ?? ""}
-            onChange={(e) => onChangeExpiresAt(e.target.value)}
+            onChange={(val) => onChangeExpiresAt(val)}
             className={
               fieldErrors?.expiresAt
                 ? "border border-red-500 focus:ring-red-500"
