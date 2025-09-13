@@ -16,6 +16,8 @@ interface UpdateShortLinkFormUIProps {
   fieldErrors?: Record<string, string>;
   rootError?: string;
   onClose?: () => void;
+  onGenerateAlias?: () => void;
+  isGenerating?: boolean; // ⬅️ tambahan baru
 }
 
 export default function UpdateShortLinkFormUI({
@@ -28,6 +30,8 @@ export default function UpdateShortLinkFormUI({
   fieldErrors,
   rootError,
   onClose,
+  onGenerateAlias,
+  isGenerating, // ⬅️ baru
 }: UpdateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
@@ -37,9 +41,22 @@ export default function UpdateShortLinkFormUI({
       <div className="flex flex-col space-y-3">
         {/* Custom Alias */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-md" htmlFor="customAlias">
-            Custom Alias (Optional)
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-md" htmlFor="customAlias">
+              Custom Alias (Optional)
+            </Label>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-5"
+              onClick={onGenerateAlias}
+              disabled={isGenerating} // ✅ selalu ada tombol
+            >
+              {isGenerating ? "Generating..." : "Generate"}
+            </Button>
+          </div>
           <Input
             id="customAlias"
             placeholder="your-alias"
@@ -77,7 +94,7 @@ export default function UpdateShortLinkFormUI({
             id="expiresAt"
             placeholder="yyyy-mm-dd hh:mm"
             type="datetime-local"
-            value={expiresAt ?? ""} // <-- fallback
+            value={expiresAt ?? ""}
             onChange={(e) => onChangeExpiresAt(e.target.value)}
             className={
               fieldErrors?.expiresAt

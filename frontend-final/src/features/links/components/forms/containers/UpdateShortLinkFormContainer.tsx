@@ -29,13 +29,20 @@ export default function UpdateShortLinkFormContainer({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  // updateShortLink sekarang langsung fungsi mutate
-  const { updateShortLink, isUpdating } = useUserLinks();
+  const { updateShortLink, isUpdating, generateShortCode, isGenerating } =
+    useUserLinks();
+
+  const handleGenerateAlias = async () => {
+    try {
+      const code = await generateShortCode();
+      setCustomAlias(code);
+    } catch (err) {
+      toast.error("Failed to generate alias");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFieldErrors({});
-
     setFieldErrors({});
     setRootError(null);
 
@@ -87,10 +94,12 @@ export default function UpdateShortLinkFormContainer({
       onChangeAlias={setCustomAlias}
       onChangeExpiresAt={setExpiresAt}
       onSubmit={handleSubmit}
-      isPending={isUpdating}
+      isPending={isUpdating} // ⬅️ hanya submit
+      isGenerating={isGenerating} // ⬅️ khusus generate
       fieldErrors={fieldErrors}
       rootError={rootError ?? undefined}
       onClose={onClose}
+      onGenerateAlias={handleGenerateAlias}
     />
   );
 }

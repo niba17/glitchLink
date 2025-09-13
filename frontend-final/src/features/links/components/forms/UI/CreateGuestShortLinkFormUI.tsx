@@ -7,29 +7,42 @@ import { Label } from "@/components/ui/label";
 interface CreateShortLinkFormUIProps {
   originalUrl: string;
   customAlias: string;
-  expiresAt: string; // <- tambahkan
+  expiresAt: string;
   onChangeOriginal: (val: string) => void;
   onChangeAlias: (val: string) => void;
-  onChangeExpiresAt: (val: string) => void; // <- tambahkan
+  onChangeExpiresAt: (val: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   fieldErrors?: Record<string, string>;
   isPending?: boolean;
+  onGenerateAlias?: () => void;
+  isGenerating?: boolean;
+  rootError?: string;
+  onClose?: () => void;
 }
 
-export default function CreateShortLinkFormUI({
+export default function CreateGuestShortLinkFormUI({
   originalUrl,
   customAlias,
-  expiresAt, // <- tambahkan
+  expiresAt,
   onChangeOriginal,
   onChangeAlias,
-  onChangeExpiresAt, // <- tambahkan
+  onChangeExpiresAt,
   onSubmit,
   fieldErrors,
   isPending,
+  onGenerateAlias,
+  isGenerating,
+  rootError,
+  onClose,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
+      {rootError && (
+        <p className="text-sm font-extrabold text-red-500">{rootError}</p>
+      )}
+
       <div className="flex flex-col space-y-2">
+        {/* Original Link */}
         <div className="flex flex-col space-y-1">
           <Label className="text-lg" htmlFor="originalUrl">
             Original Link
@@ -51,10 +64,23 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
+        {/* Alias */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-lg" htmlFor="customAlias">
-            Alias (Optional)
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-lg" htmlFor="customAlias">
+              Alias (Optional)
+            </Label>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="h-5"
+              onClick={onGenerateAlias}
+              disabled={isGenerating}
+            >
+              {isGenerating ? "..." : "Generate"}
+            </Button>
+          </div>
           <Input
             id="customAlias"
             placeholder="your-alias"
@@ -72,6 +98,7 @@ export default function CreateShortLinkFormUI({
           )}
         </div>
 
+        {/* Expiration Date */}
         <div className="flex flex-col space-y-1">
           <div className="flex items-center justify-between">
             <Label className="text-lg" htmlFor="expiresAt">

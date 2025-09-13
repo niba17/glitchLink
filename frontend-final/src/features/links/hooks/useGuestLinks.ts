@@ -1,3 +1,4 @@
+// frontend-final/src/features/links/hooks/useGuestLinks.ts
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -68,6 +69,13 @@ export function useGuestLinks() {
     },
   });
 
+  // 🔑 Generate short code khusus guest
+  const generateCodeMutation = useMutation({
+    mutationFn: async () => {
+      return linkService.generateShortCode(); // tanpa token
+    },
+  });
+
   const uiGuestLinks: GuestLinkUI[] = query.data
     ? mapGuestLinksToUI(query.data)
     : [];
@@ -76,8 +84,16 @@ export function useGuestLinks() {
     guestLinks: query.data || [],
     uiGuestLinks,
     isLoading: query.isLoading,
+
+    // create & delete
     createShortLink: createMutation.mutate,
     deleteShortLink: deleteMutation.mutate,
+
+    // generate code
+    generateShortCode: generateCodeMutation.mutateAsync,
+    isGenerating: generateCodeMutation.isPending,
+
+    // states
     isCreating: createMutation.isPending,
     createError: createMutation.error,
   };

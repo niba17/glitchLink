@@ -14,14 +14,12 @@ export const createShortLinkSchema = z.object({
   customAlias: z
     .string()
     .trim()
+    .min(1, { message: "Custom Alias is required" }) // ← alias wajib
     .max(20, { message: "Custom alias cannot exceed 20 characters" })
     .regex(/^[a-z0-9-]+$/, {
       message:
         "Custom alias can only contain lowercase letters, numbers, and hyphens",
-    })
-    .optional()
-    .or(z.literal(null))
-    .transform((e) => (e === "" ? undefined : e === null ? null : e)),
+    }),
 
   expiresAt: z
     .string()

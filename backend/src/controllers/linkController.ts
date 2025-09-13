@@ -5,6 +5,20 @@ import { createShortLinkSchema, updateLinkSchema } from "../DTOs/linkDTO";
 export class LinkController {
   private linkService = new LinkService();
 
+  generateCode = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const code = await this.linkService.generateAvailableCode();
+
+      return res.status(201).json({
+        status: "success",
+        message: "Short code generated successfully",
+        data: { code },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   createShortLink = async (
     req: Request,
     res: Response,

@@ -16,6 +16,14 @@ import { mapLinkToDto } from "../mappers/linkMapper";
 import type { Link, Click } from "@prisma/client";
 import { getClickDataFromRequest } from "../utils/clickInfo";
 
+import { customAlphabet } from "nanoid";
+
+// di atas class LinkService
+const nanoidLowercase = customAlphabet(
+  "abcdefghijklmnopqrstuvwxyz0123456789",
+  7
+);
+
 export class LinkService {
   private linkRepository: LinkRepository;
   private clickService: ClickService;
@@ -60,10 +68,14 @@ export class LinkService {
 
   private async generateUniqueShortCode(): Promise<string> {
     while (true) {
-      const code = nanoid(7);
+      const code = nanoidLowercase(); // ✅ hanya lowercase + angka
       const exists = await this.linkRepository.findByShortCode(code);
       if (!exists) return code;
     }
+  }
+
+  async generateAvailableCode(): Promise<string> {
+    return this.generateUniqueShortCode();
   }
 
   private async getOwnedLinkOrThrow(

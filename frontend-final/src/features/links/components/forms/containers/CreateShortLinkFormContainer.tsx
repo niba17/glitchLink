@@ -27,15 +27,36 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  const { createShortLink: createGuestShortLink } = useGuestLinks();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { showSuccess, showError } = useToastHandler();
-  const { createShortLink: createUserShortLink } = useUserLinks();
+
+  const {
+    createShortLink: createGuestShortLink,
+    generateShortCode: generateGuestAlias,
+    isCreating: isGuestCreating,
+    isGenerating: isGuestGenerating,
+  } = useGuestLinks();
+
+  const {
+    createShortLink: createUserShortLink,
+    isCreating: isUserCreating,
+    generateShortCode: generateUserAlias,
+    isGenerating: isUserGenerating,
+  } = useUserLinks();
+
+  const handleGenerateAlias = async () => {
+    try {
+      const code = isLoggedIn
+        ? await generateUserAlias()
+        : await generateGuestAlias();
+      setCustomAlias(code);
+    } catch (err) {
+      showError("Failed to generate alias");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFieldErrors({});
-
     setFieldErrors({});
     setRootError(null);
 
@@ -53,7 +74,6 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
     };
 
     const handleError = (err: any) => {
-      // ambil payload dari AxiosError
       const apiError = err.response?.data || err.data || err;
 
       if (Array.isArray(apiError?.errors)) {
@@ -62,10 +82,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
           mapped[e.path] = e.message;
         });
         setFieldErrors(mapped);
-        // kalau BE kasih message umum juga, taruh di rootError
-        if (apiError.message) {
-          setRootError(apiError.message);
-        }
+        if (apiError.message) setRootError(apiError.message);
       } else if (apiError?.message) {
         setRootError(apiError.message);
       }
@@ -73,14 +90,14 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
       showError(apiError?.message || "Failed to create link");
     };
 
-    if (!isLoggedIn) {
-      createGuestShortLink(payload, {
-        onSuccess: () => handleSuccess("Guest short link created!"),
+    if (isLoggedIn) {
+      createUserShortLink(payload, {
+        onSuccess: () => handleSuccess("User short link created!"),
         onError: handleError,
       });
     } else {
-      createUserShortLink(payload, {
-        onSuccess: () => handleSuccess("User short link created!"),
+      createGuestShortLink(payload, {
+        onSuccess: () => handleSuccess("Guest short link created!"),
         onError: handleError,
       });
     }
@@ -103,8 +120,17 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
       expiresAt={expiresAt ?? ""}
       rootError={rootError ?? undefined}
       onClose={onClose}
+      onGenerateAlias={handleGenerateAlias}
+      isGenerating={isUserGenerating}
+      isPending={isUserCreating}
     />
   ) : (
-    <CreateGuestShortLinkFormUI {...sharedProps} expiresAt={expiresAt ?? ""} />
+    <CreateGuestShortLinkFormUI
+      {...sharedProps}
+      expiresAt={expiresAt ?? ""}
+      onGenerateAlias={handleGenerateAlias}
+      isGenerating={isGuestGenerating}
+      isPending={isGuestCreating}
+    />
   );
 }

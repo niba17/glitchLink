@@ -22,6 +22,27 @@ const api = axios.create({
 });
 
 export const linkService = {
+  async generateShortCode(token?: string): Promise<string> {
+    const res = await api.get("/links/generate-code", {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    const data = res.data;
+
+    if (data.status !== "success") {
+      const message =
+        data.errors?.[0]?.message ||
+        data.message ||
+        "Failed to generate short code";
+      throw new ApiError(message, data);
+    }
+
+    return data.data.code;
+  },
+
   async createShortLink(
     payload: ShortLinkPayload,
     token?: string

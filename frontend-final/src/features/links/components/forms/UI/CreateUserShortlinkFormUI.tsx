@@ -16,6 +16,8 @@ interface CreateShortLinkFormUIProps {
   isPending?: boolean;
   rootError?: string;
   onClose?: () => void;
+  onGenerateAlias?: () => void; // <<<<<
+  isGenerating?: boolean;
 }
 
 export default function CreateShortLinkFormUI({
@@ -30,6 +32,8 @@ export default function CreateShortLinkFormUI({
   isPending,
   rootError,
   onClose,
+  onGenerateAlias,
+  isGenerating,
 }: CreateShortLinkFormUIProps) {
   return (
     <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
@@ -62,9 +66,22 @@ export default function CreateShortLinkFormUI({
 
         {/* Custom Alias */}
         <div className="flex flex-col space-y-1">
-          <Label className="text-md" htmlFor="customAlias">
-            Custom Alias (Optional)
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-md" htmlFor="customAlias">
+              Custom Alias
+            </Label>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onGenerateAlias}
+              disabled={isGenerating}
+              size="sm"
+              className="h-5"
+            >
+              {isGenerating ? "Generating..." : "Generate"}
+            </Button>
+          </div>
           <Input
             id="customAlias"
             placeholder="your-alias"
@@ -77,6 +94,7 @@ export default function CreateShortLinkFormUI({
                 : ""
             }
           />
+
           {fieldErrors?.customAlias && (
             <p className="text-sm text-red-500">{fieldErrors.customAlias}</p>
           )}

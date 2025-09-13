@@ -23,6 +23,11 @@ router.get(
 );
 router.get("/analytics", authMiddleware(), linkController.getAllLinkAnalytics);
 router.delete("/:linkId", authMiddleware(), linkController.deleteLink);
+router.get(
+  "/generate-code",
+  authMiddleware({ optional: true }),
+  linkController.generateCode
+);
 
 // Endpoint publik redirect tanpa auth
 // router.get("/:shortCode", linkController.redirectToOriginalUrl);

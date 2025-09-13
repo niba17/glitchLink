@@ -11,6 +11,15 @@ export function useUserLinks() {
   const queryClient = useQueryClient();
   const { showSuccess, showError } = useToastHandler();
 
+  const generateCodeMutation = useMutation({
+    mutationFn: async () => {
+      return linkService.generateShortCode(token || undefined);
+    },
+    onError: (err: any) => {
+      showError(err?.message || "Failed to generate short code");
+    },
+  });
+
   // Fetch user links
   const query = useQuery<UserLink[], Error>({
     queryKey: ["userLinks", token],
@@ -78,5 +87,7 @@ export function useUserLinks() {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    generateShortCode: generateCodeMutation.mutateAsync,
+    isGenerating: generateCodeMutation.isPending,
   };
 }

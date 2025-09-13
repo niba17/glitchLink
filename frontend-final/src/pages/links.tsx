@@ -1,3 +1,4 @@
+// frontend-final/src/pages/links.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,13 +16,15 @@ import ShortLinkDialogContainer from "@/features/links/components/dialogs/contai
 import {
   formatForDisplay,
   formatForInput,
-} from "../features/links/utils/dateFormatters"; // Import fungsi formatForInput
+} from "../features/links/utils/dateFormatters";
+import { useToastHandler } from "@/hooks/useToastHandler";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
   const router = useRouter();
   const { copy } = useClipboard();
   const { data: links, isLoading, error, deleteShortLink } = useUserLinks();
+  const { showError } = useToastHandler(); // <-- pindahkan ke top-level
 
   // state dialog
   const [openDialog, setOpenDialog] = useState(false);
@@ -62,54 +65,98 @@ export default function LinksPage() {
       key: "shortUrl",
       header: <span className="text-xl font-semibold">Links</span>,
       className: "text-stone-200",
-      render: (item) => (
-        <div className="flex flex-col">
-          <a
-            href={item.shortUrl}
-            title="Visit short link"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold underline block break-words"
-          >
-            {item.shortUrl}
-          </a>
-          <span
-            title="Original link"
-            className="text-[14px] text-stone-400 break-words"
-          >
-            {item.originalUrl}
-          </span>
-          <div className="flex items-center justify-start gap-2 mt-2">
-            <Button
-              title="Copy short link"
-              variant="icon"
-              size="sm"
-              onClick={() => copy(item.shortUrl)}
+      render: (item) => {
+        const handleVisit = async () => {
+          try {
+            // jangan auto-follow redirect
+            const res = await fetch(item.shortUrl, {
+              method: "GET",
+              redirect: "manual",
+            });
+
+            const contentType = res.headers.get("content-type") || "";
+
+            // Case: BE returns JSON (expired / error)
+            if (contentType.includes("application/json")) {
+              // safe parse JSON
+              const data = await res.json().catch(() => null);
+              if (data?.status === "error") {
+                showError(data.message || "Link tidak valid");
+                return;
+              }
+            }
+
+            // Case: redirect — beberapa browser membuat `opaqueredirect` / status 0 untuk cross-origin redirect
+            if (
+              res.type === "opaqueredirect" ||
+              (res.status >= 300 && res.status < 400) ||
+              res.status === 0
+            ) {
+              // buka shortUrl di tab baru supaya browser yang handle redirect (ke original)
+              window.open(item.shortUrl, "_blank");
+              return;
+            }
+
+            // jika sukses (200) kemungkinan server mengembalikan halaman HTML langsung
+            if (res.ok) {
+              window.open(item.shortUrl, "_blank");
+              return;
+            }
+
+            // fallback
+            showError("Link tidak bisa diakses");
+          } catch (err) {
+            console.error("visit shortlink error:", err);
+            showError("Something went wrong");
+          }
+        };
+
+        return (
+          <div className="flex flex-col">
+            <button
+              onClick={handleVisit}
+              className="font-semibold underline block break-words text-left text-blue-400 hover:text-blue-300"
             >
-              <Copy />
-            </Button>
-            <Button
-              title="Update short link"
-              variant="icon"
-              size="sm"
-              onClick={() => {
-                setSelectedId(item.id);
-                setOpenEditDialog(true);
-              }}
+              {item.shortUrl}
+            </button>
+            <span
+              title="Original link"
+              className="text-[14px] text-stone-400 break-words"
             >
-              <Edit />
-            </Button>
-            <Button
-              title="Delete short link"
-              variant="icon"
-              size="sm"
-              onClick={() => handleDeleteClick(item.id)}
-            >
-              <Trash2 />
-            </Button>
+              {item.originalUrl}
+            </span>
+            <div className="flex items-center justify-start gap-2 mt-2">
+              <Button
+                title="Copy short link"
+                variant="icon"
+                size="sm"
+                onClick={() => copy(item.shortUrl)}
+              >
+                <Copy />
+              </Button>
+              <Button
+                title="Update short link"
+                variant="icon"
+                size="sm"
+                onClick={() => {
+                  setSelectedId(item.id);
+                  setOpenEditDialog(true);
+                }}
+              >
+                <Edit />
+              </Button>
+              <Button
+                title="Delete short link"
+                variant="icon"
+                size="sm"
+                onClick={() => handleDeleteClick(item.id)}
+              >
+                <Trash2 />
+              </Button>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       key: "clicksCount",
@@ -157,7 +204,6 @@ export default function LinksPage() {
         />
       </div>
 
-      {/* 🔹 Create dialog */}
       <ShortLinkDialogContainer
         open={openCreateDialog}
         onOpenChange={setOpenCreateDialog}
@@ -165,7 +211,6 @@ export default function LinksPage() {
         onClose={() => setOpenCreateDialog(false)}
       />
 
-      {/* 🔹 Update dialog */}
       <ShortLinkDialogContainer
         open={openEditDialog}
         onOpenChange={setOpenEditDialog}
@@ -179,7 +224,6 @@ export default function LinksPage() {
         }
       />
 
-      {/* 🔹 Confirm delete */}
       <ConfirmDialog
         open={openDialog}
         title={GUEST_SHORT_LINK_STRINGS.deleteConfirmTitle}
