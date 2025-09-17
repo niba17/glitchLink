@@ -1,13 +1,10 @@
 import React from "react";
 import CreateLinkForm from "@/features/links/components/forms/containers/CreateShortLinkFormContainer";
 import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
-import { useClipboard } from "@/hooks/useClipboard";
 import GuestLinksListContainer from "@/features/links/components/lists/containers/GuestLinkListContainer";
-import { useDeleteShortLinkToast } from "@/features/links/hooks/toast/useDeleteShortLinkToast";
 
 export default function Home() {
   const { uiGuestLinks } = useGuestLinks();
-  const deleteWithToast = useDeleteShortLinkToast();
 
   return (
     <main className="min-h-screen bg-zinc-950 px-[145px] py-10">
@@ -35,10 +32,7 @@ export default function Home() {
           <div className="flex-grow border-t-[2px]"></div>
         </div>
 
-        <GuestLinksListContainer
-          links={uiGuestLinks}
-          onDelete={deleteWithToast}
-        />
+        <GuestLinksListContainer links={uiGuestLinks} />
       </section>
     </main>
   );

@@ -1,3 +1,4 @@
+// frontend-final/src/features/links/components/lists/UI/GuestLinkListUI.tsx
 import { Button } from "@/components/ui/button";
 import { Trash2, Copy } from "lucide-react";
 import { GuestLinkUI } from "@/features/links/types/type";
@@ -7,19 +8,19 @@ import { formatForDisplay } from "@/features/links/utils/dateFormatters";
 
 interface GuestLinkListUIProps {
   links: GuestLinkUI[];
-  onDeleteClick: (id: number) => void;
   onCopy: (shortUrl: string) => void;
-  openDialog: boolean;
+  onDeleteClick: (id: number) => void;
   onConfirmDelete: () => void;
+  openDialog: boolean;
   onCancelDelete: () => void;
 }
 
 export function GuestLinkListUI({
   links,
-  onDeleteClick,
   onCopy,
-  openDialog,
+  onDeleteClick,
   onConfirmDelete,
+  openDialog,
   onCancelDelete,
 }: GuestLinkListUIProps) {
   return (
