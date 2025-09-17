@@ -33,8 +33,7 @@ export function useUserLinks() {
     mutationFn: async (payload: ShortLinkPayload) => {
       if (!token) throw new Error("Unauthorized");
       const res = await linkService.createShortLink(payload, token);
-
-      return res.data;
+      return { data: res.data, message: res.message }; // <<< simpan message
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userLinks", token] });

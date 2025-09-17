@@ -42,7 +42,7 @@ export default function UpdateShortLinkFormUI({
         <div className="flex flex-col space-y-1">
           <div className="flex items-center justify-between">
             <Label className="text-md" htmlFor="customAlias">
-              Custom Alias (Optional)
+              Custom Alias
             </Label>
 
             <Button

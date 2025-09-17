@@ -83,7 +83,7 @@ export default function SignInFormUI({
           </Button>
         </DialogClose>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Loading..." : "Sign In"}
+          {isPending ? "..." : "Sign In"}
         </Button>
       </div>
     </form>

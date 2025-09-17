@@ -3,6 +3,7 @@ import { Trash2, Copy } from "lucide-react";
 import { GuestLinkUI } from "@/features/links/types/type";
 import { GUEST_SHORT_LINK_STRINGS } from "../../../constants/strings";
 import ConfirmDialog from "@/components/customs/ConfirmDialog";
+import { formatForDisplay } from "@/features/links/utils/dateFormatters";
 
 interface GuestLinkListUIProps {
   links: GuestLinkUI[];
@@ -23,7 +24,7 @@ export function GuestLinkListUI({
 }: GuestLinkListUIProps) {
   return (
     <>
-      <ul className="grid grid-cols-3 gap-[20px]">
+      <ul className="grid grid-cols-2 gap-[20px]">
         {links.map((link) => (
           <li key={link.id} className="bg-zinc-800 p-[20px] rounded-sm w-full">
             <div className="flex flex-col space-y-[0.5px]">
@@ -41,6 +42,13 @@ export function GuestLinkListUI({
                 className="text-gray-400 break-all text-md"
               >
                 {link.original}
+              </span>
+              <span
+                title="Original link"
+                className="text-gray-400 break-all text-sm"
+              >
+                {formatForDisplay(link.createdAt ?? null)} {" - "}
+                {formatForDisplay(link.expiresAt ?? null)}
               </span>
 
               <div className="flex items-center justify-start gap-2 mt-2">

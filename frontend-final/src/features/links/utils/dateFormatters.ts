@@ -49,7 +49,7 @@ export const formatForInput = (utcString: string | null): string | null => {
 };
 
 export const formatForDisplay = (dateString: string | null): string => {
-  if (!dateString) return "-";
+  if (!dateString) return "not setted";
 
   const parsed = parseISO(dateString);
   if (!isValid(parsed)) return dateString;

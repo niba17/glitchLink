@@ -24,6 +24,7 @@ export interface GuestLinkUI {
   shortCode: string | null;
   shortUrl: string;
   createdAt: string | null;
+  expiresAt: string | null; // ✅ tambahin ini
 }
 
 export interface GuestLink {
@@ -32,6 +33,7 @@ export interface GuestLink {
   shortUrl: string;
   shortCode?: string | null;
   createdAt?: string | null;
+  expiresAt?: string | null; // ✅ tambahin ini
 }
 
 export interface UserLink {

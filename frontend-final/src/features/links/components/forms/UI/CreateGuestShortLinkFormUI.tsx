@@ -67,7 +67,7 @@ export default function CreateGuestShortLinkFormUI({
         <div className="flex flex-col space-y-1">
           <div className="flex items-center justify-between">
             <Label className="text-lg" htmlFor="customAlias">
-              Alias (Optional)
+              Custom Alias
             </Label>
 
             <Button

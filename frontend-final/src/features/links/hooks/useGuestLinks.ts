@@ -42,11 +42,12 @@ export function useGuestLinks() {
         shortUrl: res.data.shortUrl,
         shortCode: res.data.customAlias || res.data.shortCode || null,
         createdAt: res.data.createdAt || new Date().toISOString(),
+        expiresAt: res.data.expiresAt || null, // ✅ simpan kalau ada
       };
 
-      return newLink;
+      return { newLink, message: res.message }; // <<< simpan message juga
     },
-    onSuccess: (newLink) => {
+    onSuccess: ({ newLink }) => {
       const prev =
         queryClient.getQueryData<GuestLink[]>([LOCAL_STORAGE_KEY]) || [];
       const updated = [newLink, ...prev];
@@ -83,6 +84,8 @@ export function useGuestLinks() {
     guestLinks: query.data || [],
     uiGuestLinks,
     isLoading: query.isLoading,
+
+    createShortLinkAsync: createMutation.mutateAsync,
 
     // create & delete
     createShortLink: createMutation.mutate,

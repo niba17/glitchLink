@@ -120,7 +120,7 @@ export default function LinksPage() {
                 variant={isActive ? "success" : "blocked"}
                 className="text-[10px] h-5 px-1 rounded-full"
               >
-                {isActive ? "Active" : "Expired"}
+                {isActive ? "active" : "expired"}
               </Badge>
             </div>
             <span

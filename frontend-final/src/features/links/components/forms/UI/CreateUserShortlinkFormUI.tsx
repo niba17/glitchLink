@@ -78,7 +78,7 @@ export default function CreateShortLinkFormUI({
               size="sm"
               className="h-5"
             >
-              {isGenerating ? "Generating..." : "Generate"}
+              {isGenerating ? "..." : "Generate"}
             </Button>
           </div>
           <Input

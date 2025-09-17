@@ -67,6 +67,7 @@ export const linkService = {
 
     return data;
   },
+
   async getUserLinks(token: string): Promise<UserLink[]> {
     const res = await api.get("/links", {
       headers: {

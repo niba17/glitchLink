@@ -67,6 +67,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
     const handleSuccess = (msg: string) => {
       setOriginalUrl("");
       setCustomAlias("");
+      setExpiresAt("");
       showSuccess(msg);
       if (onClose) onClose();
     };
@@ -90,12 +91,16 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
 
     if (isLoggedIn) {
       createUserShortLink(payload, {
-        onSuccess: () => handleSuccess("User short link created!"),
+        onSuccess: (res) => {
+          handleSuccess(res.message || "Short link created successfully");
+        },
         onError: handleError,
       });
     } else {
       createGuestShortLink(payload, {
-        onSuccess: () => handleSuccess("Guest short link created!"),
+        onSuccess: (res) => {
+          handleSuccess(res.message || "Short link created successfully");
+        },
         onError: handleError,
       });
     }

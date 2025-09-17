@@ -83,7 +83,7 @@ export function DateTimePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "MM/dd/yyyy hh:mm aa") : "MM/DD/YYYY hh:mm aa"}
+          {date ? format(date, "MM/dd/yyyy hh:mm aa") : "Pick your date"}
         </Button>
       </PopoverTrigger>
 
