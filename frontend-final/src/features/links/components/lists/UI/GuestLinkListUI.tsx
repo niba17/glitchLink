@@ -43,14 +43,20 @@ export function GuestLinkListUI({
               >
                 {link.original}
               </span>
-              <span
-                title="Original link"
-                className="text-gray-400 break-all text-sm"
-              >
-                {formatForDisplay(link.createdAt ?? null)} {" - "}
-                {formatForDisplay(link.expiresAt ?? null)}
-              </span>
-
+              <div className="flex space-x-1">
+                <span
+                  title="Created at"
+                  className="text-gray-400 break-all text-sm"
+                >
+                  {formatForDisplay(link.createdAt ?? null)} {" - "}
+                </span>
+                <span
+                  title="Expire at"
+                  className="text-red-500 break-all text-sm"
+                >
+                  {formatForDisplay(link.expiresAt ?? null)}
+                </span>
+              </div>
               <div className="flex items-center justify-start gap-2 mt-2">
                 <Button
                   title="Copy short link"
