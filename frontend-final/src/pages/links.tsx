@@ -16,13 +16,14 @@ import { formatForDisplay } from "../features/links/utils/dateFormatters";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import { Badge } from "@/components/ui/badge";
 import { isAfter } from "date-fns";
+import { visitShortLink } from "@/features/links/utils/visitShortLink";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
   const router = useRouter();
   const { copy } = useClipboard();
   const { data: links, isLoading, error, deleteShortLink } = useUserLinks();
-  const { showError } = useToastHandler(); // <-- pindahkan ke top-level
+  const { showError, showSuccess } = useToastHandler(); // <-- pindahkan ke top-level
 
   // state dialog
   const [openDialog, setOpenDialog] = useState(false);
@@ -67,49 +68,18 @@ export default function LinksPage() {
         const isActive =
           !item.expiresAt || isAfter(new Date(item.expiresAt), new Date());
 
-        const handleVisit = async () => {
-          try {
-            const res = await fetch(item.shortUrl, {
-              method: "GET",
-              redirect: "manual",
-            });
-            const contentType = res.headers.get("content-type") || "";
-
-            if (contentType.includes("application/json")) {
-              const data = await res.json().catch(() => null);
-              if (data?.status === "error") {
-                showError(data.message || "Link tidak valid");
-                return;
-              }
-            }
-
-            if (
-              res.type === "opaqueredirect" ||
-              (res.status >= 300 && res.status < 400) ||
-              res.status === 0
-            ) {
-              window.open(item.shortUrl, "_blank");
-              return;
-            }
-
-            if (res.ok) {
-              window.open(item.shortUrl, "_blank");
-              return;
-            }
-
-            showError("Link tidak bisa diakses");
-          } catch (err) {
-            console.error("visit shortlink error:", err);
-            showError("Something went wrong");
-          }
-        };
-
         return (
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <button
-                onClick={handleVisit}
                 className="font-semibold underline text-left text-blue-400 hover:text-blue-300 break-words"
+                onClick={() =>
+                  visitShortLink(
+                    item.customAlias || item.shortCode!,
+                    showError,
+                    showSuccess
+                  )
+                }
               >
                 {item.shortUrl}
               </button>
@@ -120,12 +90,14 @@ export default function LinksPage() {
                 {isActive ? "active" : "expired"}
               </Badge>
             </div>
+
             <span
               title="Original link"
               className="text-[14px] text-stone-400 break-words"
             >
               {item.originalUrl}
             </span>
+
             <div className="flex items-center justify-start gap-2 mt-2">
               <Button
                 title="Copy short link"

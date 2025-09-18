@@ -217,14 +217,22 @@ export class LinkService {
     };
   }
 
+  async findByShortCode(shortCode: string) {
+    return this.linkRepository.findByShortCode(shortCode);
+  }
+
   async getOriginalUrl(shortCode: string, req: any): Promise<string> {
     const link = await this.linkRepository.findByShortCode(shortCode);
     if (!link) throw new NotFoundError("Link");
-    if (link.expiresAt && new Date() > link.expiresAt)
-      throw new ExpiredError("Link");
 
+    // ✅ selalu record click (meskipun expired)
     const clickData = getClickDataFromRequest(req);
     await this.clickService.recordClick(link.id, clickData);
+
+    // lalu cek expired
+    if (link.expiresAt && new Date() > link.expiresAt) {
+      throw new ExpiredError("Link");
+    }
 
     return link.original;
   }

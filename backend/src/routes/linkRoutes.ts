@@ -28,6 +28,7 @@ router.get(
   authMiddleware({ optional: true }),
   linkController.generateCode
 );
+router.get("/validate/:shortCode", linkController.validateShortCode);
 
 // Endpoint publik redirect tanpa auth
 // router.get("/:shortCode", linkController.redirectToOriginalUrl);

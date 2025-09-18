@@ -1,11 +1,13 @@
 // frontend-final/src/features/links/components/lists/containers/GuestLinkListContainer.tsx
 import { useState } from "react";
+import { isAfter } from "date-fns";
 import { useClipboard } from "@/hooks/useClipboard";
-import { GuestLinkUI } from "@/features/links/types/type";
-import { GuestLinkListUI } from "../UI/GuestLinkListUI";
 import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
 import { useToastHandler } from "@/hooks/useToastHandler";
 import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
+import { GuestLinkUI } from "@/features/links/types/type";
+import { GuestLinkListUI } from "../UI/GuestLinkListUI";
+import { visitShortLink } from "@/features/links/utils/visitShortLink";
 
 interface GuestLinksListContainerProps {
   links: GuestLinkUI[];
@@ -18,35 +20,35 @@ export default function GuestLinksListContainer({
   const { deleteShortLink } = useGuestLinks();
   const { showSuccess, showError } = useToastHandler();
 
-  const [openDialog, setOpenDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const handleDeleteClick = (id: number) => {
-    setSelectedId(id);
-    setOpenDialog(true);
-  };
+  const handleDeleteClick = (id: number) => setSelectedId(id);
 
   const handleConfirmDelete = () => {
     if (selectedId !== null) {
       try {
-        deleteShortLink(selectedId); // ✅ hapus dari localStorage + cache react-query
+        deleteShortLink(selectedId);
         showSuccess(GUEST_SHORT_LINK_STRINGS.deleteSuccess);
-      } catch (err) {
+      } catch {
         showError(GUEST_SHORT_LINK_STRINGS.deleteError);
       }
+      setSelectedId(null);
     }
-    setOpenDialog(false);
-    setSelectedId(null);
   };
 
   return (
     <GuestLinkListUI
-      links={links}
+      links={links.map((link) => ({
+        ...link,
+        isActive:
+          !link.expiresAt || isAfter(new Date(link.expiresAt), new Date()),
+      }))}
       onCopy={copy}
       onDeleteClick={handleDeleteClick}
       onConfirmDelete={handleConfirmDelete}
-      openDialog={openDialog}
-      onCancelDelete={() => setOpenDialog(false)}
+      onCancelDelete={() => setSelectedId(null)}
+      openDialog={selectedId !== null}
+      onVisit={(shortCode) => visitShortLink(shortCode, showError, showSuccess)}
     />
   );
 }

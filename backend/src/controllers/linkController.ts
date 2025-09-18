@@ -108,6 +108,40 @@ export class LinkController {
     }
   };
 
+  validateShortCode = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const link = await this.linkService.findByShortCode(req.params.shortCode);
+
+      if (!link) {
+        return res.status(404).json({
+          status: "error",
+          valid: false,
+          message: "Link not found",
+        });
+      }
+
+      if (link.expiresAt && new Date() > link.expiresAt) {
+        return res.status(400).json({
+          status: "error",
+          valid: false,
+          message: "Link expired",
+        });
+      }
+
+      return res.json({
+        status: "success",
+        valid: true,
+        message: "Link active",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   redirectToOriginalUrl = async (
     req: Request,
     res: Response,

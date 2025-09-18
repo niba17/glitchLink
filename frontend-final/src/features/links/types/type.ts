@@ -48,3 +48,7 @@ export interface UserLink {
   expiresAt?: string | null;
   shortUrl: string;
 }
+
+export interface GuestLinkUIWithState extends GuestLinkUI {
+  isActive: boolean;
+}
