@@ -1,3 +1,4 @@
+// src/features/links/components/tables/UI/UserLinkTableUI.tsx
 "use client";
 
 import React from "react";
@@ -35,7 +36,7 @@ export function UserLinkTableUI({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[80px]">#</TableHead>
+          <TableHead className="w-[80px]"></TableHead>
           <TableHead className="text-stone-200 text-xl font-semibold">
             Links
           </TableHead>

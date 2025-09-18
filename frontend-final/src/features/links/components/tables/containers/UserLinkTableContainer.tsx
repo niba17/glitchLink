@@ -1,4 +1,6 @@
 // src/features/links/components/tables/containers/UserLinkTableContainer.tsx
+"use client";
+
 import { UserLinkTableUI } from "../UI/UserLinkTableUI";
 import { useUserLinks } from "@/features/links/hooks/useUserLinks";
 import { useUserLinkActions } from "@/features/links/hooks/useUserLinkActions";
@@ -9,7 +11,7 @@ export function UserLinkTableContainer({
 }: {
   dialogs: UserLinkDialogs;
 }) {
-  const { userLinks, deleteShortLinkAsync } = useUserLinks();
+  const { data: userLinks = [], deleteShortLinkAsync } = useUserLinks();
 
   const { onCopy, onEdit, onDelete, onVisit } = useUserLinkActions({
     dialogs,
