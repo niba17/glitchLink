@@ -1,6 +1,5 @@
 import { useClipboard } from "@/hooks/useClipboard";
 import { useToastHandler } from "@/hooks/useToastHandler";
-import { visitShortLink } from "@/features/links/utils/visitShortLink";
 import type { UserLinkDialogs } from "./useUserLinkDialogs";
 import { useVisitShortLink } from "./useVisitShortLink";
 

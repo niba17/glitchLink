@@ -1,27 +1,33 @@
+// frontend-final/src/pages/links.tsx
+"use client";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useUserLinks } from "@/features/links/hooks/useUserLinks";
 import { useAuthStore } from "@/store/useAuthStore";
-import { DataTable } from "@/components/customs/DataTable";
 import ConfirmDialog from "@/components/customs/ConfirmDialog";
 import { GUEST_SHORT_LINK_STRINGS } from "@/features/links/constants/strings";
 import ShortLinkDialogContainer from "@/features/links/components/dialogs/containers/ShortLinkDialogContainer";
-import { userLinksColumns } from "@/components/tables/UserLinksTableColumns";
+import { useUserLinks } from "@/features/links/hooks/useUserLinks";
 import { useUserLinkDialogs } from "@/features/links/hooks/useUserLinkDialogs";
 import { useUserLinkActions } from "@/features/links/hooks/useUserLinkActions";
+import { UserLinkTableContainer } from "@/features/links/components/tables/containers/UserLinkTableContainer";
 
 export default function LinksPage() {
   const { isLoggedIn, rehydrated } = useAuthStore();
   const router = useRouter();
-  const { data: links, isLoading, error, deleteShortLink } = useUserLinks();
-
-  // Single state source
+  const {
+    data: links,
+    isLoading,
+    error,
+    deleteShortLinkAsync,
+  } = useUserLinks();
   const dialogs = useUserLinkDialogs();
 
-  // Actions terhubung ke state
-  const { onCopy, onEdit, onDelete, onVisit, handleConfirmDelete } =
-    useUserLinkActions({ dialogs, deleteShortLink });
+  const { handleConfirmDelete } = useUserLinkActions({
+    dialogs,
+    deleteShortLink: deleteShortLinkAsync, // gunakan async version
+  });
 
   useEffect(() => {
     if (rehydrated && !isLoggedIn) router.replace("/");
@@ -30,8 +36,6 @@ export default function LinksPage() {
   if (!rehydrated) return null;
   if (isLoading) return <p className="text-white">Loading...</p>;
   if (error) return <p className="text-red-500">{error.message}</p>;
-
-  const columns = userLinksColumns({ onCopy, onEdit, onDelete, onVisit });
 
   return (
     <section>
@@ -43,13 +47,10 @@ export default function LinksPage() {
           <Button variant="default">Sort by</Button>
         </div>
 
-        <DataTable
-          data={links || []}
-          columns={columns}
-          className="text-[15px]"
-        />
+        <UserLinkTableContainer dialogs={dialogs} />
       </div>
 
+      {/* Create Dialog */}
       <ShortLinkDialogContainer
         open={dialogs.openCreateDialog}
         onOpenChange={dialogs.setOpenCreateDialog}
@@ -57,6 +58,7 @@ export default function LinksPage() {
         onClose={() => dialogs.setOpenCreateDialog(false)}
       />
 
+      {/* Edit Dialog */}
       <ShortLinkDialogContainer
         open={dialogs.openEditDialog}
         onOpenChange={dialogs.setOpenEditDialog}
@@ -70,6 +72,7 @@ export default function LinksPage() {
         }
       />
 
+      {/* Confirm Delete */}
       <ConfirmDialog
         open={dialogs.openDialog}
         title={GUEST_SHORT_LINK_STRINGS.deleteConfirmTitle}

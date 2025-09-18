@@ -77,10 +77,12 @@ export function useUserLinks() {
   return {
     ...query,
     userLinks: query.data || [],
-    createShortLink: createMutation.mutate, // mutate versi "callback-style"
-    createShortLinkAsync: createMutation.mutateAsync, // optional kalau butuh promise
+    createShortLink: createMutation.mutate,
+    createShortLinkAsync: createMutation.mutateAsync,
     updateShortLink: updateMutation.mutate,
+    updateShortLinkAsync: updateMutation.mutateAsync, // <-- tambahkan
     deleteShortLink: deleteMutation.mutate,
+    deleteShortLinkAsync: deleteMutation.mutateAsync, // <-- tambahkan
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
