@@ -39,12 +39,11 @@ export default function LinksPage() {
 
   return (
     <section>
-      <div className="bg-zinc-950 min-h-screen px-[145px] py-10 space-y-[10px]">
-        <div className="grid grid-cols-5 gap-[1vw]">
+      <div className="bg-zinc-950 min-h-screen px-[145px] py-2 space-y-[10px]">
+        <div className="grid grid-cols-5">
           <Button onClick={() => dialogs.setOpenCreateDialog(true)}>
             Create Short Link
           </Button>
-          <Button variant="default">Sort by</Button>
         </div>
 
         <UserLinkTableContainer dialogs={dialogs} />
