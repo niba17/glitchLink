@@ -29,7 +29,7 @@ export default function AnalyticsPage() {
   }, [userLinks, selectedShortlink]);
 
   return (
-    <div className="bg-zinc-950 min-h-screen px-[50px] py-5 space-y-5">
+    <div className="bg-zinc-950 min-h-screen p-5 space-y-5">
       <section>
         <div className="flex items-center space-x-2">
           <h1 className="text-xl font-bold text-stone-200">

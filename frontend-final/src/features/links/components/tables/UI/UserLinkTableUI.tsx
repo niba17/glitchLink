@@ -80,11 +80,11 @@ export function UserLinkTableUI({
           type="number"
           placeholder="Min clicks ..."
           value={minClicks ?? ""}
-          onChange={(e) =>
-            onMinClicksChange(
-              e.target.value ? parseInt(e.target.value, 10) : null
-            )
-          }
+          min={0} // ✅ cegah input negatif
+          onChange={(e) => {
+            const val = e.target.value ? parseInt(e.target.value, 10) : null;
+            onMinClicksChange(val !== null && val < 0 ? 0 : val); // ✅ jaga dari input negatif
+          }}
           className="h-11 w-full"
         />
 
@@ -93,13 +93,30 @@ export function UserLinkTableUI({
           type="number"
           placeholder="Max clicks ..."
           value={maxClicks ?? ""}
-          onChange={(e) =>
-            onMaxClicksChange(
-              e.target.value ? parseInt(e.target.value, 10) : null
-            )
-          }
+          min={0} // ✅ cegah input negatif
+          onChange={(e) => {
+            const val = e.target.value ? parseInt(e.target.value, 10) : null;
+            onMaxClicksChange(val !== null && val < 0 ? 0 : val); // ✅ jaga dari input negatif
+          }}
           className="h-11 w-full"
         />
+
+        {/* Active/Expired filter */}
+        <Select
+          value={filter}
+          onValueChange={(val) =>
+            onFilterChange(val as "all" | "active" | "expired")
+          }
+        >
+          <SelectTrigger className="h-11 w-full">
+            <SelectValue placeholder="Filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
+          </SelectContent>
+        </Select>
 
         {/* Sort By */}
         <Select
@@ -118,23 +135,6 @@ export function UserLinkTableUI({
             <SelectItem value="oldest">Oldest</SelectItem>
             <SelectItem value="mostClicks">Most Clicks</SelectItem>
             <SelectItem value="lessClicks">Less Clicks</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Active/Expired filter */}
-        <Select
-          value={filter}
-          onValueChange={(val) =>
-            onFilterChange(val as "all" | "active" | "expired")
-          }
-        >
-          <SelectTrigger className="h-11 w-full">
-            <SelectValue placeholder="Filter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
           </SelectContent>
         </Select>
       </div>
