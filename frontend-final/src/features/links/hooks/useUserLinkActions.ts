@@ -5,7 +5,7 @@ import { useVisitShortLink } from "./useVisitShortLink";
 
 interface UseUserLinkActionsProps {
   dialogs: UserLinkDialogs;
-  deleteShortLink: (id: number) => void;
+  deleteShortLink: (id: number) => Promise<any>; // async version
 }
 
 export function useUserLinkActions({
@@ -15,19 +15,19 @@ export function useUserLinkActions({
   const { copy } = useClipboard();
   const { showError, showSuccess } = useToastHandler();
   const { selectForEdit, selectForDelete, selectedId, setOpenDialog } = dialogs;
+  const { onVisit, loading } = useVisitShortLink();
 
   const onCopy = (shortUrl: string) => copy(shortUrl);
   const onEdit = (id: number) => selectForEdit(id);
   const onDelete = (id: number) => selectForDelete(id);
-  const { onVisit, loading } = useVisitShortLink();
 
   const handleConfirmDelete = async () => {
     if (selectedId !== null) {
       try {
-        await deleteShortLink(selectedId); // <-- panggil API delete
-        showSuccess("Link deleted successfully");
+        const res = await deleteShortLink(selectedId); // mutateAsync
+        showSuccess(res?.message || "Link deleted successfully");
       } catch (err: any) {
-        showError(err.message || "Failed to delete link");
+        showError(err?.message || "Failed to delete link");
       }
     }
     setOpenDialog(false);
