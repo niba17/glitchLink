@@ -29,12 +29,15 @@ export function UserLinkTableContainer({
   // state untuk QR popup
   const [isQRPopupOpen, setIsQRPopupOpen] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
+  const [qrShortUrl, setQrShortUrl] = useState<string | null>(null);
 
   const handleGenerateQR = async (linkId: number) => {
     try {
-      const qrData = await generateQRCode(linkId); // qrData string base64
+      const qrData = await generateQRCode(linkId); // string base64
+      const link = userLinks.find((l) => l.id === linkId); // cari shortUrl dari link
       setQrCode(qrData);
-      setIsQRPopupOpen(true); // ✅ konsisten pakai ini
+      setQrShortUrl(link?.shortUrl ?? null); // ➕ simpan shortUrl
+      setIsQRPopupOpen(true);
     } catch (e) {
       console.error(e);
     }
@@ -125,10 +128,18 @@ export function UserLinkTableContainer({
 
       <Dialog open={isQRPopupOpen} onOpenChange={setIsQRPopupOpen}>
         <DialogContent className="flex flex-col items-center gap-4">
-          <DialogHeader>
+          {/* <DialogHeader>
             <DialogTitle>QR Code</DialogTitle>
-          </DialogHeader>
-          {qrCode && <img src={qrCode} alt="QR Code" className="mx-auto" />}
+          </DialogHeader> */}
+
+          {/* ➕ shortlink tampil di atas QR */}
+          {qrShortUrl && (
+            <span className="font-semibold break-words">{qrShortUrl}</span>
+          )}
+
+          {qrCode && (
+            <img src={qrCode} alt="QR Code" className="mx-auto h-72" />
+          )}
         </DialogContent>
       </Dialog>
     </>
