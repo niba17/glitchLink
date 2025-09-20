@@ -25,6 +25,9 @@ export function UserLinkTableContainer({
   const [filter, setFilter] = useState<"all" | "active" | "expired">("all");
   const [minClicks, setMinClicks] = useState<number | null>(null);
   const [maxClicks, setMaxClicks] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState<
+    "newest" | "oldest" | "mostClicks" | "lessClicks"
+  >("newest");
 
   const filteredLinks = useMemo(() => {
     let links = userLinks;
@@ -59,8 +62,30 @@ export function UserLinkTableContainer({
       links = links.filter((link) => (link.clicksCount ?? 0) <= maxClicks);
     }
 
+    // sorting
+    links = [...links].sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (
+            new Date(b.createdAt ?? "").getTime() -
+            new Date(a.createdAt ?? "").getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.createdAt ?? "").getTime() -
+            new Date(b.createdAt ?? "").getTime()
+          );
+        case "mostClicks":
+          return (b.clicksCount ?? 0) - (a.clicksCount ?? 0);
+        case "lessClicks":
+          return (a.clicksCount ?? 0) - (b.clicksCount ?? 0);
+        default:
+          return 0;
+      }
+    });
+
     return links;
-  }, [search, filter, minClicks, maxClicks, userLinks]);
+  }, [search, filter, minClicks, maxClicks, sortBy, userLinks]);
 
   return (
     <UserLinkTableUI
@@ -77,6 +102,8 @@ export function UserLinkTableContainer({
       maxClicks={maxClicks}
       onMinClicksChange={setMinClicks}
       onMaxClicksChange={setMaxClicks}
+      sortBy={sortBy}
+      onSortByChange={setSortBy}
     />
   );
 }

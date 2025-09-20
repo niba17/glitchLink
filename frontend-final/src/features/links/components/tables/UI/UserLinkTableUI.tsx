@@ -43,6 +43,10 @@ export interface UserLinkTableUIProps {
   maxClicks: number | null;
   onMinClicksChange: (val: number | null) => void;
   onMaxClicksChange: (val: number | null) => void;
+  sortBy: "newest" | "oldest" | "mostClicks" | "lessClicks";
+  onSortByChange: (
+    val: "newest" | "oldest" | "mostClicks" | "lessClicks"
+  ) => void;
 }
 
 export function UserLinkTableUI({
@@ -59,65 +63,84 @@ export function UserLinkTableUI({
   maxClicks,
   onMinClicksChange,
   onMaxClicksChange,
+  sortBy,
+  onSortByChange,
 }: UserLinkTableUIProps) {
   return (
     <>
-      {/* Toolbar: Search + Filter + Click Range */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div className="flex flex-wrap gap-3">
-          {/* Search */}
-          <Input
-            placeholder="Search by name, alias, or original link..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-[410px] h-11"
-          />
-          {/* Min clicks */}
-          <Input
-            type="number"
-            placeholder="Min clicks"
-            value={minClicks ?? ""}
-            onChange={(e) =>
-              onMinClicksChange(
-                e.target.value ? parseInt(e.target.value, 10) : null
-              )
-            }
-            className="w-[135px] h-11"
-          />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        {/* Search - lebih panjang */}
+        <Input
+          placeholder="Search by name, alias, or original link"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="h-11 w-full col-span-2"
+        />
 
-          {/* Max clicks */}
-          <Input
-            type="number"
-            placeholder="Max clicks"
-            value={maxClicks ?? ""}
-            onChange={(e) =>
-              onMaxClicksChange(
-                e.target.value ? parseInt(e.target.value, 10) : null
-              )
-            }
-            className="w-[135px] h-11"
-          />
-        </div>
+        {/* Min clicks */}
+        <Input
+          type="number"
+          placeholder="Min clicks"
+          value={minClicks ?? ""}
+          onChange={(e) =>
+            onMinClicksChange(
+              e.target.value ? parseInt(e.target.value, 10) : null
+            )
+          }
+          className="h-11 w-full"
+        />
 
-        <div className="flex items-center">
-          {/* Active/Expired filter */}
-          <Select
-            value={filter}
-            onValueChange={(val) =>
-              onFilterChange(val as "all" | "active" | "expired")
-            }
-          >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="expired">Expired</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Max clicks */}
+        <Input
+          type="number"
+          placeholder="Max clicks"
+          value={maxClicks ?? ""}
+          onChange={(e) =>
+            onMaxClicksChange(
+              e.target.value ? parseInt(e.target.value, 10) : null
+            )
+          }
+          className="h-11 w-full"
+        />
+
+        {/* Sort By */}
+        <Select
+          value={sortBy}
+          onValueChange={(val) =>
+            onSortByChange(
+              val as "newest" | "oldest" | "mostClicks" | "lessClicks"
+            )
+          }
+        >
+          <SelectTrigger className="h-11 w-full">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest</SelectItem>
+            <SelectItem value="oldest">Oldest</SelectItem>
+            <SelectItem value="mostClicks">Most Clicks</SelectItem>
+            <SelectItem value="lessClicks">Less Clicks</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Active/Expired filter */}
+        <Select
+          value={filter}
+          onValueChange={(val) =>
+            onFilterChange(val as "all" | "active" | "expired")
+          }
+        >
+          <SelectTrigger className="h-11 w-full">
+            <SelectValue placeholder="Filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
       <div className="space-y-4">
         {/* Table */}
         <Table>
