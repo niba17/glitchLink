@@ -8,8 +8,6 @@ import { useUserLinkActions } from "@/features/links/hooks/useUserLinkActions";
 import { UserLinkDialogs } from "@/features/links/hooks/useUserLinkDialogs";
 import { isAfter } from "date-fns";
 
-// src/features/links/components/tables/containers/UserLinkTableContainer.tsx
-
 export function UserLinkTableContainer({
   dialogs,
 }: {

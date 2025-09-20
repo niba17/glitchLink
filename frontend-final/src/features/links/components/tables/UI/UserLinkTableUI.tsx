@@ -25,8 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// src/features/links/components/tables/UI/UserLinkTableUI.tsx
-
 export interface UserLinkTableUIProps {
   data: UserLink[];
   search: string;
@@ -71,7 +69,7 @@ export function UserLinkTableUI({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
         {/* Search - lebih panjang */}
         <Input
-          placeholder="Search by name, alias, or original link"
+          placeholder="Search by shortlink, alias, or original link ..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="h-11 w-full col-span-2"
@@ -80,7 +78,7 @@ export function UserLinkTableUI({
         {/* Min clicks */}
         <Input
           type="number"
-          placeholder="Min clicks"
+          placeholder="Min clicks ..."
           value={minClicks ?? ""}
           onChange={(e) =>
             onMinClicksChange(
@@ -93,7 +91,7 @@ export function UserLinkTableUI({
         {/* Max clicks */}
         <Input
           type="number"
-          placeholder="Max clicks"
+          placeholder="Max clicks ..."
           value={maxClicks ?? ""}
           onChange={(e) =>
             onMaxClicksChange(
