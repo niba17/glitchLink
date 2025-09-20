@@ -1,4 +1,3 @@
-// src/features/links/components/tables/containers/UserLinkTableContainer.tsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -7,6 +6,12 @@ import { useUserLinks } from "@/features/links/hooks/useUserLinks";
 import { useUserLinkActions } from "@/features/links/hooks/useUserLinkActions";
 import { UserLinkDialogs } from "@/features/links/hooks/useUserLinkDialogs";
 import { isAfter } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function UserLinkTableContainer({
   dialogs,
@@ -19,6 +24,22 @@ export function UserLinkTableContainer({
     deleteShortLink: deleteShortLinkAsync,
   });
 
+  const { generateQRCode } = useUserLinks();
+
+  // state untuk QR popup
+  const [isQRPopupOpen, setIsQRPopupOpen] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+
+  const handleGenerateQR = async (linkId: number) => {
+    try {
+      const qrData = await generateQRCode(linkId); // qrData string base64
+      setQrCode(qrData);
+      setIsQRPopupOpen(true); // ✅ konsisten pakai ini
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "expired">("all");
   const [minClicks, setMinClicks] = useState<number | null>(null);
@@ -30,7 +51,6 @@ export function UserLinkTableContainer({
   const filteredLinks = useMemo(() => {
     let links = userLinks;
 
-    // search filter
     if (search.trim()) {
       const q = search.toLowerCase();
       links = links.filter((link) => {
@@ -43,7 +63,6 @@ export function UserLinkTableContainer({
       });
     }
 
-    // active/expired filter
     if (filter !== "all") {
       links = links.filter((link) => {
         const isActive =
@@ -52,7 +71,6 @@ export function UserLinkTableContainer({
       });
     }
 
-    // min/max clicks filter
     if (minClicks !== null) {
       links = links.filter((link) => (link.clicksCount ?? 0) >= minClicks);
     }
@@ -60,7 +78,6 @@ export function UserLinkTableContainer({
       links = links.filter((link) => (link.clicksCount ?? 0) <= maxClicks);
     }
 
-    // sorting
     links = [...links].sort((a, b) => {
       switch (sortBy) {
         case "newest":
@@ -86,22 +103,34 @@ export function UserLinkTableContainer({
   }, [search, filter, minClicks, maxClicks, sortBy, userLinks]);
 
   return (
-    <UserLinkTableUI
-      data={filteredLinks}
-      search={search}
-      onSearchChange={setSearch}
-      onCopy={onCopy}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onVisit={onVisit}
-      filter={filter}
-      onFilterChange={setFilter}
-      minClicks={minClicks}
-      maxClicks={maxClicks}
-      onMinClicksChange={setMinClicks}
-      onMaxClicksChange={setMaxClicks}
-      sortBy={sortBy}
-      onSortByChange={setSortBy}
-    />
+    <>
+      <UserLinkTableUI
+        data={filteredLinks}
+        search={search}
+        onSearchChange={setSearch}
+        onCopy={onCopy}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onVisit={onVisit}
+        filter={filter}
+        onFilterChange={setFilter}
+        minClicks={minClicks}
+        maxClicks={maxClicks}
+        onMinClicksChange={setMinClicks}
+        onMaxClicksChange={setMaxClicks}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        onGenerateQR={handleGenerateQR}
+      />
+
+      <Dialog open={isQRPopupOpen} onOpenChange={setIsQRPopupOpen}>
+        <DialogContent className="flex flex-col items-center gap-4">
+          <DialogHeader>
+            <DialogTitle>QR Code</DialogTitle>
+          </DialogHeader>
+          {qrCode && <img src={qrCode} alt="QR Code" className="mx-auto" />}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

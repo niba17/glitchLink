@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Copy, Edit, Trash2 } from "lucide-react";
+import { Copy, Edit, Trash2, QrCode } from "lucide-react";
 import { isAfter } from "date-fns";
 import { formatForDisplay } from "@/features/links/utils/dateFormatters";
 import {
@@ -45,6 +45,7 @@ export interface UserLinkTableUIProps {
   onSortByChange: (
     val: "newest" | "oldest" | "mostClicks" | "lessClicks"
   ) => void;
+  onGenerateQR: (id: number) => void;
 }
 
 export function UserLinkTableUI({
@@ -63,6 +64,7 @@ export function UserLinkTableUI({
   onMaxClicksChange,
   sortBy,
   onSortByChange,
+  onGenerateQR,
 }: UserLinkTableUIProps) {
   return (
     <>
@@ -233,6 +235,16 @@ export function UserLinkTableUI({
                             onClick={() => onDelete(link.id)}
                           >
                             <Trash2 />
+                          </Button>
+
+                          <Button
+                            variant="icon"
+                            size="sm"
+                            onClick={() => onGenerateQR(link.id)}
+                            title="Generate QR Code"
+                          >
+                            <QrCode className="h-4 w-4" />{" "}
+                            {/* ✅ pakai icon lucide */}
                           </Button>
                         </div>
                       </div>

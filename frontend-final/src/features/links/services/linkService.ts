@@ -33,11 +33,8 @@ export const linkService = {
     const data = res.data;
 
     if (data.status !== "success") {
-      const message =
-        data.errors?.[0]?.message ||
-        data.message ||
-        "Failed to generate short code";
-      throw new ApiError(message, data);
+      const message = data.message || "Failed to generate short code";
+      throw new Error(message);
     }
 
     return data.data.code;
@@ -62,7 +59,7 @@ export const linkService = {
         data.message ||
         "Failed to create short link";
 
-      throw new ApiError(message, data); // <<<< gunakan ApiError biar `err.data` ada
+      throw new ApiError(message, data);
     }
 
     return data;
@@ -79,10 +76,7 @@ export const linkService = {
     const data = res.data;
 
     if (data.status !== "success") {
-      const message =
-        data.errors?.[0]?.message ||
-        data.message ||
-        "Failed to fetch user links";
+      const message = data.message || "Failed to fetch user links";
       throw new Error(message);
     }
 
@@ -106,7 +100,7 @@ export const linkService = {
     if (data.status !== "success") {
       const message =
         data.message || data.errors?.[0]?.message || "Failed to update link";
-      throw new ApiError(message, data); // <<<<< simpan full data error
+      throw new ApiError(message, data);
     }
 
     return data;
@@ -126,11 +120,36 @@ export const linkService = {
     const data = res.data;
 
     if (data.status !== "success") {
-      const message =
-        data.errors?.[0]?.message || data.message || "Failed to delete link";
+      const message = data.message || "Failed to update link";
       throw new Error(message);
     }
 
     return data;
+  },
+
+  async generateQRCode(linkId: number, token: string): Promise<string> {
+    try {
+      const res = await api.get(`/links/${linkId}/qrcode`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = res.data;
+
+      if (data.status !== "success") {
+        const message = data.message || "Failed to generate QR Code";
+        throw new ApiError(message, data); // ✅ simpan full response BE
+      }
+
+      return data.data as string; // ✅ base64 string
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to generate QR Code";
+      throw new ApiError(message, err.response?.data); // ✅ tetap ApiError
+    }
   },
 };

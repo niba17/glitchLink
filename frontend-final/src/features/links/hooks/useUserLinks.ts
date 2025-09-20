@@ -33,7 +33,7 @@ export function useUserLinks() {
     mutationFn: async (payload: ShortLinkPayload) => {
       if (!token) throw new Error("Unauthorized");
       const res = await linkService.createShortLink(payload, token);
-      return { data: res.data, message: res.message }; // <<< simpan message
+      return { data: res.data, message: res.message };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userLinks", token] });
@@ -74,19 +74,32 @@ export function useUserLinks() {
     },
   });
 
+  // di dalam useUserLinks()
+  const generateQRMutation = useMutation({
+    mutationFn: async (linkId: number) => {
+      if (!token) throw new Error("Unauthorized");
+      return linkService.generateQRCode(linkId, token);
+    },
+    onError: (err: any) => {
+      showError(err?.message || "Failed to generate QR Code");
+    },
+  });
+
   return {
     ...query,
     userLinks: query.data || [],
     createShortLink: createMutation.mutate,
     createShortLinkAsync: createMutation.mutateAsync,
     updateShortLink: updateMutation.mutate,
-    updateShortLinkAsync: updateMutation.mutateAsync, // <-- tambahkan
+    updateShortLinkAsync: updateMutation.mutateAsync,
     deleteShortLink: deleteMutation.mutate,
-    deleteShortLinkAsync: deleteMutation.mutateAsync, // <-- tambahkan
+    deleteShortLinkAsync: deleteMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
     generateShortCode: generateCodeMutation.mutateAsync,
     isGenerating: generateCodeMutation.isPending,
+    generateQRCode: generateQRMutation.mutateAsync,
+    isGeneratingQRCode: generateQRMutation.isPending,
   };
 }
