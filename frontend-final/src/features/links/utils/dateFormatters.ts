@@ -10,14 +10,13 @@ import { format, parseISO, isValid } from "date-fns";
  * @returns The normalized UTC date string in 'YYYY-MM-DD HH:mm' format, or null.
  */
 export const normalizeExpiresAt = (
-  dateString: string | null
+  dateString: string | null | undefined
 ): string | null => {
   if (!dateString) return null;
 
-  const localDate = parseISO(dateString); // dari <input type="datetime-local">
+  const localDate = parseISO(dateString);
   if (!isValid(localDate)) return null;
 
-  // Format ke "YYYY-MM-DD HH:mm" (tanpa detik, tanpa Z)
   return format(localDate, "yyyy-MM-dd HH:mm");
 };
 

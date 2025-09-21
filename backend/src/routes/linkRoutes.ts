@@ -13,6 +13,7 @@ router.post(
 );
 
 // Endpoint wajib login
+router.put("/import", authMiddleware(), linkController.importGuestLink);
 router.put("/:linkId", authMiddleware(), linkController.updateLink);
 router.get("/:linkId/qrcode", authMiddleware(), linkController.generateQRCode);
 router.get("/", authMiddleware(), linkController.getUserLinks);
@@ -28,6 +29,7 @@ router.get(
   authMiddleware({ optional: true }),
   linkController.generateCode
 );
+
 router.get("/validate/:shortCode", linkController.validateShortCode);
 
 // Endpoint publik redirect tanpa auth

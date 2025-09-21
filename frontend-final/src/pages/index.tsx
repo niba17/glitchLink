@@ -23,17 +23,21 @@ export default function Home() {
           <CreateLinkForm />
         </div>
       </section>
-      <section>
-        <div className="flex items-center justify-center py-[25px]">
-          <div className="flex-grow border-t-[2px]"></div>
-          <h2 className="mx-[20px] text-[25px] font-semibold">
-            Your Shortened Links
-          </h2>
-          <div className="flex-grow border-t-[2px]"></div>
-        </div>
 
-        <GuestLinksListContainer links={uiGuestLinks} />
-      </section>
+      {/* Section hanya tampil jika ada guest links */}
+      {uiGuestLinks.length > 0 && (
+        <section>
+          <div className="flex items-center justify-center py-[25px]">
+            <div className="flex-grow border-t-[2px]"></div>
+            <h2 className="mx-[20px] text-[25px] font-semibold">
+              Your Shortened Links
+            </h2>
+            <div className="flex-grow border-t-[2px]"></div>
+          </div>
+
+          <GuestLinksListContainer links={uiGuestLinks} />
+        </section>
+      )}
     </main>
   );
 }

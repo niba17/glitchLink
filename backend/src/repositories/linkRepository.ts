@@ -109,28 +109,38 @@ export class LinkRepository {
       customAlias?: string | null;
       shortCode?: string;
       expiresAt?: Date | null;
+      userId?: number | null;
     }
   ): Promise<Link> {
     const updateData: {
       customAlias?: string | null;
       shortCode?: string;
       expiresAt?: Date | null;
+      userId?: number | null;
     } = {};
 
-    if (data.customAlias !== undefined) {
+    if (data.customAlias !== undefined)
       updateData.customAlias = data.customAlias;
-    }
-    if (data.shortCode !== undefined) {
-      updateData.shortCode = data.shortCode;
-    }
-    if (data.expiresAt !== undefined) {
-      updateData.expiresAt = data.expiresAt;
-    }
+    if (data.shortCode !== undefined) updateData.shortCode = data.shortCode;
+    if (data.expiresAt !== undefined) updateData.expiresAt = data.expiresAt;
+    if (data.userId !== undefined) updateData.userId = data.userId;
 
-    return prisma.link.update({
-      where: { id: linkId },
-      data: updateData,
-    });
+    try {
+      return await prisma.link.update({
+        where: { id: linkId },
+        data: updateData,
+      });
+    } catch (err: any) {
+      // Tangani error unik dari Prisma
+      if (err.code === "P2002") {
+        throw new Error("Alias already in use");
+      }
+      if (err.code === "P2025") {
+        throw new Error("Link not found");
+      }
+
+      throw err; // lempar error lain ke service
+    }
   }
 
   async delete(linkId: number): Promise<void> {

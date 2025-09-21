@@ -1,6 +1,12 @@
-// src/features/links/services/linkService.ts
+// frontend-final/src/features/links/services/linkService.ts
 import axios from "axios";
-import { ShortLinkPayload, ShortLinkResponse, UserLink } from "../types/type";
+import {
+  ImportGuestLinkSinglePayload,
+  ImportGuestLinksPayload,
+  ShortLinkPayload,
+  ShortLinkResponse,
+  UserLink,
+} from "../types/type";
 
 class ApiError extends Error {
   data: any;
@@ -14,7 +20,7 @@ class ApiError extends Error {
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
   headers: {
-    "Cache-Control": "no-store", // cegah caching
+    "Cache-Control": "no-store",
     Pragma: "no-cache",
     Expires: "0",
   },
@@ -29,14 +35,9 @@ export const linkService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
-
     const data = res.data;
-
-    if (data.status !== "success") {
-      const message = data.message || "Failed to generate short code";
-      throw new Error(message);
-    }
-
+    if (data.status !== "success")
+      throw new Error(data.message || "Failed to generate short code");
     return data.data.code;
   },
 
@@ -50,18 +51,15 @@ export const linkService = {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
-
     const data = res.data;
-
     if (data.status !== "success") {
-      const message =
+      throw new ApiError(
         data.errors?.[0]?.message ||
-        data.message ||
-        "Failed to create short link";
-
-      throw new ApiError(message, data);
+          data.message ||
+          "Failed to create short link",
+        data
+      );
     }
-
     return data;
   },
 
@@ -72,14 +70,9 @@ export const linkService = {
         Authorization: `Bearer ${token}`,
       },
     });
-
     const data = res.data;
-
-    if (data.status !== "success") {
-      const message = data.message || "Failed to fetch user links";
-      throw new Error(message);
-    }
-
+    if (data.status !== "success")
+      throw new Error(data.message || "Failed to fetch user links");
     return data.data;
   },
 
@@ -87,43 +80,33 @@ export const linkService = {
     id: number,
     payload: { customAlias?: string | null; expiresAt?: string | null },
     token: string
-  ): Promise<{ status: string; message: string }> {
+  ) {
     const res = await api.put(`/links/${id}`, payload, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
-
     const data = res.data;
-
     if (data.status !== "success") {
-      const message =
-        data.message || data.errors?.[0]?.message || "Failed to update link";
-      throw new ApiError(message, data);
+      throw new ApiError(
+        data.message || data.errors?.[0]?.message || "Failed to update link",
+        data
+      );
     }
-
     return data;
   },
 
-  async deleteUserLink(
-    id: number,
-    token: string
-  ): Promise<{ status: string; message: string }> {
+  async deleteUserLink(id: number, token: string) {
     const res = await api.delete(`/links/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
-
     const data = res.data;
-
-    if (data.status !== "success") {
-      const message = data.message || "Failed to update link";
-      throw new Error(message);
-    }
-
+    if (data.status !== "success")
+      throw new Error(data.message || "Failed to delete link");
     return data;
   },
 
@@ -135,21 +118,42 @@ export const linkService = {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = res.data;
-
-      if (data.status !== "success") {
-        const message = data.message || "Failed to generate QR Code";
-        throw new ApiError(message, data); // ✅ simpan full response BE
-      }
-
-      return data.data as string; // ✅ base64 string
+      if (data.status !== "success")
+        throw new ApiError(data.message || "Failed to generate QR Code", data);
+      return data.data as string;
     } catch (err: any) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to generate QR Code";
-      throw new ApiError(message, err.response?.data); // ✅ tetap ApiError
+      throw new ApiError(
+        err.response?.data?.message || err.message,
+        err.response?.data
+      );
+    }
+  },
+
+  // ubah parameter dari array ke single object
+  async importGuestLink(
+    payload: ImportGuestLinkSinglePayload, // single object
+    token: string
+  ): Promise<{ status: string; data: any }> {
+    try {
+      const res = await api.put("/links/import", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = res.data;
+      if (data.status !== "success") {
+        throw new ApiError(data.errors?.[0]?.message || data.message, data);
+      }
+      return data;
+    } catch (err: any) {
+      throw new ApiError(
+        err.response?.data?.errors?.[0]?.message ||
+          err.response?.data?.message ||
+          err.message,
+        err.response?.data || err
+      );
     }
   },
 };

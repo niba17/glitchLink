@@ -42,13 +42,14 @@ export function useAuth() {
 
   const signInMutation = useMutation<AuthResponse, AxiosError, SignInPayload>({
     mutationFn: (payload) => authService.login(payload),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       const token = res.data?.token;
       const email = res.data?.user?.email;
       if (token && email) {
         setAuth({ isLoggedIn: true, token, email });
         showSuccess(res.message);
-        router.replace("/links");
+
+        // router.replace("/links");
       } else {
         showError(res.message);
       }
@@ -96,6 +97,9 @@ export function useAuth() {
       SignInPayload,
       unknown
     >,
+    signInAsync: signInMutation.mutateAsync as unknown as (
+      payload: SignInPayload
+    ) => Promise<AuthResponse>,
     signUp: signUpMutation.mutate as unknown as UseMutateFunction<
       AuthResponse,
       AuthErrorParsed,

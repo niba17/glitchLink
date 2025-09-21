@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { LinkService } from "../services/linkService";
-import { createShortLinkSchema, updateLinkSchema } from "../DTOs/linkDTO";
+import {
+  createShortLinkSchema,
+  updateLinkSchema,
+  importGuestLinkSchema,
+} from "../DTOs/linkDTO";
+import { z, ZodError } from "zod";
 
 export class LinkController {
   private linkService = new LinkService();
@@ -200,8 +205,6 @@ export class LinkController {
     }
   };
 
-  // backend\src\controllers\linkController.ts
-
   getAllLinkAnalytics = async (
     req: Request,
     res: Response,
@@ -216,6 +219,39 @@ export class LinkController {
         message: "All link analytics retrieved successfully",
         data: analyticsData,
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  importGuestLink = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const userId = Number(req.user?.id);
+      if (!userId || isNaN(userId)) {
+        res.status(401).json({ status: "error", message: "Unauthorized" });
+        return; // <-- optional, hanya untuk menghentikan eksekusi
+      }
+
+      const validatedData = importGuestLinkSchema.parse(req.body);
+
+      // Panggil service, hanya mengembalikan mapped link
+      const importedLink = await this.linkService.importGuestLink(
+        validatedData.linkId,
+        userId,
+        validatedData.customAlias ?? undefined
+      );
+
+      res.status(200).json({
+        status: "success",
+        message: "Guest link imported successfully",
+        data: importedLink,
+      });
+
+      // jangan pakai `return res.status(...).json(...)`
     } catch (error) {
       next(error);
     }

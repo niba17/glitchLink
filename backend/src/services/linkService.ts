@@ -11,6 +11,7 @@ import {
   InternalServerError,
   ForbiddenError,
   ValidationError,
+  UnauthorizedError,
 } from "../utils/errors";
 import { mapLinkToDto } from "../mappers/linkMapper";
 import type { Link, Click } from "@prisma/client";
@@ -156,11 +157,19 @@ export class LinkService {
   }
 
   async updateLink(linkId: number, userId: number, updateData: UpdateLinkDto) {
-    const link = await this.getOwnedLinkOrThrow(linkId, userId);
+    const link = await this.linkRepository.findById(linkId);
+    if (!link) throw new NotFoundError("Link");
+
+    // logic untuk import guest link
+    if (link.userId && link.userId !== userId) {
+      throw new ForbiddenError("You do not own this link");
+    }
+
     const updateFields: {
       customAlias?: string | null;
       shortCode?: string;
       expiresAt?: Date | null;
+      userId?: number | null; // tambahkan untuk import
     } = {};
 
     if ("customAlias" in updateData) {
@@ -173,6 +182,11 @@ export class LinkService {
       updateFields.expiresAt = updateData.expiresAt
         ? new Date(updateData.expiresAt)
         : null;
+    }
+
+    // jika link belum di-import, set userId
+    if (!link.userId) {
+      updateFields.userId = userId;
     }
 
     if (Object.keys(updateFields).length === 0)
@@ -245,6 +259,49 @@ export class LinkService {
     try {
       return await qrcode.toDataURL(mapLinkToDto(link, this.baseUrl).shortUrl);
     } catch (error) {
+      throw new InternalServerError();
+    }
+  }
+
+  async importGuestLink(
+    linkId: number,
+    userId: number,
+    newAlias?: string
+  ): Promise<ReturnType<typeof mapLinkToDto>> {
+    // Ambil link dari DB
+    const link = await this.linkRepository.findById(linkId);
+    if (!link) throw new NotFoundError("Link");
+
+    // Jika link sudah dimiliki user lain → conflict
+    if (link.userId && link.userId !== userId)
+      throw new ForbiddenError("You do not own this link");
+
+    // Tentukan alias yang akan dipakai
+    let aliasToUse = newAlias?.trim() || link.shortCode;
+
+    // Jika alias masih null/empty, generate unik
+    if (!aliasToUse) {
+      aliasToUse = await this.generateUniqueShortCode();
+    }
+
+    // Update link untuk klaim
+    try {
+      const updated = await this.linkRepository.update(link.id, {
+        userId,
+        customAlias: aliasToUse,
+        shortCode: aliasToUse,
+        expiresAt: link.expiresAt,
+      });
+
+      if (!updated) throw new InternalServerError();
+
+      // Hanya return hasil mapLinkToDto
+      return mapLinkToDto(updated, this.baseUrl);
+    } catch (err: any) {
+      // Row not found
+      if (err.code === "P2025") throw new NotFoundError("Link");
+
+      // Semua error lain
       throw new InternalServerError();
     }
   }

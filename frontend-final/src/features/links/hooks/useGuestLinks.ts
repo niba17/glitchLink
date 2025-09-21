@@ -1,11 +1,12 @@
-// frontend-final/src/features/links/hooks/useGuestLinks.ts
-
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ShortLinkPayload,
   GuestLink,
   GuestLinkUI,
   ShortLinkResponse,
+  ImportGuestLinkResult,
+  GuestLinkWithMessage,
 } from "../types/type";
 import { mapGuestLinksToUI } from "../utils/mapGuestLinksToUI";
 import { linkService } from "../services/linkService";
@@ -17,8 +18,7 @@ function fetchGuestLinks(): GuestLink[] {
   const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
   if (!stored) return [];
   try {
-    const parsed: GuestLink[] = JSON.parse(stored);
-    return parsed;
+    return JSON.parse(stored) as GuestLink[];
   } catch {
     return [];
   }
@@ -26,13 +26,18 @@ function fetchGuestLinks(): GuestLink[] {
 
 export function useGuestLinks() {
   const queryClient = useQueryClient();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const query = useQuery<GuestLink[]>({
     queryKey: [LOCAL_STORAGE_KEY],
     queryFn: fetchGuestLinks,
   });
 
-  const createMutation = useMutation({
+  const createMutation = useMutation<
+    GuestLinkWithMessage,
+    Error,
+    ShortLinkPayload
+  >({
     mutationFn: async (payload: ShortLinkPayload) => {
       const res: ShortLinkResponse = await linkService.createShortLink(payload);
 
@@ -42,39 +47,41 @@ export function useGuestLinks() {
         shortUrl: res.data.shortUrl,
         shortCode: res.data.customAlias || res.data.shortCode || null,
         createdAt: res.data.createdAt || new Date().toISOString(),
-        expiresAt: res.data.expiresAt || null, // ✅ simpan kalau ada
+        expiresAt: res.data.expiresAt || null,
       };
 
-      return { newLink, message: res.message }; // <<< simpan message juga
+      return { link: newLink, message: res.message }; // <-- tambahkan message
     },
-    onSuccess: ({ newLink }) => {
+    onSuccess: ({ link }) => {
       const prev =
         queryClient.getQueryData<GuestLink[]>([LOCAL_STORAGE_KEY]) || [];
-      const updated = [newLink, ...prev];
+      const updated = [link, ...prev];
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
       queryClient.setQueryData([LOCAL_STORAGE_KEY], updated);
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number): Promise<GuestLink[]> => {
+  const deleteMutation = useMutation<GuestLink[], Error, number>({
+    mutationFn: (id: number) => {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       const parsed: GuestLink[] = stored ? JSON.parse(stored) : [];
       const updated = parsed.filter((link) => link.id !== id);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-      return Promise.resolve(updated);
+      return Promise.resolve(updated); // ✅ wajib Promise
     },
-    onSuccess: (updated) => {
-      queryClient.setQueryData([LOCAL_STORAGE_KEY], updated);
-    },
+    onSuccess: (updated) =>
+      queryClient.setQueryData([LOCAL_STORAGE_KEY], updated),
   });
 
-  // 🔑 Generate short code khusus guest
-  const generateCodeMutation = useMutation({
-    mutationFn: async () => {
-      return linkService.generateShortCode(); // tanpa token
-    },
-  });
+  const generateShortCode = async (): Promise<string> => {
+    setIsGenerating(true);
+    try {
+      const code = Math.random().toString(36).substring(2, 8);
+      return code;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const uiGuestLinks: GuestLinkUI[] = query.data
     ? mapGuestLinksToUI(query.data)
@@ -85,18 +92,51 @@ export function useGuestLinks() {
     uiGuestLinks,
     isLoading: query.isLoading,
 
-    createShortLinkAsync: createMutation.mutateAsync,
-
-    // create & delete
     createShortLink: createMutation.mutate,
-    deleteShortLink: deleteMutation.mutate,
-
-    // generate code
-    generateShortCode: generateCodeMutation.mutateAsync,
-    isGenerating: generateCodeMutation.isPending,
-
-    // states
+    createShortLinkAsync: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
     createError: createMutation.error,
+
+    deleteShortLink: (
+      id: number,
+      callbacks?: { onSuccess?: () => void; onError?: (err: any) => void }
+    ) => {
+      deleteMutation.mutate(id, {
+        onSuccess: () => callbacks?.onSuccess?.(),
+        onError: (err: any) => callbacks?.onError?.(err),
+      });
+    },
+
+    importGuestLinkSingle,
+    generateShortCode,
+    isGenerating,
   };
+}
+
+export async function importGuestLinkSingle(
+  link: GuestLink,
+  token: string
+): Promise<ImportGuestLinkResult> {
+  try {
+    const payload = {
+      linkId: link.id,
+      customAlias: link.shortCode || undefined,
+    };
+
+    const res = await linkService.importGuestLink(payload, token);
+
+    const importedLink: GuestLink = res.data;
+
+    return {
+      link: importedLink,
+      status: "success",
+      message: "Guest link imported successfully",
+    };
+  } catch (err: any) {
+    return {
+      link,
+      status: "conflict",
+      message: err.data?.message || err.message,
+    };
+  }
 }

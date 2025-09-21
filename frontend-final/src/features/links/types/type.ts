@@ -48,3 +48,34 @@ export interface UserLink {
   expiresAt?: string | null;
   shortUrl: string;
 }
+
+// untuk klaim guest links
+export interface ImportGuestLinksPayload {
+  links: {
+    linkId: number;
+    customAlias?: string | null;
+  }[];
+}
+
+// hasil klaim dari backend
+export interface ImportGuestLinkResult {
+  link: GuestLink;
+  status: "success" | "conflict";
+  message?: string;
+}
+
+export type ImportGuestLinkSinglePayload = {
+  linkId: number;
+  customAlias?: string;
+};
+
+export interface ImportGuestLinkSingleResult {
+  link: GuestLink;
+  status: "success" | "conflict";
+  message?: string;
+}
+
+export interface GuestLinkWithMessage {
+  link: GuestLink;
+  message?: string;
+}

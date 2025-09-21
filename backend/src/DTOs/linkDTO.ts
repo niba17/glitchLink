@@ -62,3 +62,26 @@ export const getLinkAnalyticsSchema = z.object({
 });
 
 export type GetLinkAnalyticsDto = z.infer<typeof getLinkAnalyticsSchema>;
+
+export const importGuestLinkSchema = z.object({
+  linkId: z.number().positive(),
+  customAlias: z
+    .string()
+    .trim()
+    .min(1, { message: "Custom Alias is required" })
+    .max(20, { message: "Custom alias cannot exceed 20 characters" })
+    .regex(/^[a-z0-9-]+$/, {
+      message:
+        "Custom alias can only contain lowercase letters, numbers, and hyphens",
+    }),
+
+  expiresAt: z
+    .string()
+    .regex(dateTimeWithoutSecondsRegex, {
+      message: "Invalid datetime format (use YYYY-MM-DD HH:mm)",
+    })
+    .nullable()
+    .optional(),
+});
+
+export type importGuestLinkDto = z.infer<typeof importGuestLinkSchema>;

@@ -26,7 +26,7 @@ export const Navbar02UI = ({
   handleConfirmLogout,
 }: Navbar02UIProps) => {
   return (
-    <nav className="sticky top-0 w-full py-3 flex justify-between items-center bg-zinc-800 px-[145px] z-50">
+    <nav className="sticky top-0 w-full py-3 flex justify-between items-center bg-zinc-800 px-5 z-50">
       <div className="text-3xl font-bold text-white">glitchLink</div>
 
       {/* Desktop Menu */}

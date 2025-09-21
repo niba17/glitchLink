@@ -99,7 +99,7 @@ export default function CreateShortLinkFormContainer({ onClose }: Props) {
     } else {
       createGuestShortLink(payload, {
         onSuccess: (res) => {
-          handleSuccess(res.message || "Short link created successfully");
+          handleSuccess(res.message || "Short link created successfully"); // ✅ sudah aman
         },
         onError: handleError,
       });
