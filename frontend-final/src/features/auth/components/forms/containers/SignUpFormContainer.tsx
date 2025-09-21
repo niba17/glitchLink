@@ -1,8 +1,11 @@
+"use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import SignUpFormUI from "../UI/SignUpFormUI";
 import { useAuth, AuthErrorParsed } from "@/features/auth/hooks/useAuth";
 import { SignUpPayload } from "../../../types/auth";
+import { useDialogStore } from "@/store/useDialogStore";
 
 interface Props {
   onClose?: () => void;
@@ -15,27 +18,44 @@ export default function SignUpFormContainer({ onClose }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  const { signUp, signUpStatus, parseAuthError } = useAuth();
+  const { signUpAsync, signUpStatus, parseAuthError } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Trigger global GuestLinks dialog
+  const openGuestLinksLoginActionDialogContainer = useDialogStore(
+    (state) => state.openGuestLinksLoginActionDialogContainer
+  );
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
     setRootError(null);
 
     const payload: SignUpPayload = { email, password, confirmPassword };
 
-    signUp(payload, {
-      onSuccess: () => {
-        if (onClose) onClose();
-        router.push("/links");
-      },
-      onError: (err: any) => {
-        const parsed: AuthErrorParsed = parseAuthError(err);
-        setFieldErrors(parsed.fieldErrors);
-        setRootError(parsed.rootError);
-      },
-    });
+    try {
+      const res = await signUpAsync(payload); // pakai mutateAsync
+
+      const token = res.data?.token;
+      if (token) {
+        // Trigger dialog global untuk import guest links
+        openGuestLinksLoginActionDialogContainer(token);
+      }
+
+      if (onClose) onClose();
+      // router.push("/links") jangan disini
+    } catch (err: any) {
+      const parsed: AuthErrorParsed = parseAuthError(err);
+      const updatedFieldErrors: Record<string, string> = {};
+      ["email", "password", "confirmPassword"].forEach((key) => {
+        updatedFieldErrors[key] =
+          parsed.fieldErrors[key] && parsed.fieldErrors[key] !== ""
+            ? parsed.fieldErrors[key]
+            : parsed.rootError;
+      });
+      setFieldErrors(updatedFieldErrors);
+      setRootError(parsed.rootError);
+    }
   };
 
   return (

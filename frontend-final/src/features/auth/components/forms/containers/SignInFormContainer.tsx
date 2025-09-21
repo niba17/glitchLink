@@ -7,7 +7,11 @@ import { SignInPayload } from "../../../types/auth";
 import { useDialogStore } from "@/store/useDialogStore";
 import { useRouter } from "next/navigation";
 
-export default function SignInFormContainer() {
+interface Props {
+  onClose?: () => void;
+}
+
+export default function SignInFormContainer({ onClose }: Props) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

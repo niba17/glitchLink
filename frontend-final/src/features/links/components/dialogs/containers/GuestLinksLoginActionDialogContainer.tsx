@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { GuestLinksLoginActionDialogUI } from "../UI/GuestLinksLoginActionDialogUI";
 import { useDialogStore } from "@/store/useDialogStore";
 import {
@@ -9,6 +10,7 @@ import {
   importGuestLinkSingle,
 } from "../../../hooks/useGuestLinks";
 import { useToastHandler } from "@/hooks/useToastHandler";
+import { GuestLink } from "../../../types/type";
 
 interface Selection {
   import: boolean;
@@ -16,13 +18,16 @@ interface Selection {
   ignore: boolean;
 }
 
+const LOCAL_STORAGE_KEY = "guestLinks"; // harus sama dengan query key useGuestLinks
+
 export function GuestLinksLoginActionDialogContainer() {
   const router = useRouter();
   const toast = useToastHandler();
+  const queryClient = useQueryClient();
 
   const {
-    guestLinksMigrationToken,
-    openGuestLinksMigration,
+    guestLinksLoginActionToken,
+    openGuestLinksLoginAction,
     closeGuestLinksLoginActionDialogContainer,
   } = useDialogStore();
 
@@ -33,12 +38,12 @@ export function GuestLinksLoginActionDialogContainer() {
 
   // Redirect otomatis jika tidak ada guest links
   useEffect(() => {
-    if (openGuestLinksMigration && guestLinks.length === 0) {
+    if (openGuestLinksLoginAction && guestLinks.length === 0) {
       closeGuestLinksLoginActionDialogContainer();
       router.push("/links");
     }
   }, [
-    openGuestLinksMigration,
+    openGuestLinksLoginAction,
     guestLinks,
     closeGuestLinksLoginActionDialogContainer,
     router,
@@ -46,7 +51,7 @@ export function GuestLinksLoginActionDialogContainer() {
 
   // Inisialisasi checkbox
   useEffect(() => {
-    if (!openGuestLinksMigration) {
+    if (!openGuestLinksLoginAction) {
       setSelection({});
     } else {
       const initial: Record<number, Selection> = {};
@@ -55,7 +60,7 @@ export function GuestLinksLoginActionDialogContainer() {
       });
       setSelection(initial);
     }
-  }, [openGuestLinksMigration, guestLinks]);
+  }, [openGuestLinksLoginAction, guestLinks]);
 
   const toggle = (id: number, type: "import" | "remove" | "ignore") => {
     setSelection((prev) => {
@@ -82,7 +87,7 @@ export function GuestLinksLoginActionDialogContainer() {
   };
 
   const handleConfirm = async () => {
-    if (!guestLinksMigrationToken) return;
+    if (!guestLinksLoginActionToken) return;
     setIsProcessing(true);
 
     const selectedForImport = guestLinks.filter(
@@ -96,10 +101,32 @@ export function GuestLinksLoginActionDialogContainer() {
     // IMPORT LINKS
     for (const link of selectedForImport) {
       try {
-        const res = await importGuestLinkSingle(link, guestLinksMigrationToken);
+        const res = await importGuestLinkSingle(
+          link,
+          guestLinksLoginActionToken
+        );
         if (res.status === "success") {
           toast.showSuccess(res.message ?? `Imported: ${link.shortUrl}`);
           successfullyImportedIds.push(link.id);
+
+          // ✅ Update cache React Query agar langsung muncul di /links
+          queryClient.setQueryData(
+            [LOCAL_STORAGE_KEY],
+            (old: GuestLink[] | undefined) => {
+              if (!old) return [res.link];
+              const exists = old.some((l) => l.id === res.link.id);
+              return exists ? old : [res.link, ...old];
+            }
+          );
+
+          // ✅ Update localStorage juga agar konsisten
+          const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+          const parsed: GuestLink[] = stored ? JSON.parse(stored) : [];
+          const updated = [
+            res.link,
+            ...parsed.filter((l) => l.id !== res.link.id),
+          ];
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
         } else {
           toast.showError(res.message ?? `Failed to import: ${link.shortUrl}`);
         }
@@ -136,7 +163,7 @@ export function GuestLinksLoginActionDialogContainer() {
 
   return (
     <GuestLinksLoginActionDialogUI
-      open={openGuestLinksMigration}
+      open={openGuestLinksLoginAction}
       guestLinks={guestLinks}
       selection={selection}
       toggle={toggle}

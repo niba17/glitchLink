@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, UseMutateFunction } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastHandler } from "@/hooks/useToastHandler";
@@ -15,7 +17,6 @@ export const parseAuthError = (err: any): AuthErrorParsed => {
   const fe: Record<string, string> = {};
   let re = "Something went wrong";
 
-  // AxiosError
   if (err?.isAxiosError) {
     const data = (err as AxiosError<any>).response?.data;
     if (data) {
@@ -26,9 +27,7 @@ export const parseAuthError = (err: any): AuthErrorParsed => {
       }
       if (data.message) re = data.message;
     }
-  }
-  // fallback generic Error
-  else if (err instanceof Error) {
+  } else if (err instanceof Error) {
     re = err.message;
   }
 
@@ -48,8 +47,7 @@ export function useAuth() {
       if (token && email) {
         setAuth({ isLoggedIn: true, token, email });
         showSuccess(res.message);
-
-        // router.replace("/links");
+        // Redirect dilakukan oleh GuestLinksLoginActionDialogContainer
       } else {
         showError(res.message);
       }
@@ -68,7 +66,8 @@ export function useAuth() {
       if (token && email) {
         setAuth({ isLoggedIn: true, token, email });
         showSuccess(res.message);
-        router.replace("/links");
+        // Jangan langsung redirect
+        // Trigger dialog dilakukan di SignUpFormContainer
       } else {
         showError(res.message);
       }
@@ -76,7 +75,7 @@ export function useAuth() {
     onError: (err: AxiosError) => {
       const { rootError } = parseAuthError(err);
       showError(rootError);
-      return parseAuthError(err); // agar container bisa pakai fieldErrors
+      return parseAuthError(err);
     },
   });
 
@@ -100,12 +99,17 @@ export function useAuth() {
     signInAsync: signInMutation.mutateAsync as unknown as (
       payload: SignInPayload
     ) => Promise<AuthResponse>,
+
     signUp: signUpMutation.mutate as unknown as UseMutateFunction<
       AuthResponse,
       AuthErrorParsed,
       SignUpPayload,
       unknown
     >,
+    signUpAsync: signUpMutation.mutateAsync as unknown as (
+      payload: SignUpPayload
+    ) => Promise<AuthResponse>,
+
     signOut: signOutMutation.mutate,
     signInStatus: signInMutation.status,
     signUpStatus: signUpMutation.status,

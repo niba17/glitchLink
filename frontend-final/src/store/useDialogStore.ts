@@ -1,17 +1,17 @@
 import { create } from "zustand";
 
 interface DialogState {
-  guestLinksMigrationToken: string | null;
-  openGuestLinksMigration: boolean;
+  guestLinksLoginActionToken: string | null;
+  openGuestLinksLoginAction: boolean;
   openGuestLinksLoginActionDialogContainer: (token: string) => void;
   closeGuestLinksLoginActionDialogContainer: () => void;
 }
 
 export const useDialogStore = create<DialogState>((set) => ({
-  guestLinksMigrationToken: null,
-  openGuestLinksMigration: false,
-  openGuestLinksLoginActionDialogContainer: (token) =>
-    set({ guestLinksMigrationToken: token, openGuestLinksMigration: true }),
+  guestLinksLoginActionToken: null,
+  openGuestLinksLoginAction: false,
+  openGuestLinksLoginActionDialogContainer: (token: string) =>
+    set({ guestLinksLoginActionToken: token, openGuestLinksLoginAction: true }),
   closeGuestLinksLoginActionDialogContainer: () =>
-    set({ guestLinksMigrationToken: null, openGuestLinksMigration: false }),
+    set({ guestLinksLoginActionToken: null, openGuestLinksLoginAction: false }),
 }));

@@ -32,8 +32,17 @@ export function GuestLinksLoginActionDialogUI({
   isProcessing,
 }: Props) {
   return (
-    <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        // cegah close dari klik overlay
+        if (!isOpen) return;
+        onCancel();
+      }}
+    >
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()} // mencegah close klik di luar
+      >
         <DialogHeader>
           <DialogTitle>Take action to your shortlinks</DialogTitle>
         </DialogHeader>
