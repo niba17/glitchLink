@@ -73,6 +73,16 @@ export function useGuestLinks() {
       queryClient.setQueryData([LOCAL_STORAGE_KEY], updated),
   });
 
+  // Tambahkan ini
+  const deleteShortLinkAsync = async (id: number) => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const parsed: GuestLink[] = stored ? JSON.parse(stored) : [];
+    const updated = parsed.filter((link) => link.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    queryClient.setQueryData([LOCAL_STORAGE_KEY], updated);
+    return updated;
+  };
+
   const generateShortCode = async (): Promise<string> => {
     setIsGenerating(true);
     try {
@@ -107,13 +117,13 @@ export function useGuestLinks() {
       });
     },
 
+    deleteShortLinkAsync, // <--- tambahkan di sini
+
     importGuestLinkSingle,
     generateShortCode,
     isGenerating,
   };
 }
-
-import { useAuthStore } from "@/store/useAuthStore";
 
 export async function importGuestLinkSingle(
   link: GuestLink,

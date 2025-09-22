@@ -26,7 +26,8 @@ export function GuestLinksLoginActionDialogContainer() {
   const toast = useToastHandler();
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
-  const { guestLinks, deleteShortLink } = useGuestLinks();
+  const { guestLinks, deleteShortLinkAsync } = useGuestLinks();
+
   const {
     openGuestLinksLoginAction,
     closeGuestLinksLoginActionDialogContainer,
@@ -130,16 +131,11 @@ export function GuestLinksLoginActionDialogContainer() {
 
     for (const id of idsToDelete) {
       const deletedLink = guestLinks.find((l) => l.id === id);
-      if (deletedLink) {
-        await deleteShortLink(id, {
-          onSuccess: () =>
-            toast.showSuccess(`Deleted from local: ${deletedLink.shortUrl}`),
-          onError: (err: any) =>
-            toast.showError(
-              err.message ?? `Failed to delete ${deletedLink.shortUrl}`
-            ),
-        });
-      }
+      if (!deletedLink) continue;
+
+      // pakai deleteShortLinkAsync, await biar urut, toast muncul semua
+      await deleteShortLinkAsync(id);
+      toast.showSuccess(`Deleted from local: ${deletedLink.shortUrl}`);
     }
 
     setIsProcessing(false);
