@@ -34,7 +34,7 @@ const footerLinks = [
   },
 ];
 
-const Footer05Page = () => {
+const Footer = () => {
   return (
     <div className="flex flex-col bg-zinc-800">
       <div className="grow bg-muted" />
@@ -105,4 +105,4 @@ const Footer05Page = () => {
   );
 };
 
-export default Footer05Page;
+export default Footer;
