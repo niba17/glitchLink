@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 interface SignInFormUIProps {
   email: string;
@@ -83,7 +84,7 @@ export default function SignInFormUI({
           </Button>
         </DialogClose>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "..." : "Sign In"}
+          {isPending ? <Spinner /> : "Sign In"}
         </Button>
       </div>
     </form>

@@ -2,6 +2,7 @@ import { DateTimePicker } from "@/components/customs/DateTimePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 interface CreateShortLinkFormUIProps {
   originalUrl: string;
@@ -78,7 +79,7 @@ export default function CreateShortLinkFormUI({
               size="sm"
               className="h-5"
             >
-              {isGenerating ? "..." : "Generate"}
+              {isGenerating ? <Spinner /> : "Generate"}
             </Button>
           </div>
           <Input

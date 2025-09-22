@@ -1,7 +1,10 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogClose } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 
 interface SignInFormUIProps {
   email: string;
@@ -82,8 +85,12 @@ export default function SignInFormUI({
             Cancel
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "..." : "Sign In"}
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="flex items-center justify-center"
+        >
+          {isPending ? <Spinner className="w-5 h-5" /> : "Sign In"}
         </Button>
       </div>
     </form>
