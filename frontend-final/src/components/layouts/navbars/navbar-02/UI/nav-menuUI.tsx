@@ -21,7 +21,7 @@ export const NavMenuUI = (props: ComponentProps<typeof NavigationMenu>) => {
   const links = [
     { name: "Links", href: "/links" },
     { name: "Analytics", href: "/analytics" },
-    { name: "About", href: "/about" },
+    { name: "Account", href: "/account" },
   ];
 
   return (

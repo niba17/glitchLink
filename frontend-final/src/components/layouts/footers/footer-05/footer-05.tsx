@@ -74,7 +74,7 @@ const Footer05Page = () => {
             </ul>
           </div> */}
           {/* <Separator /> */}
-          <div className="py-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-x-2 gap-y-5 px-6 xl:px-0">
+          <div className="py-5 flex flex-col-reverse sm:flex-row items-center justify-between gap-x-2 gap-y-5 px-6 xl:px-0">
             {/* Copyright */}
             <span className="text-muted-foreground">
               &copy; {new Date().getFullYear()}{" "}

@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore"; // ✅ pakai yang sama kayak /links
 import { DonutPieCardContainer } from "@/features/analytics/components/cards/containers/donutPieCardContainer";
 import { LineCardContainer } from "@/features/analytics/components/cards/containers/lineCardContainer";
 import { SummarySectionContainer } from "@/features/analytics/components/customs/containers/summarySectionContainer";
@@ -14,10 +18,17 @@ import { UserLink } from "@/features/links/types/type";
 import { cn } from "@/lib/utils";
 
 export default function AnalyticsPage() {
+  const router = useRouter();
+  const { isLoggedIn, rehydrated } = useAuthStore(); // ✅ sama dengan /links
   const { userLinks, isLoading } = useUserLinks();
-  const [selectedShortlink, setSelectedShortlink] = React.useState<
-    UserLink | undefined
-  >(undefined);
+  const [selectedShortlink, setSelectedShortlink] = React.useState<UserLink>();
+
+  // 🚨 Guard login
+  React.useEffect(() => {
+    if (rehydrated && !isLoggedIn) {
+      router.replace("/"); // atau /login kalau mau langsung ke halaman login
+    }
+  }, [rehydrated, isLoggedIn, router]);
 
   React.useEffect(() => {
     if (userLinks && userLinks.length > 0 && !selectedShortlink) {
@@ -27,6 +38,8 @@ export default function AnalyticsPage() {
       }
     }
   }, [userLinks, selectedShortlink]);
+
+  if (!rehydrated) return null; // ✅ tunggu store selesai rehydrate
 
   return (
     <div className="bg-zinc-950 min-h-screen p-5 space-y-5">
