@@ -130,16 +130,15 @@ export const linkService = {
     }
   },
 
-  // ubah parameter dari array ke single object
   async importGuestLink(
-    payload: ImportGuestLinkSinglePayload, // single object
-    token: string
+    payload: ImportGuestLinkSinglePayload,
+    token?: string // <--- jadikan optional
   ): Promise<{ status: string; data: any }> {
     try {
       const res = await api.put("/links/import", payload, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
       const data = res.data;

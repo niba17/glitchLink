@@ -113,6 +113,8 @@ export function useGuestLinks() {
   };
 }
 
+import { useAuthStore } from "@/store/useAuthStore";
+
 export async function importGuestLinkSingle(
   link: GuestLink,
   token: string
@@ -123,7 +125,7 @@ export async function importGuestLinkSingle(
       customAlias: link.shortCode || undefined,
     };
 
-    const res = await linkService.importGuestLink(payload, token);
+    const res = await linkService.importGuestLink(payload, token); // pakai token dari container
 
     const importedLink: GuestLink = res.data;
 

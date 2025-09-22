@@ -35,9 +35,7 @@ export function GuestLinksLoginActionDialogUI({
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        // cegah close dari klik overlay
-        if (!isOpen) return;
-        onCancel();
+        if (!isOpen) onCancel(); // close jika overlay clicked
       }}
     >
       <DialogContent
@@ -92,7 +90,13 @@ export function GuestLinksLoginActionDialogUI({
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={onConfirm} disabled={isProcessing}>
+          <Button
+            onClick={() => {
+              onConfirm(); // jalankan proses import/delete
+              onCancel?.(); // tutup dialog
+            }}
+            disabled={isProcessing}
+          >
             {isProcessing ? "Processing..." : "Confirm"}
           </Button>
         </div>

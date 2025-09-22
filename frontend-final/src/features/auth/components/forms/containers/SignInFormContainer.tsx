@@ -6,6 +6,7 @@ import { useAuth, AuthErrorParsed } from "@/features/auth/hooks/useAuth";
 import { SignInPayload } from "../../../types/auth";
 import { useDialogStore } from "@/store/useDialogStore";
 import { useRouter } from "next/navigation";
+import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
 
 interface Props {
   onClose?: () => void;
@@ -17,24 +18,32 @@ export default function SignInFormContainer({ onClose }: Props) {
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   const { signInAsync, parseAuthError } = useAuth();
-  const openGuestLinksLoginActionDialogContainer = useDialogStore(
-    (state) => state.openGuestLinksLoginActionDialogContainer
-  );
+  const { openGuestLinksLoginActionDialogContainer } = useDialogStore();
+  const { guestLinks } = useGuestLinks();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFieldErrors({});
     setRootError(null);
+    setIsPending(true);
 
     const payload: SignInPayload = { email, password };
 
     try {
-      const res = await signInAsync(payload); // token tersimpan di store auth
-      const token = res.data?.token;
-      if (token) {
-        openGuestLinksLoginActionDialogContainer(token); // trigger dialog global
+      const res = await signInAsync(payload);
+      if (res.data?.token) {
+        // Login sukses
+        if (guestLinks.length > 0) {
+          // Buka GuestLinks dialog dengan callback otomatis
+          openGuestLinksLoginActionDialogContainer(async () => {
+            router.push("/links"); // fallback redirect setelah dialog selesai
+          });
+        } else {
+          router.push("/links");
+        }
       }
     } catch (err: any) {
       const parsed: AuthErrorParsed = parseAuthError(err);
@@ -47,6 +56,8 @@ export default function SignInFormContainer({ onClose }: Props) {
       });
       setFieldErrors(updatedFieldErrors);
       setRootError(parsed.rootError);
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -59,7 +70,7 @@ export default function SignInFormContainer({ onClose }: Props) {
       onSubmit={handleSubmit}
       fieldErrors={fieldErrors}
       rootError={rootError ?? undefined}
-      isPending={false}
+      isPending={isPending}
     />
   );
 }

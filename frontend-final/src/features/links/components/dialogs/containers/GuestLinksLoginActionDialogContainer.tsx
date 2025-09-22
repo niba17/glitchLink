@@ -10,6 +10,7 @@ import {
   importGuestLinkSingle,
 } from "../../../hooks/useGuestLinks";
 import { useToastHandler } from "@/hooks/useToastHandler";
+import { useAuthStore } from "@/store/useAuthStore";
 import { GuestLink } from "../../../types/type";
 
 interface Selection {
@@ -18,25 +19,24 @@ interface Selection {
   ignore: boolean;
 }
 
-const LOCAL_STORAGE_KEY = "guestLinks"; // harus sama dengan query key useGuestLinks
+const LOCAL_STORAGE_KEY = "guestLinks";
 
 export function GuestLinksLoginActionDialogContainer() {
   const router = useRouter();
   const toast = useToastHandler();
   const queryClient = useQueryClient();
-
+  const { token } = useAuthStore();
+  const { guestLinks, deleteShortLink } = useGuestLinks();
   const {
-    guestLinksLoginActionToken,
     openGuestLinksLoginAction,
     closeGuestLinksLoginActionDialogContainer,
+    dialogConfirmCallback,
   } = useDialogStore();
-
-  const { guestLinks, deleteShortLink } = useGuestLinks();
 
   const [selection, setSelection] = useState<Record<number, Selection>>({});
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Redirect otomatis jika tidak ada guest links
+  // redirect jika tidak ada guest links
   useEffect(() => {
     if (openGuestLinksLoginAction && guestLinks.length === 0) {
       closeGuestLinksLoginActionDialogContainer();
@@ -49,67 +49,55 @@ export function GuestLinksLoginActionDialogContainer() {
     router,
   ]);
 
-  // Inisialisasi checkbox
+  // init checkbox
   useEffect(() => {
-    if (!openGuestLinksLoginAction) {
-      setSelection({});
-    } else {
-      const initial: Record<number, Selection> = {};
-      guestLinks.forEach((link) => {
-        initial[link.id] = { import: true, remove: false, ignore: false };
-      });
-      setSelection(initial);
-    }
+    if (!openGuestLinksLoginAction) return;
+    const initial: Record<number, Selection> = {};
+    guestLinks.forEach((link) => {
+      initial[link.id] = { import: true, remove: false, ignore: false };
+    });
+    setSelection(initial);
   }, [openGuestLinksLoginAction, guestLinks]);
 
   const toggle = (id: number, type: "import" | "remove" | "ignore") => {
     setSelection((prev) => {
-      if (type === "import" && !prev[id].import) {
-        return {
-          ...prev,
-          [id]: { import: true, remove: false, ignore: false },
-        };
-      }
-      if (type === "remove" && !prev[id].remove) {
-        return {
-          ...prev,
-          [id]: { import: false, remove: true, ignore: false },
-        };
-      }
-      if (type === "ignore" && !prev[id].ignore) {
-        return {
-          ...prev,
-          [id]: { import: false, remove: false, ignore: true },
-        };
-      }
-      return { ...prev, [id]: { ...prev[id], [type]: !prev[id][type] } };
+      const current = prev[id] || {
+        import: false,
+        remove: false,
+        ignore: false,
+      };
+      return {
+        ...prev,
+        [id]: {
+          import: type === "import" ? !current.import : false,
+          remove: type === "remove" ? !current.remove : false,
+          ignore: type === "ignore" ? !current.ignore : false,
+        },
+      };
     });
   };
 
   const handleConfirm = async () => {
-    if (!guestLinksLoginActionToken) return;
     setIsProcessing(true);
 
-    const selectedForImport = guestLinks.filter(
-      (link) => selection[link.id]?.import
-    );
-    const selectedForRemove = guestLinks.filter(
-      (link) => selection[link.id]?.remove
-    );
+    const selectedForImport = guestLinks.filter((l) => selection[l.id]?.import);
+    const selectedForRemove = guestLinks.filter((l) => selection[l.id]?.remove);
     const successfullyImportedIds: number[] = [];
 
     // IMPORT LINKS
     for (const link of selectedForImport) {
+      if (!token) {
+        toast.showError("User not authenticated");
+        continue;
+      }
       try {
-        const res = await importGuestLinkSingle(
-          link,
-          guestLinksLoginActionToken
-        );
+        const res = await importGuestLinkSingle(link, token);
         if (res.status === "success") {
-          toast.showSuccess(res.message ?? `Imported: ${link.shortUrl}`);
+          toast.showSuccess(`${res.message ?? "Imported"}: ${link.shortUrl}`);
+
           successfullyImportedIds.push(link.id);
 
-          // ✅ Update cache React Query agar langsung muncul di /links
+          // update cache
           queryClient.setQueryData(
             [LOCAL_STORAGE_KEY],
             (old: GuestLink[] | undefined) => {
@@ -119,7 +107,7 @@ export function GuestLinksLoginActionDialogContainer() {
             }
           );
 
-          // ✅ Update localStorage juga agar konsisten
+          // update localStorage
           const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
           const parsed: GuestLink[] = stored ? JSON.parse(stored) : [];
           const updated = [
@@ -137,9 +125,7 @@ export function GuestLinksLoginActionDialogContainer() {
 
     // DELETE LINKS
     const idsToDelete = selectedForRemove
-      .concat(
-        guestLinks.filter((link) => successfullyImportedIds.includes(link.id))
-      )
+      .concat(guestLinks.filter((l) => successfullyImportedIds.includes(l.id)))
       .map((l) => l.id);
 
     for (const id of idsToDelete) {
@@ -147,10 +133,10 @@ export function GuestLinksLoginActionDialogContainer() {
       if (deletedLink) {
         await deleteShortLink(id, {
           onSuccess: () =>
-            toast.showSuccess(`Deleted from local: ${deletedLink.originalUrl}`),
+            toast.showSuccess(`Deleted from local: ${deletedLink.shortUrl}`),
           onError: (err: any) =>
             toast.showError(
-              err.message ?? `Failed to delete ${deletedLink.originalUrl}`
+              err.message ?? `Failed to delete ${deletedLink.shortUrl}`
             ),
         });
       }
@@ -158,7 +144,7 @@ export function GuestLinksLoginActionDialogContainer() {
 
     setIsProcessing(false);
     closeGuestLinksLoginActionDialogContainer();
-    router.push("/links");
+    dialogConfirmCallback?.();
   };
 
   return (

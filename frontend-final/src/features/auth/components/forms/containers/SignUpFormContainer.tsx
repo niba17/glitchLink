@@ -6,6 +6,7 @@ import SignUpFormUI from "../UI/SignUpFormUI";
 import { useAuth, AuthErrorParsed } from "@/features/auth/hooks/useAuth";
 import { SignUpPayload } from "../../../types/auth";
 import { useDialogStore } from "@/store/useDialogStore";
+import { useGuestLinks } from "@/features/links/hooks/useGuestLinks";
 
 interface Props {
   onClose?: () => void;
@@ -18,10 +19,10 @@ export default function SignUpFormContainer({ onClose }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [rootError, setRootError] = useState<string | null>(null);
 
-  const { signUpAsync, signUpStatus, parseAuthError } = useAuth();
+  const { signUpAsync, parseAuthError, signUpStatus } = useAuth();
   const router = useRouter();
+  const { guestLinks } = useGuestLinks();
 
-  // Trigger global GuestLinks dialog
   const openGuestLinksLoginActionDialogContainer = useDialogStore(
     (state) => state.openGuestLinksLoginActionDialogContainer
   );
@@ -35,15 +36,20 @@ export default function SignUpFormContainer({ onClose }: Props) {
 
     try {
       const res = await signUpAsync(payload); // pakai mutateAsync
-
       const token = res.data?.token;
+
       if (token) {
-        // Trigger dialog global untuk import guest links
-        openGuestLinksLoginActionDialogContainer(token);
+        if (guestLinks?.length > 0) {
+          // Trigger GuestLinks dialog dengan callback
+          openGuestLinksLoginActionDialogContainer(async () => {
+            router.push("/links"); // redirect setelah dialog selesai
+          });
+        } else {
+          router.push("/links");
+        }
       }
 
       if (onClose) onClose();
-      // router.push("/links") jangan disini
     } catch (err: any) {
       const parsed: AuthErrorParsed = parseAuthError(err);
       const updatedFieldErrors: Record<string, string> = {};
