@@ -1,9 +1,23 @@
 // Lokasi File: frontend-final/src/features/analytics/types/type.ts
 
-export type DeviceKey = "Desktop" | "Mobile" | "Tablet";
+export type DeviceKey = "Desktop" | "Smartphone" | "Tablet";
 export type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
-export type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari" | "Opera";
-export type ChartKey = DeviceKey | BrowserKey | OSKey;
+export type BrowserKey =
+  | "Chrome"
+  | "Firefox"
+  | "Microsoft Edge"
+  | "Safari"
+  | "Opera"
+  | "Instagram App";
+export type ReferrerKey =
+  | "Instagram App"
+  | "WhatsApp"
+  | "Facebook"
+  | "LinkedIn"
+  | "GitHub"
+  | "Direct";
+
+export type ChartKey = DeviceKey | BrowserKey | OSKey | ReferrerKey;
 
 // Tambahkan definisi dan ekspor ChartDataItem di sini
 export interface ChartDataItem {
@@ -42,6 +56,13 @@ export interface LinkAnalyticsResponse {
 
 export type TotalClickChartDataItem = {
   name: string;
+  clicks: number;
+  fill: string;
+};
+
+// Chart item khusus referrer
+export type ReferrerChartDataItem = {
+  name: ReferrerKey;
   clicks: number;
   fill: string;
 };

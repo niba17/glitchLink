@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import { NavMenuUI } from "./nav-menuUI";
+import { Navbar02MenuUI } from "./navbar-02MenuUI";
 
-export const NavigationSheetUI = () => {
+export const Navbar02NavigationUI = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -12,7 +12,7 @@ export const NavigationSheetUI = () => {
         </Button>
       </SheetTrigger>
       <SheetContent className="px-6 py-3">
-        <NavMenuUI orientation="vertical" />
+        <Navbar02MenuUI orientation="vertical" />
       </SheetContent>
     </Sheet>
   );

@@ -64,9 +64,10 @@ export class LinkRepository {
     userAgent?: string | null;
     browser?: string | null;
     os?: string | null;
-    device?: string | null; // 👈 tambahin ini
+    device?: string | null;
     country?: string | null;
     city?: string | null;
+    referrer?: string | null; // ✅ tambahin
   }): Promise<Click> {
     try {
       const newClick = await prisma.click.create({
@@ -76,12 +77,14 @@ export class LinkRepository {
           userAgent: data.userAgent,
           browser: data.browser,
           os: data.os,
-          device: data.device, // 👈 simpan ke DB
+          device: data.device,
           country: data.country,
           city: data.city,
+          referrer: data.referrer, // ✅ simpan ke DB
           clickedAt: new Date(),
         },
       });
+
       return newClick;
     } catch (error: any) {
       throw error;

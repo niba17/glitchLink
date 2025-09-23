@@ -10,7 +10,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ComponentProps, useState, useEffect } from "react";
 
-export const NavMenuUI = (props: ComponentProps<typeof NavigationMenu>) => {
+export const Navbar02MenuUI = (
+  props: ComponentProps<typeof NavigationMenu>
+) => {
   const router = useRouter();
   const [currentPathname, setCurrentPathname] = useState("");
 

@@ -48,7 +48,6 @@ export default function GuestLinksListContainer({
       onConfirmDelete={handleConfirmDelete}
       onCancelDelete={() => setSelectedId(null)}
       openDialog={selectedId !== null}
-      onVisit={(shortCode) => visitShortLink(shortCode, showError, showSuccess)}
     />
   );
 }

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { NavMenuUI } from "./nav-menuUI";
-import { NavigationSheetUI } from "./navigation-sheetUI";
+import { Navbar02MenuUI } from "./navbar-02MenuUI";
+import { Navbar02NavigationUI } from "./navbar-02NavigationUI";
 import ConfirmDialog from "../../../../customs/ConfirmDialog";
 import AuthFormContainer from "@/features/auth/components/forms/containers/AuthFormContainer";
 import {
@@ -30,7 +30,7 @@ export const Navbar02UI = ({
       <div className="text-3xl font-bold text-white">glitchLink</div>
 
       {/* Desktop Menu */}
-      {isLoggedIn && <NavMenuUI className="hidden md:block" />}
+      {isLoggedIn && <Navbar02MenuUI className="hidden md:block" />}
 
       <div className="flex items-center gap-3">
         {!isLoggedIn ? (
@@ -75,7 +75,7 @@ export const Navbar02UI = ({
         {/* Mobile Menu */}
         {isLoggedIn && (
           <div className="md:hidden">
-            <NavigationSheetUI />
+            <Navbar02NavigationUI />
           </div>
         )}
       </div>

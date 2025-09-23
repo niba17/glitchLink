@@ -63,6 +63,7 @@ export class LinkService {
       browser: click.browser || null,
       os: click.os || null,
       device: click.device || null,
+      referrer: click.referrer || null, // ✅ tambahin
       timestamp: click.clickedAt,
     };
   }

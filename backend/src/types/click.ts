@@ -6,4 +6,5 @@ export interface ClickData {
   device: string | null;
   city: string | null;
   country: string | null;
+  referrer: string | null; // ✅ tambahin field ini
 }

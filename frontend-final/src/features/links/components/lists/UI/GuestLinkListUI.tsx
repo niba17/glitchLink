@@ -14,7 +14,6 @@ interface GuestLinkListUIProps {
   onConfirmDelete: () => void;
   onCancelDelete: () => void;
   openDialog: boolean;
-  onVisit: (shortCode: string) => void; // ✅ sekarang pakai shortCode
 }
 
 export function GuestLinkListUI({
@@ -24,7 +23,6 @@ export function GuestLinkListUI({
   onConfirmDelete,
   onCancelDelete,
   openDialog,
-  onVisit,
 }: GuestLinkListUIProps) {
   return (
     <>
@@ -33,13 +31,16 @@ export function GuestLinkListUI({
           <li key={link.id} className="bg-zinc-800 p-[20px] rounded-sm w-full">
             <div className="flex flex-col space-y-[0.5px]">
               <div className="flex items-center gap-2">
-                <button
+                <a
+                  href={link.shortUrl}
+                  target="_blank"
+                  rel="noopener" // jangan pakai noreferrer kalau butuh referrer
                   title="Visit short link"
-                  onClick={() => onVisit(link.shortCode!)} // ✅ passing shortCode
                   className="text-[#1de2ae] underline break-all text-lg text-left hover:opacity-80"
                 >
                   {link.shortUrl}
-                </button>
+                </a>
+
                 <Badge
                   variant={link.isActive ? "success" : "blocked"}
                   className="text-[10px] h-5 px-1 rounded-full"

@@ -41,15 +41,16 @@ model Link {
 }
 
 model Click {
-  id         Int      @id @default(autoincrement()) // Ini harus Int (number)
-  linkId     Int      // Ini harus Int (number)
+  id         Int      @id @default(autoincrement())
+  linkId     Int
   link       Link     @relation(fields: [linkId], references: [id])
-  ipAddress  String   // Pastikan ini `ipAddress` bukan `ip`
+  ipAddress  String
   userAgent  String?
   device     String?
   browser    String?
   os         String?
-  country    String?  // Tambahkan jika Anda menyimpannya
-  city       String?  // Tambahkan jika Anda menyimpannya
-  clickedAt  DateTime @default(now()) // Pastikan ini `clickedAt` bukan `timestamp`
+  country    String?
+  city       String?
+  referrer   String?   // 👈 tambahkan kolom ini
+  clickedAt  DateTime @default(now())
 }

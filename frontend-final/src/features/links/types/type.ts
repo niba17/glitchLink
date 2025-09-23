@@ -79,3 +79,7 @@ export interface GuestLinkWithMessage {
   link: GuestLink;
   message?: string;
 }
+
+export interface GuestLinkUIWithState extends GuestLinkUI {
+  isActive: boolean;
+}

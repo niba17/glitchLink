@@ -1,59 +1,63 @@
-// Lokasi: frontend-final\src\features\analytics\components\cards\containers\trafficSpikeCardContainer.tsx
-
 import React from "react";
 import { TrafficSourceCardUI } from "../ui/trafficSourceCardUI";
-import {
-  useUserLinkAnalytics,
-  // ClickEvent,
-} from "../../../hooks/useUserLinkAnalitics";
+import { useUserLinkAnalytics } from "@/features/analytics/hooks/useUserLinkAnalitics";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
+import { TotalClickChartDataItem } from "@/features/analytics/types/type";
+
+// hanya referrer yang kita tampilkan
+const REFERRER_KEYS = [
+  "Instagram",
+  "WhatsApp",
+  "Facebook",
+  "LinkedIn",
+  "GitHub",
+  "Direct",
+];
 
 interface TrafficSourceCardContainerProps {
-  shortlinkId?: number; // Perbarui tipe data di sini
+  shortlinkId?: number;
 }
+
+// hitung data chart berdasarkan referrer
+const getTrafficSourceData = (clicks: any[]): TotalClickChartDataItem[] => {
+  const counts: Record<string, number> = {};
+
+  clicks.forEach((click) => {
+    let ref = "Direct"; // default
+    const userAgent = click.referrer?.toLowerCase() || "";
+
+    if (userAgent.includes("instagram")) ref = "Instagram";
+    else if (userAgent.includes("whatsapp")) ref = "WhatsApp";
+    else if (userAgent.includes("facebook")) ref = "Facebook";
+    else if (userAgent.includes("linkedin")) ref = "LinkedIn";
+    else if (userAgent.includes("github")) ref = "GitHub";
+
+    counts[ref] = (counts[ref] || 0) + 1;
+  });
+
+  return REFERRER_KEYS.filter((key) => counts[key] > 0).map((key) => ({
+    name: key,
+    clicks: counts[key],
+    fill: chartConfig[key as keyof typeof chartConfig]?.color || "#e5e5e5",
+  }));
+};
 
 export function TrafficSourceCardContainer({
   shortlinkId,
 }: TrafficSourceCardContainerProps) {
-  const { analyticsData, isLoading, isError } =
-    useUserLinkAnalytics(shortlinkId);
-
-  const calculateTrafficSpike = () => {
-    if (
-      !analyticsData ||
-      !Array.isArray(analyticsData.clicks) ||
-      analyticsData.clicks.length === 0
-    ) {
-      return 0;
-    }
-
-    const dailyClicks: { [key: string]: number } = {};
-    // analyticsData.clicks.forEach((click: ClickEvent) => {
-    //   const date = new Date(click.timestamp).toLocaleDateString();
-    //   dailyClicks[date] = (dailyClicks[date] || 0) + 1;
-    // });
-
-    const maxClicks = Math.max(...Object.values(dailyClicks));
-
-    return isFinite(maxClicks) ? maxClicks : 0;
-  };
-
-  const spikeValue = calculateTrafficSpike();
+  const { analyticsData, isLoading } = useUserLinkAnalytics(shortlinkId);
 
   if (isLoading) {
     return (
-      <h1 className="text-md font-semibold text-stone-200">
-        <span className="animate-pulse">Loading spike data...</span>
+      <h1 className="text-md font-semibold text-stone-200 animate-pulse">
+        Loading traffic sources...
       </h1>
     );
   }
 
-  if (isError) {
-    return (
-      <h1 className="text-md font-semibold text-stone-200">
-        Failed to load spike data.
-      </h1>
-    );
-  }
+  const clicksData = analyticsData?.clicks ?? [];
+  const chartData = getTrafficSourceData(clicksData);
+  const totalClicks = clicksData.length;
 
-  return <TrafficSourceCardUI clicks={spikeValue} />;
+  return <TrafficSourceCardUI clicks={totalClicks} chartData={chartData} />;
 }

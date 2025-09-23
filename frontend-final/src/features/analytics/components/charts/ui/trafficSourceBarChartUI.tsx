@@ -9,11 +9,13 @@ import {
   TotalClickChartDataItem,
 } from "@/features/analytics/types/type";
 
-interface TotalClickBarChartUIProps {
+interface TrafficSourceBarChartUIProps {
   chartData: TotalClickChartDataItem[];
 }
 
-export function TotalClickBarChartUI({ chartData }: TotalClickBarChartUIProps) {
+export function TrafficSourceBarChartUI({
+  chartData,
+}: TrafficSourceBarChartUIProps) {
   return (
     <ChartContainer config={chartConfig}>
       <BarChart
@@ -36,7 +38,6 @@ export function TotalClickBarChartUI({ chartData }: TotalClickBarChartUIProps) {
             const label =
               chartConfig[value as BrowserKey | DeviceKey | OSKey]?.label ??
               value;
-            // Pangkas label jika terlalu panjang
             if (label.length > 10) {
               return `${label.substring(0, 10)}...`;
             }
