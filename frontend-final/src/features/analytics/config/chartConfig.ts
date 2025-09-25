@@ -17,12 +17,12 @@ export const chartConfig: Record<
   // Browsers
   Chrome: { label: "Chrome", color: "#F4B400" },
   Firefox: { label: "Firefox", color: "#FF7139" },
-  "Microsoft Edge": { label: "Edge", color: "#0A84FF" }, // ✅ pakai string literal
+  Edge: { label: "Edge", color: "#0A84FF" }, // ✅ pakai string literal
   Safari: { label: "Safari", color: "#2563EB" },
   Opera: { label: "Opera", color: "#FF1B2D" },
-  "Instagram App": { label: "Instagram", color: "#C13584" }, // ✅ pakai string literal
 
   // Referrers
+  Instagram: { label: "Instagram", color: "#C13584" },
   WhatsApp: { label: "WhatsApp", color: "#25D366" },
   Facebook: { label: "Facebook", color: "#4267B2" },
   LinkedIn: { label: "LinkedIn", color: "#0A66C2" },

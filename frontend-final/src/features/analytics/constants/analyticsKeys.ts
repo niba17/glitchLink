@@ -11,15 +11,14 @@ export const devices: DeviceKey[] = ["Desktop", "Smartphone", "Tablet"];
 export const browsers: BrowserKey[] = [
   "Chrome",
   "Firefox",
-  "Microsoft Edge",
+  "Edge",
   "Safari",
   "Opera",
-  "Instagram App",
 ];
 export const osList: OSKey[] = ["Windows", "macOS", "Linux", "Android", "iOS"];
 
 export const referrers: ReferrerKey[] = [
-  "Instagram App",
+  "Instagram", // ⬅️ ubah dari "Instagram App"
   "WhatsApp",
   "Facebook",
   "LinkedIn",

@@ -1,7 +1,6 @@
 import React from "react";
 import { TotalClickCardContainer } from "../../cards/containers/totalClickCardContainer";
 import { TrafficSourceCardContainer } from "../../cards/containers/trafficSourceCardContainer";
-import { BounceRateCardContainer } from "../../cards/containers/bounceRateCardContainer";
 import { UserLink } from "@/features/links/types/type";
 
 interface SummarySectionUIProps {
@@ -14,9 +13,8 @@ export function SummarySectionUI({ selectedShortlink }: SummarySectionUIProps) {
 
   return (
     <div className="flex flex-col space-y-5">
-      <div className="grid grid-cols-3 justify-center space-x-5">
+      <div className="grid grid-cols-2 justify-center space-x-5">
         <TotalClickCardContainer shortlinkId={shortlinkId} />
-        <BounceRateCardContainer shortlinkId={shortlinkId} />
         <TrafficSourceCardContainer shortlinkId={shortlinkId} />
       </div>
     </div>

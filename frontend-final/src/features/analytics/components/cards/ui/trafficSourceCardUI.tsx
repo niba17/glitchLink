@@ -1,31 +1,50 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
-import { TotalClickChartDataItem } from "@/features/analytics/types/type";
+import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { TrafficSourceBarChartContainer } from "../../charts/containers/trafficSourceBarChartContainer";
 
 interface TrafficSourceCardUIProps {
-  clicks: number;
-  chartData: TotalClickChartDataItem[];
+  clicksData: any[];
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 export function TrafficSourceCardUI({
-  clicks,
-  chartData,
+  clicksData,
+  isLoading,
+  isError,
 }: TrafficSourceCardUIProps) {
+  let content;
+
+  if (isLoading) {
+    content = (
+      <div className="flex justify-center items-center w-full min-h-[120px]">
+        <Spinner />
+      </div>
+    );
+  } else if (isError) {
+    content = (
+      <div className="flex justify-center items-center w-full min-h-[120px] text-red-400">
+        Gagal memuat data
+      </div>
+    );
+  } else {
+    // fallback: kalau kosong tetap render chart kosong
+    const safeData = clicksData.length ? clicksData : [{ referrer: "Direct" }];
+
+    content = (
+      <div className="flex flex-col w-full">
+        <TrafficSourceBarChartContainer clicksData={safeData} />
+      </div>
+    );
+  }
+
   return (
     <Card className="bg-foreground p-5">
-      <CardHeader className="p-0 text-lg font-semibold text-accent">
-        Traffic Sources: {clicks.toLocaleString()}
+      <CardHeader className="p-0 mb-5 text-lg font-semibold text-accent">
+        Traffic Sources
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col items-start text-sm gap-2 font-medium leading-none">
-            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-          </div>
-          <TrafficSourceBarChartContainer chartData={chartData} />
-        </div>
-      </CardContent>
+      <CardContent className="p-0">{content}</CardContent>
     </Card>
   );
 }

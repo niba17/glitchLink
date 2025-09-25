@@ -1,16 +1,11 @@
-// Lokasi File: frontend-final/src/features/analytics/types/type.ts
+// frontend-final/src/features/analytics/types/type.ts
 
 export type DeviceKey = "Desktop" | "Smartphone" | "Tablet";
 export type OSKey = "Windows" | "macOS" | "Linux" | "Android" | "iOS";
-export type BrowserKey =
-  | "Chrome"
-  | "Firefox"
-  | "Microsoft Edge"
-  | "Safari"
-  | "Opera"
-  | "Instagram App";
+export type BrowserKey = "Chrome" | "Firefox" | "Edge" | "Safari" | "Opera";
+
 export type ReferrerKey =
-  | "Instagram App"
+  | "Instagram"
   | "WhatsApp"
   | "Facebook"
   | "LinkedIn"
@@ -19,13 +14,11 @@ export type ReferrerKey =
 
 export type ChartKey = DeviceKey | BrowserKey | OSKey | ReferrerKey;
 
-// Tambahkan definisi dan ekspor ChartDataItem di sini
 export interface ChartDataItem {
   date: string;
   [key: string]: number | string;
 }
 
-// Tambahkan tipe-tipe ini yang dibutuhkan untuk hook useLineChartActiveKeys
 export type ActiveState = {
   devices: DeviceKey[];
   browsers: BrowserKey[];
@@ -40,10 +33,11 @@ export interface ClickEvent {
   country: string | null;
   city: string | null;
   userAgent: string;
-  browser: BrowserKey;
+  browser: string; // ⚠️ BE bisa kirim variasi → nanti dinormalisasi di container
   os: OSKey;
   device: DeviceKey;
   timestamp: string;
+  referrer?: string | null; // ⚠️ opsional & raw dari BE
 }
 
 export interface LinkAnalyticsResponse {
@@ -51,7 +45,6 @@ export interface LinkAnalyticsResponse {
   clicks: ClickEvent[];
   originalUrl: string;
   shortUrl: string;
-  // properti lain yang mungkin ada
 }
 
 export type TotalClickChartDataItem = {
@@ -60,7 +53,6 @@ export type TotalClickChartDataItem = {
   fill: string;
 };
 
-// Chart item khusus referrer
 export type ReferrerChartDataItem = {
   name: ReferrerKey;
   clicks: number;

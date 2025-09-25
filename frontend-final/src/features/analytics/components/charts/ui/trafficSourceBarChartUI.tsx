@@ -1,16 +1,14 @@
 import React from "react";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { chartConfig } from "@/features/analytics/config/chartConfig";
 import {
-  BrowserKey,
-  DeviceKey,
-  OSKey,
-  TotalClickChartDataItem,
+  ReferrerChartDataItem,
+  ReferrerKey,
 } from "@/features/analytics/types/type";
+import { chartConfig } from "@/features/analytics/config/chartConfig";
 
 interface TrafficSourceBarChartUIProps {
-  chartData: TotalClickChartDataItem[];
+  chartData: ReferrerChartDataItem[];
 }
 
 export function TrafficSourceBarChartUI({
@@ -34,15 +32,6 @@ export function TrafficSourceBarChartUI({
           tickLine={false}
           tickMargin={10}
           axisLine={false}
-          tickFormatter={(value) => {
-            const label =
-              chartConfig[value as BrowserKey | DeviceKey | OSKey]?.label ??
-              value;
-            if (label.length > 10) {
-              return `${label.substring(0, 10)}...`;
-            }
-            return label;
-          }}
           interval={0}
         />
         <XAxis dataKey="clicks" type="number" hide />
@@ -55,16 +44,12 @@ export function TrafficSourceBarChartUI({
                   key={entry.name}
                   className="flex justify-between items-center"
                 >
-                  <span className="flex items-center space-x-1">
-                    <span className="font-semibold">
-                      {chartConfig[entry.name as BrowserKey | DeviceKey | OSKey]
-                        ?.label ?? entry.name}
-                    </span>
+                  <span className="font-semibold">
+                    {chartConfig[entry.name as ReferrerKey]?.label ??
+                      entry.name}
                   </span>
-                  <span className="flex items-center space-x-1">
-                    <span className="font-semibold">
-                      {entry.value?.toLocaleString() ?? 0}
-                    </span>
+                  <span className="font-semibold">
+                    {entry.value?.toLocaleString() ?? 0}
                   </span>
                 </div>
               ))}
