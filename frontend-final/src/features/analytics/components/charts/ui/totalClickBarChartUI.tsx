@@ -17,13 +17,9 @@ export function TotalClickBarChartUI({ chartData }: TotalClickBarChartUIProps) {
   return (
     <ChartContainer config={chartConfig}>
       <BarChart
-        accessibilityLayer
         data={chartData}
         layout="vertical"
-        margin={{
-          left: 20,
-          right: 5,
-        }}
+        margin={{ left: 20, right: 5 }}
       >
         <CartesianGrid horizontal={false} />
         <YAxis
@@ -36,11 +32,7 @@ export function TotalClickBarChartUI({ chartData }: TotalClickBarChartUIProps) {
             const label =
               chartConfig[value as BrowserKey | DeviceKey | OSKey]?.label ??
               value;
-            // Pangkas label jika terlalu panjang
-            if (label.length > 10) {
-              return `${label.substring(0, 10)}...`;
-            }
-            return label;
+            return label.length > 10 ? `${label.substring(0, 10)}...` : label;
           }}
           interval={0}
         />
@@ -70,7 +62,12 @@ export function TotalClickBarChartUI({ chartData }: TotalClickBarChartUIProps) {
             </div>
           )}
         />
-        <Bar dataKey="clicks" layout="vertical" />
+        <Bar
+          dataKey="clicks"
+          layout="vertical"
+          isAnimationActive={true}
+          animationDuration={800}
+        />
       </BarChart>
     </ChartContainer>
   );

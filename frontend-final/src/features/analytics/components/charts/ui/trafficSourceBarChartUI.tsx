@@ -17,13 +17,9 @@ export function TrafficSourceBarChartUI({
   return (
     <ChartContainer config={chartConfig}>
       <BarChart
-        accessibilityLayer
         data={chartData}
         layout="vertical"
-        margin={{
-          left: 20,
-          right: 5,
-        }}
+        margin={{ left: 20, right: 5 }}
       >
         <CartesianGrid horizontal={false} />
         <YAxis
@@ -32,6 +28,10 @@ export function TrafficSourceBarChartUI({
           tickLine={false}
           tickMargin={10}
           axisLine={false}
+          tickFormatter={(value) => {
+            const label = chartConfig[value as ReferrerKey]?.label ?? value;
+            return label.length > 10 ? `${label.substring(0, 10)}...` : label;
+          }}
           interval={0}
         />
         <XAxis dataKey="clicks" type="number" hide />
@@ -56,7 +56,12 @@ export function TrafficSourceBarChartUI({
             </div>
           )}
         />
-        <Bar dataKey="clicks" layout="vertical" />
+        <Bar
+          dataKey="clicks"
+          layout="vertical"
+          isAnimationActive={true}
+          animationDuration={800}
+        />
       </BarChart>
     </ChartContainer>
   );

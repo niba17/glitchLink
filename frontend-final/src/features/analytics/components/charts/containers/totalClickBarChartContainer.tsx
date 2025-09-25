@@ -5,20 +5,16 @@ import {
   DeviceKey,
   OSKey,
 } from "@/features/analytics/types/type";
-import { TotalClickBarChartUI } from "@/features/analytics/components/charts/ui/totalClickBarChartUI";
+import { TotalClickBarChartUI } from "../ui/totalClickBarChartUI";
 import { chartConfig } from "@/features/analytics/config/chartConfig";
 import {
   allKeys,
   referrers,
 } from "@/features/analytics/constants/analyticsKeys";
 
-// Capitalize helper
-const capitalize = (str: string) => {
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+const capitalize = (str: string) =>
+  str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
-// Logika transformasi khusus chart
 const getCombinedChartData = (clicks: any[]): TotalClickChartDataItem[] => {
   const counts = clicks.reduce((acc, click) => {
     if (click.browser)
@@ -31,7 +27,6 @@ const getCombinedChartData = (clicks: any[]): TotalClickChartDataItem[] => {
     return acc;
   }, {} as Record<string, number>);
 
-  // Filter: jangan masukkan referrers
   return allKeys
     .filter((key) => !referrers.includes(key as any))
     .map((key) => ({
@@ -49,6 +44,9 @@ interface TotalClickBarChartContainerProps {
 export function TotalClickBarChartContainer({
   clicksData,
 }: TotalClickBarChartContainerProps) {
-  const chartData = getCombinedChartData(clicksData);
+  const chartData = React.useMemo(
+    () => getCombinedChartData(clicksData),
+    [clicksData]
+  );
   return <TotalClickBarChartUI chartData={chartData} />;
 }

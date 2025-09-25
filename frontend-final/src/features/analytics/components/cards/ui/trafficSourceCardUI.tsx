@@ -25,16 +25,13 @@ export function TrafficSourceCardUI({
   } else if (isError) {
     content = (
       <div className="flex justify-center items-center w-full min-h-[120px] text-red-400">
-        Gagal memuat data
+        Error fetching data
       </div>
     );
   } else {
-    // fallback: kalau kosong tetap render chart kosong
-    const safeData = clicksData.length ? clicksData : [{ referrer: "Direct" }];
-
     content = (
       <div className="flex flex-col w-full">
-        <TrafficSourceBarChartContainer clicksData={safeData} />
+        <TrafficSourceBarChartContainer clicksData={clicksData ?? []} />
       </div>
     );
   }

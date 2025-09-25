@@ -27,7 +27,7 @@ export function TotalClickCardUI({
   } else if (isError) {
     content = (
       <div className="flex justify-center items-center w-full min-h-[120px] text-red-400">
-        Gagal memuat data
+        Error fetching data
       </div>
     );
   } else {
