@@ -14,9 +14,13 @@ export function TrafficSourceCardContainer({
 
   const clicksData = analyticsData?.clicks ?? [];
 
+  // total clicks
+  const totalClicks = clicksData.length;
+
   return (
     <TrafficSourceCardUI
       clicksData={clicksData}
+      totalClicks={totalClicks}
       isLoading={isLoading}
       isError={isError}
     />

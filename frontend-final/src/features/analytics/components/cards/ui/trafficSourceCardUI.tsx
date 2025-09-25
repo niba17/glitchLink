@@ -5,12 +5,14 @@ import { TrafficSourceBarChartContainer } from "../../charts/containers/trafficS
 
 interface TrafficSourceCardUIProps {
   clicksData: any[];
+  totalClicks: number;
   isLoading?: boolean;
   isError?: boolean;
 }
 
 export function TrafficSourceCardUI({
   clicksData,
+  totalClicks,
   isLoading,
   isError,
 }: TrafficSourceCardUIProps) {
@@ -39,7 +41,7 @@ export function TrafficSourceCardUI({
   return (
     <Card className="bg-foreground p-5">
       <CardHeader className="p-0 mb-5 text-lg font-semibold text-accent">
-        Traffic Sources
+        Total clicks : {totalClicks.toLocaleString()}
       </CardHeader>
       <CardContent className="p-0">{content}</CardContent>
     </Card>
